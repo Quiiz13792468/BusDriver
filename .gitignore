@@ -1,0 +1,11 @@
+.next/
+node_modules/
+.env
+.env.local
+.env.*
+!.env.example
+.vscode/
+.venv/
+export/
+tmp_tail.txt
+.DS_Store

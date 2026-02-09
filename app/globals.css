@@ -1,0 +1,196 @@
+@import 'sweetalert2/dist/sweetalert2.min.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --page-bg: #f5f1eb;
+  --page-accent: #efe8df;
+  --surface: #ffffff;
+  --surface-soft: #fdf9f2;
+  --ink: #13201f;
+  --muted: #4c5a57;
+  --ring: #77b9ad;
+  --shadow-strong: 0 24px 60px rgba(16, 24, 40, 0.12);
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(62, 166, 143, 0.12), transparent 38%),
+    radial-gradient(circle at 85% 8%, rgba(244, 97, 47, 0.12), transparent 40%),
+    linear-gradient(180deg, var(--page-bg), var(--page-accent));
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1.65;
+  letter-spacing: -0.2px;
+}
+
+.ui-overlay-backdrop {
+  animation: ui-fade-in 220ms ease-out;
+}
+
+.ui-overlay-panel {
+  animation: ui-pop-in 260ms ease-out;
+}
+
+details[open] .ui-collapse-panel {
+  animation: ui-collapse-in 240ms ease-out;
+  transform-origin: top center;
+}
+
+.ui-toast-show {
+  animation: ui-toast-in 240ms ease-out;
+}
+
+.ui-toast-hide {
+  animation: ui-toast-out 180ms ease-in;
+}
+
+@keyframes ui-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ui-pop-in {
+  0% { opacity: 0; transform: translateY(8px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes ui-collapse-in {
+  0% { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes ui-toast-in {
+  0% { opacity: 0; transform: translateY(8px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes ui-toast-out {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(6px) scale(0.98); }
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scroll {
+  overflow: hidden;
+}
+
+.date-input {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+@layer components {
+  .ui-card {
+    @apply rounded-[28px] border border-slate-200 bg-white/95 shadow-sm;
+  }
+
+  .ui-card-pad {
+    @apply p-4 sm:p-5;
+  }
+
+  .ui-card-compact {
+    @apply p-3 sm:p-4;
+  }
+
+  .ui-table-wrap {
+    @apply overflow-x-auto rounded-2xl border border-slate-200 bg-white;
+  }
+
+  .ui-empty {
+    @apply rounded-2xl border border-dashed border-slate-200 bg-white/70 p-6 text-center text-base text-slate-700;
+  }
+
+  .ui-control {
+    @apply rounded-2xl border border-slate-200 bg-white p-3 sm:p-4;
+  }
+
+  .ui-input {
+    @apply w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-base text-slate-900 shadow-inner focus:border-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-200;
+  }
+
+  .ui-select {
+    @apply w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-base text-slate-900 focus:border-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-200;
+  }
+
+  .ui-btn {
+    @apply inline-flex items-center justify-center rounded-2xl bg-primary-600 px-4 py-2.5 text-base font-semibold text-white transition hover:bg-primary-500 disabled:cursor-not-allowed disabled:bg-primary-300;
+  }
+
+  .ui-btn-outline {
+    @apply inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-2 text-base font-semibold text-slate-700 transition hover:border-primary-200 hover:bg-primary-50 hover:text-primary-700 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .ui-btn-accent {
+    @apply inline-flex items-center justify-center rounded-2xl bg-accent-600 px-4 py-2.5 text-base font-semibold text-white transition hover:bg-accent-500 disabled:cursor-not-allowed disabled:bg-accent-300;
+  }
+
+  .ui-table {
+    @apply min-w-full border-separate border-spacing-0 text-base;
+  }
+
+  .ui-thead {
+    @apply bg-slate-100 text-sm font-semibold text-slate-700;
+  }
+
+  .ui-th {
+    @apply border border-slate-200 px-3 py-2 text-center align-middle sm:px-4;
+  }
+
+  .ui-td {
+    @apply border border-slate-200 px-3 py-2 text-slate-700 sm:px-4;
+  }
+
+  .ui-collapse {
+    @apply ui-card ui-card-pad;
+  }
+
+  .ui-collapse-summary {
+    @apply cursor-pointer select-none text-lg font-semibold text-slate-900;
+  }
+
+  .ui-collapse-panel {
+    @apply mt-3 border-t border-slate-100 pt-3;
+  }
+}
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  ::selection {
+    background: rgba(18, 128, 110, 0.18);
+  }
+
+  a {
+    color: inherit;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    font-size: 1rem;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
