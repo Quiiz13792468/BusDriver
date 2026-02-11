@@ -11,6 +11,7 @@ import { MonthControls } from '@/app/(protected)/dashboard/_components/month-con
 import { LinkWithLoading } from '@/components/link-with-loading';
 import { AlertPanel } from '@/app/(protected)/dashboard/_components/alert-panel';
 import { UiTable, UiTbody, UiTh, UiThead, UiTr, UiTd } from '@/components/ui/table';
+import { AdSlot } from '@/components/ads/ad-slot';
 
 type Props = { searchParams?: Record<string, string | string[] | undefined> };
 
@@ -234,6 +235,8 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
           </UiTable>
         </div>
       </section>
+
+      <AdSlot placement="대시보드 하단" format="horizontal" />
     </div>
   );
 }
@@ -390,6 +393,8 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
           </div>
         )}
       </section>
+
+      <AdSlot placement="대시보드 하단" format="horizontal" />
     </div>
   );
 }

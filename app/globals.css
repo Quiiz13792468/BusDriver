@@ -13,7 +13,14 @@
   --muted: #4c5a57;
   --ring: #77b9ad;
   --shadow-strong: 0 24px 60px rgba(16, 24, 40, 0.12);
+  --radius-card: 24px;
+  --radius-control: 16px;
+  --radius-soft: 12px;
+  --control-height: 48px;
+  --space-card-pad: clamp(16px, 2vw, 22px);
+  --space-card-compact: clamp(12px, 1.6vw, 16px);
 }
+
 
 body {
   margin: 0;
@@ -97,47 +104,61 @@ details[open] .ui-collapse-panel {
 
 @layer components {
   .ui-card {
-    @apply rounded-[28px] border border-slate-200 bg-white/95 shadow-sm;
+    border-radius: var(--radius-card);
+    @apply border border-slate-200 bg-white/95 shadow-sm;
   }
 
   .ui-card-pad {
-    @apply p-4 sm:p-5;
+    padding: var(--space-card-pad);
   }
 
   .ui-card-compact {
-    @apply p-3 sm:p-4;
+    padding: var(--space-card-compact);
   }
 
   .ui-table-wrap {
-    @apply overflow-x-auto rounded-2xl border border-slate-200 bg-white;
+    border-radius: var(--radius-control);
+    @apply overflow-x-auto border border-slate-200 bg-white;
   }
 
   .ui-empty {
-    @apply rounded-2xl border border-dashed border-slate-200 bg-white/70 p-6 text-center text-base text-slate-700;
+    border-radius: var(--radius-control);
+    @apply border border-dashed border-slate-200 bg-white/70 p-6 text-center text-base text-slate-700;
   }
 
   .ui-control {
-    @apply rounded-2xl border border-slate-200 bg-white p-3 sm:p-4;
+    border-radius: var(--radius-control);
+    @apply border border-slate-200 bg-white p-3 sm:p-4;
   }
 
   .ui-input {
-    @apply w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-base text-slate-900 shadow-inner focus:border-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-200;
+    min-height: var(--control-height);
+    border-radius: var(--radius-control);
+    @apply w-full border border-slate-200 bg-white px-3 py-2.5 text-base text-slate-900 shadow-inner focus:border-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-200;
   }
 
   .ui-select {
-    @apply w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-base text-slate-900 focus:border-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-200;
+    min-height: var(--control-height);
+    border-radius: var(--radius-control);
+    @apply w-full border border-slate-200 bg-white px-3 py-2.5 text-base text-slate-900 focus:border-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-200;
   }
 
   .ui-btn {
-    @apply inline-flex items-center justify-center rounded-2xl bg-primary-600 px-4 py-2.5 text-base font-semibold text-white transition hover:bg-primary-500 disabled:cursor-not-allowed disabled:bg-primary-300;
+    min-height: var(--control-height);
+    border-radius: var(--radius-control);
+    @apply inline-flex items-center justify-center bg-primary-600 px-4 py-2.5 text-base font-semibold text-white transition hover:bg-primary-500 disabled:cursor-not-allowed disabled:bg-primary-300;
   }
 
   .ui-btn-outline {
-    @apply inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-2 text-base font-semibold text-slate-700 transition hover:border-primary-200 hover:bg-primary-50 hover:text-primary-700 disabled:cursor-not-allowed disabled:opacity-60;
+    min-height: var(--control-height);
+    border-radius: var(--radius-control);
+    @apply inline-flex items-center justify-center border border-slate-200 bg-white px-4 py-2 text-base font-semibold text-slate-700 transition hover:border-primary-200 hover:bg-primary-50 hover:text-primary-700 disabled:cursor-not-allowed disabled:opacity-60;
   }
 
   .ui-btn-accent {
-    @apply inline-flex items-center justify-center rounded-2xl bg-accent-600 px-4 py-2.5 text-base font-semibold text-white transition hover:bg-accent-500 disabled:cursor-not-allowed disabled:bg-accent-300;
+    min-height: var(--control-height);
+    border-radius: var(--radius-control);
+    @apply inline-flex items-center justify-center bg-accent-600 px-4 py-2.5 text-base font-semibold text-white transition hover:bg-accent-500 disabled:cursor-not-allowed disabled:bg-accent-300;
   }
 
   .ui-table {
@@ -162,6 +183,11 @@ details[open] .ui-collapse-panel {
 
   .ui-collapse-summary {
     @apply cursor-pointer select-none text-lg font-semibold text-slate-900;
+  }
+
+  .ui-badge {
+    border-radius: 999px;
+    @apply inline-flex items-center gap-1 border border-slate-200 bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700;
   }
 
   .ui-collapse-panel {
@@ -192,5 +218,24 @@ details[open] .ui-collapse-panel {
   :focus-visible {
     outline: 3px solid var(--ring);
     outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .ui-overlay-backdrop,
+  .ui-overlay-panel,
+  .ui-toast-show,
+  .ui-toast-hide,
+  .ui-collapse-panel {
+    animation: none !important;
   }
 }

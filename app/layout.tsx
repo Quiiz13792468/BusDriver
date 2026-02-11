@@ -1,4 +1,5 @@
 ﻿import type { Metadata } from 'next';
+import Script from 'next/script';
 import { Nanum_Gothic } from 'next/font/google';
 import { ReactNode } from 'react';
 
@@ -18,9 +19,20 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const adsEnabled = process.env.NEXT_PUBLIC_ENABLE_ADS === 'true';
+  const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className={`${gowun.className} antialiased`}>
+        {adsEnabled && adsClient ? (
+          <Script
+            id="adsense-script"
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsClient}`}
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
+        ) : null}
         <Providers>
           <main className="min-h-screen">{children}</main>
         </Providers>
