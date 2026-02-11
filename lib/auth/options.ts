@@ -3,6 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 
 import { getUserByEmail } from '@/lib/data/user';
+import { logAuthAttempt } from '@/lib/auth/audit';
 import { loginSchema } from '@/lib/validation';
 
 export const authOptions: NextAuthOptions = {
@@ -24,21 +25,49 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         const parsed = loginSchema.safeParse(credentials);
-        if (!parsed.success) return null;
+        if (!parsed.success) {
+          await logAuthAttempt({
+            email: (credentials as any)?.email,
+            role: (credentials as any)?.role,
+            success: false,
+            reason: 'INVALID_PAYLOAD'
+          });
+          return null;
+        }
 
         const { email, password, role } = parsed.data;
-        const user = await getUserByEmail(email);
-        if (!user || user.role !== role) return null;
 
-        const isValid = await bcrypt.compare(password, user.passwordHash);
-        if (!isValid) return null;
+        try {
+          const user = await getUserByEmail(email);
+          if (!user) {
+            await logAuthAttempt({ email, role, success: false, reason: 'USER_NOT_FOUND' });
+            return null;
+          }
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role
-        } as any;
+          if (user.role !== role) {
+            await logAuthAttempt({ email, role, success: false, reason: 'ROLE_MISMATCH', userId: user.id });
+            return null;
+          }
+
+          const isValid = await bcrypt.compare(password, user.passwordHash);
+          if (!isValid) {
+            await logAuthAttempt({ email, role, success: false, reason: 'PASSWORD_MISMATCH', userId: user.id });
+            return null;
+          }
+
+          await logAuthAttempt({ email, role, success: true, reason: 'LOGIN_SUCCESS', userId: user.id });
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role
+          } as any;
+        } catch (error) {
+          await logAuthAttempt({ email, role, success: false, reason: 'INTERNAL_ERROR' });
+          console.error('[auth] authorize internal error', error);
+          return null;
+        }
       }
     })
   ],
