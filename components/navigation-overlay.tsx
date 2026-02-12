@@ -41,7 +41,7 @@ export function PathnameWatcher() {
   const pathname = usePathname();
   const { hide } = useNavigationOverlay();
   useEffect(() => {
-    const t = setTimeout(() => hide(), 150);
+    const t = setTimeout(() => hide(), 40);
     return () => clearTimeout(t);
   }, [pathname, hide]);
   return null;

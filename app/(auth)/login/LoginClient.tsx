@@ -8,6 +8,7 @@ import { getSession, signIn } from 'next-auth/react';
 
 import { BusIcon } from '@/components/layout/icons';
 import { loginSchema } from '@/lib/validation';
+import { fireAutoPopup } from '@/lib/ui/swal';
 
 const STORAGE_KEY = 'bus-login-preferences';
 
@@ -43,8 +44,6 @@ export default function LoginClient() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [justLoggedIn, setJustLoggedIn] = useState<string | null>(null);
-  const [justLoggedOut, setJustLoggedOut] = useState(false);
   const [signingUp, setSigningUp] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
   const [signupRole, setSignupRole] = useState<RoleKey>('parent');
@@ -81,24 +80,15 @@ export default function LoginClient() {
     if (searchParams?.get('loggedOut') !== '1') return;
     if (logoutShownRef.current) return;
     logoutShownRef.current = true;
-    setJustLoggedOut(true);
-    const t = setTimeout(() => {
+    void (async () => {
+      await fireAutoPopup({
+        icon: 'success',
+        title: '로그아웃 완료',
+        text: '고객님의 정보를 안전하게 로그아웃 처리하였습니다.'
+      });
       router.replace('/login');
-    }, 500);
-    return () => {
-      clearTimeout(t);
-    };
+    })();
   }, [searchParams, router]);
-
-  useEffect(() => {
-    if (!justLoggedOut) return;
-    const t = setTimeout(() => {
-      setJustLoggedOut(false);
-    }, 500);
-    return () => {
-      clearTimeout(t);
-    };
-  }, [justLoggedOut]);
 
   useEffect(() => {
     if (signupRole !== 'parent') {
@@ -161,11 +151,13 @@ export default function LoginClient() {
 
     const session = await getSession();
     const displayName = session?.user?.name ?? email;
-    setJustLoggedIn(displayName);
-    setTimeout(() => {
-      router.push(result?.url ?? redirectUrl);
-      router.refresh();
-    }, 500);
+    await fireAutoPopup({
+      icon: 'success',
+      title: `${displayName}님 환영합니다!`,
+      text: '로그인에 성공했습니다. 대시보드로 이동합니다.'
+    });
+    router.push(result?.url ?? redirectUrl);
+    router.refresh();
   }
 
   return (
@@ -178,7 +170,7 @@ export default function LoginClient() {
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: 'easeOut' }}
+        transition={{ duration: 0.25, ease: 'easeOut' }}
         className="relative w-full max-w-xl ui-card rounded-[32px] p-8 text-slate-900 shadow-2xl"
       >
         <div className="flex items-center gap-3">
@@ -273,25 +265,6 @@ export default function LoginClient() {
         </div>
 
       </motion.div>
-
-      {justLoggedIn ? (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#13201f]/30 backdrop-blur-sm">
-          <div className="w-[340px] ui-card p-6 text-center shadow-2xl">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">✓</div>
-            <p className="text-lg font-semibold text-slate-800">{justLoggedIn}님 환영합니다!</p>
-            <p className="mt-1 text-base text-slate-700">로그인에 성공했습니다. 대시보드로 이동합니다.</p>
-          </div>
-        </div>
-      ) : null}
-      {justLoggedOut ? (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#13201f]/30 backdrop-blur-sm">
-          <div className="w-[340px] ui-card p-6 text-center shadow-2xl">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">✓</div>
-            <p className="text-lg font-semibold text-slate-800">로그아웃 완료</p>
-            <p className="mt-1 text-base text-slate-700">고객님의 정보를 안전하게 로그아웃 처리하였습니다.</p>
-          </div>
-        </div>
-      ) : null}
 
       {signupOpen ? (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm">

@@ -35,24 +35,24 @@ body {
 }
 
 .ui-overlay-backdrop {
-  animation: ui-fade-in 220ms ease-out;
+  animation: ui-fade-in 140ms ease-out;
 }
 
 .ui-overlay-panel {
-  animation: ui-pop-in 260ms ease-out;
+  animation: ui-pop-in 160ms ease-out;
 }
 
 details[open] .ui-collapse-panel {
-  animation: ui-collapse-in 240ms ease-out;
+  animation: ui-collapse-in 150ms ease-out;
   transform-origin: top center;
 }
 
 .ui-toast-show {
-  animation: ui-toast-in 240ms ease-out;
+  animation: ui-toast-in 150ms ease-out;
 }
 
 .ui-toast-hide {
-  animation: ui-toast-out 180ms ease-in;
+  animation: ui-toast-out 120ms ease-in;
 }
 
 @keyframes ui-fade-in {

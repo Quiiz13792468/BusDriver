@@ -14,7 +14,7 @@ const gowun = Nanum_Gothic({
 });
 
 export const metadata: Metadata = {
-  title: '학교버스 관리 서비스',
+  title: '통학버스 관리 서비스',
   description: '학교 버스 학생 및 요금 현황 관리'
 };
 

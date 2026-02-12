@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type MutableRefObject } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import Swal from 'sweetalert2';
+import { fireAutoPopup } from '@/lib/ui/swal';
 import { LoadingOverlay } from '@/components/loading-overlay';
 
 import { recordPaymentAction } from '@/app/(protected)/schools/actions';
@@ -78,12 +78,10 @@ export function RecordPaymentForm({ schoolId, students, onSuccess }: RecordPayme
     if (!state || state.status !== 'success') return;
     if (handledSuccessRef.current) return;
     handledSuccessRef.current = true;
-    void Swal.fire({
+    void fireAutoPopup({
       icon: 'success',
       title: '저장 완료',
-      text: state.message ?? '입금 기록이 저장되었습니다.',
-      timer: 2000,
-      showConfirmButton: false
+      text: state.message ?? '입금 기록이 저장되었습니다.'
     });
     onSuccess?.();
   }, [state, onSuccess]);
