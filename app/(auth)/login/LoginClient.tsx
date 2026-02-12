@@ -101,6 +101,66 @@ export default function LoginClient() {
 
   const roleCards = useMemo(() => Object.entries(ROLE_MAP) as [RoleKey, (typeof ROLE_MAP)[RoleKey]][], []);
 
+  function resetSignupForm() {
+    setSignupRole('parent');
+    setSignupEmail('');
+    setSignupName('');
+    setSignupParentPhone('');
+    setSignupStudentName('');
+    setSignupStudentPhone('');
+    setSignupPassword('');
+    setSignupAdminEmail('');
+    setSignupError(null);
+    setSigningUp(false);
+  }
+
+  async function handleSignupSubmit() {
+    if (signingUp) return;
+
+    setSignupError(null);
+    setSigningUp(true);
+
+    const isParent = signupRole === 'parent';
+    const payload = {
+      email: signupEmail.trim(),
+      name: signupName.trim(),
+      password: signupPassword,
+      role: isParent ? 'PARENT' : 'ADMIN',
+      adminEmail: isParent ? signupAdminEmail.trim() : undefined,
+      studentName: isParent ? signupStudentName.trim() : undefined,
+      studentPhone: isParent ? signupStudentPhone.trim() : undefined,
+      parentPhone: isParent ? signupParentPhone.trim() : undefined
+    };
+
+    try {
+      const res = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json().catch(() => ({} as any));
+      if (!res.ok || !data?.ok) {
+        const msg = data?.error ?? '회원가입 요청 처리에 실패했습니다.';
+        setSignupError(msg);
+        return;
+      }
+
+      await fireAutoPopup({
+        icon: 'success',
+        title: '회원가입 요청 완료',
+        text: '가입 요청이 처리되었습니다. 로그인 후 서비스를 이용해주세요.'
+      });
+
+      setSignupOpen(false);
+      resetSignupForm();
+    } catch {
+      setSignupError('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+      setSigningUp(false);
+    }
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
@@ -256,7 +316,7 @@ export default function LoginClient() {
         <div className="mt-6 flex items-center justify-between text-sm text-slate-600">
           <button
             type="button"
-            onClick={() => setSignupOpen(true)}
+            onClick={() => { setSignupError(null); setSignupOpen(true); }}
             className="ui-btn-outline px-4 py-2 text-slate-700"
           >
             회원가입 요청
@@ -273,7 +333,7 @@ export default function LoginClient() {
               <h2 className="text-xl font-semibold text-slate-900">회원가입 요청</h2>
               <button
                 type="button"
-                onClick={() => setSignupOpen(false)}
+                onClick={() => { setSignupOpen(false); resetSignupForm(); }}
                 className="ui-btn-outline px-3 py-1 text-sm text-slate-600"
               >
                 닫기
@@ -318,6 +378,13 @@ export default function LoginClient() {
               {signupRole === 'parent' ? (
                 <>
                   <input
+                    type="email"
+                    placeholder="담당 기사님(관리자) 이메일"
+                    value={signupAdminEmail}
+                    onChange={(event) => setSignupAdminEmail(event.target.value)}
+                    className="ui-input px-4 py-3"
+                  />
+                  <input
                     type="text"
                     placeholder="학부모 전화번호"
                     value={signupParentPhone}
@@ -339,15 +406,7 @@ export default function LoginClient() {
                     className="ui-input px-4 py-3"
                   />
                 </>
-              ) : (
-                <input
-                  type="email"
-                  placeholder="관리자 승인용 이메일"
-                  value={signupAdminEmail}
-                  onChange={(event) => setSignupAdminEmail(event.target.value)}
-                  className="ui-input px-4 py-3"
-                />
-              )}
+              ) : null}
               <input
                 type="password"
                 placeholder="비밀번호"
@@ -366,20 +425,21 @@ export default function LoginClient() {
             <div className="mt-5 flex items-center justify-end gap-3">
               <button
                 type="button"
-                onClick={() => setSignupOpen(false)}
+                onClick={() => { setSignupOpen(false); resetSignupForm(); }}
                 className="ui-btn-outline px-4 py-2 text-base text-slate-700"
               >
                 취소
               </button>
               <button
                 type="button"
-                onClick={() => setSigningUp(true)}
+                onClick={handleSignupSubmit}
                 className={clsx(
                   'ui-btn px-4 py-2 text-base font-semibold',
                   signingUp ? 'bg-slate-200 text-slate-500 hover:bg-slate-200' : 'bg-primary-600 text-white'
                 )}
+                disabled={signingUp}
               >
-                요청 보내기
+                {signingUp ? '요청 처리 중...' : '요청 보내기'}
               </button>
             </div>
           </div>

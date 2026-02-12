@@ -193,6 +193,92 @@ details[open] .ui-collapse-panel {
   .ui-collapse-panel {
     @apply mt-3 border-t border-slate-100 pt-3;
   }
+
+
+  .swal2-container.swal2-backdrop-show {
+    background: rgba(19, 32, 31, 0.28) !important;
+    backdrop-filter: blur(3px);
+  }
+
+  .swal2-popup {
+    border-radius: var(--radius-card) !important;
+    border: 1px solid rgb(226 232 240 / 0.95) !important;
+    background: rgb(255 255 255 / 0.95) !important;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.06) !important;
+    padding: var(--space-card-pad) !important;
+  }
+
+  .swal2-title {
+    margin: 0 !important;
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    line-height: 1.35 !important;
+  }
+
+  .swal2-html-container {
+    margin: 0.45rem 0 0 !important;
+    font-size: 1rem !important;
+    color: #334155 !important;
+    line-height: 1.55 !important;
+  }
+
+  .swal2-actions {
+    margin-top: 0.9rem !important;
+    gap: 0.5rem !important;
+  }
+
+  .swal2-actions .swal2-styled {
+    min-height: var(--control-height) !important;
+    border-radius: var(--radius-control) !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    padding: 0.55rem 1.1rem !important;
+    margin: 0 !important;
+  }
+
+
+  .swal2-actions .swal2-confirm {
+    background: #0f6d5d !important;
+    color: #ffffff !important;
+    border: 1px solid #0f6d5d !important;
+    box-shadow: none !important;
+  }
+
+  .swal2-actions .swal2-confirm:hover,
+  .swal2-actions .swal2-confirm:focus {
+    background: #12806e !important;
+    border-color: #12806e !important;
+  }
+
+  .swal2-actions .swal2-cancel {
+    background: #ffffff !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
+  }
+
+  .swal2-actions .swal2-cancel:hover,
+  .swal2-actions .swal2-cancel:focus {
+    background: #ecf5f2 !important;
+    color: #0d564a !important;
+    border-color: #a8d7cc !important;
+  }
+
+  .swal2-icon.swal2-success {
+    border-color: #a8d7cc !important;
+    color: #0f6d5d !important;
+  }
+
+  .swal2-icon.swal2-warning {
+    border-color: #ffc7a3 !important;
+    color: #dc4e20 !important;
+  }
+
+  .swal2-icon.swal2-error {
+    border-color: #fecaca !important;
+    color: #b91c1c !important;
+  }
 }
 
 @layer base {
