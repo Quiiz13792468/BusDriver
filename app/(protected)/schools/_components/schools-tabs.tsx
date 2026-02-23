@@ -35,7 +35,7 @@ export function SchoolsTabs({ schools, students }: SchoolsTabsProps) {
     <div className="space-y-6">
       <PageHeader title="학교·학생 관리" description="학교와 학생 정보를 탭으로 나누어 관리합니다." />
 
-      <div className="flex flex-wrap gap-2 border-b border-slate-200">
+      <div className="grid grid-cols-2 gap-2 border-b border-slate-200 sm:flex sm:flex-wrap">
         <TabButton active={activeTab === "schools"} onClick={() => setActiveTab("schools")}>
           학교관리
         </TabButton>
@@ -58,7 +58,7 @@ function TabButton({ active, children, onClick }: { active: boolean; children: R
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-t-2xl border px-4 py-2 text-base font-semibold transition ${
+      className={`w-full rounded-t-2xl border px-4 py-2 text-base font-semibold transition sm:w-auto ${
         active
           ? "border-slate-200 border-b-transparent bg-white text-slate-900 shadow-sm"
           : "border-slate-200 bg-slate-50/25 text-slate-700 hover:bg-white hover:text-slate-900"

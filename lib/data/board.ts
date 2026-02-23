@@ -1,3 +1,5 @@
+import 'server-only';
+
 import crypto from 'node:crypto';
 
 import type { BoardCommentRecord, BoardPostRecord } from '@/lib/data/types';

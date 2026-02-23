@@ -139,7 +139,7 @@ export default function LoginClient() {
         body: JSON.stringify(payload)
       });
 
-      const data = await res.json().catch(() => ({} as any));
+      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
       if (!res.ok || !data?.ok) {
         const msg = data?.error ?? '회원가입 요청 처리에 실패했습니다.';
         setSignupError(msg);
@@ -231,7 +231,7 @@ export default function LoginClient() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, ease: 'easeOut' }}
-        className="relative w-full max-w-xl ui-card rounded-[32px] p-8 text-slate-900 shadow-2xl"
+        className="relative w-full max-w-xl ui-card rounded-[32px] p-6 text-slate-900 shadow-2xl sm:p-8"
       >
         <div className="flex items-center gap-3">
           <span className="rounded-2xl bg-primary-100/70 p-3">
@@ -239,10 +239,11 @@ export default function LoginClient() {
           </span>
           <div>
             <h1 className="text-3xl font-semibold">셔틀콕! 로그인</h1>
+            <p className="mt-1 text-sm text-slate-600">자동 로그인: 최근 30분 내 로그인 기록</p>
           </div>
         </div>
 
-        <p className="mt-4 text-lg text-slate-700">역할을 선택하고 정보를 입력해주세요. 최근 로그인 정보는 자동으로 저장됩니다.</p>
+        <p className="mt-4 text-lg text-slate-700">역할을 선택하고 로그인해주세요.</p>
 
         <div className="mt-6 grid grid-cols-2 gap-4">
           {roleCards.map(([key, info]) => {
@@ -253,7 +254,7 @@ export default function LoginClient() {
                 type="button"
                 onClick={() => setRole(key)}
                 className={clsx(
-                  'rounded-2xl border px-4 py-4 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-200',
+                  'rounded-2xl border px-4 py-3.5 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-200',
                   selected
                     ? 'border-primary-300 bg-primary-50 text-primary-800 shadow-md'
                     : 'border-slate-200 bg-white text-slate-800 shadow-sm hover:border-primary-300 hover:bg-primary-50 hover:text-primary-800'
@@ -313,7 +314,7 @@ export default function LoginClient() {
           </button>
         </form>
 
-        <div className="mt-6 flex items-center justify-between text-sm text-slate-600">
+        <div className="mt-6 flex justify-end">
           <button
             type="button"
             onClick={() => { setSignupError(null); setSignupOpen(true); }}
@@ -321,7 +322,6 @@ export default function LoginClient() {
           >
             회원가입 요청
           </button>
-          <p>자동로그인: 최근 30분 내 로그인 기록</p>
         </div>
 
       </motion.div>

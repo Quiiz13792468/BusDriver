@@ -3,6 +3,7 @@ import { getRoutesBySchool } from '@/lib/data/route';
 import { getSchools } from '@/lib/data/school';
 import { getStudentsByParent } from '@/lib/data/student';
 import { ChangePickupButton } from '@/components/change-pickup-button';
+import { PageHeader } from '@/components/layout/page-header';
 
 export default async function ParentPickupPage() {
   const session = await requireSession('PARENT');
@@ -20,10 +21,10 @@ export default async function ParentPickupPage() {
 
   return (
     <div className="space-y-6">
-      <header className="ui-card ui-card-pad">
-        <h1 className="text-2xl font-semibold text-slate-900">탑승지점 변경 요청</h1>
-        <p className="text-base text-slate-700">학생의 노선과 탑승 지점을 선택하고 변경 요청을 등록하세요.</p>
-      </header>
+      <PageHeader
+        title="탑승지점 변경 요청"
+        description="학생의 노선과 탑승 지점을 선택하고 변경 요청을 등록하세요."
+      />
 
       {students.length === 0 ? (
         <section className="ui-empty">

@@ -1,3 +1,5 @@
+import 'server-only';
+
 import crypto from 'node:crypto';
 
 import type { RouteRecord, StudentRecord } from '@/lib/data/types';

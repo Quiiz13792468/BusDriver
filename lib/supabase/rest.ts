@@ -1,3 +1,5 @@
+import 'server-only';
+
 const SUPABASE_URL = process.env.SUPABASE_URL ?? '';
 const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
 
@@ -25,11 +27,11 @@ export async function restSelect<T>(table: string, query: Record<string, string 
   const url = baseUrl(`/rest/v1/${table}?${params.toString()}`);
   const res = await fetch(url, {
     headers: {
-      apikey: SERVICE_ROLE!,
+      apikey: SERVICE_ROLE,
       Authorization: `Bearer ${SERVICE_ROLE}`,
       'Content-Type': 'application/json'
     }
-  } as any);
+  });
   if (!res.ok) throw new Error(`Supabase select ${table} failed: ${res.status} ${res.statusText}`);
   return (await res.json()) as T[];
 }
@@ -44,13 +46,13 @@ export async function restInsert<T>(table: string, rows: T | T[], opts?: { upser
   const res = await fetch(url, {
     method: 'POST',
     headers: {
-      apikey: SERVICE_ROLE!,
+      apikey: SERVICE_ROLE,
       Authorization: `Bearer ${SERVICE_ROLE}`,
       'Content-Type': 'application/json',
       Prefer: 'return=representation,resolution=merge-duplicates'
     },
     body: JSON.stringify(rows)
-  } as any);
+  });
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`Supabase insert ${table} failed: ${res.status} ${res.statusText} - ${text}`);
@@ -65,13 +67,13 @@ export async function restPatch(table: string, match: Record<string, string>, pa
   const res = await fetch(url, {
     method: 'PATCH',
     headers: {
-      apikey: SERVICE_ROLE!,
+      apikey: SERVICE_ROLE,
       Authorization: `Bearer ${SERVICE_ROLE}`,
       'Content-Type': 'application/json',
       Prefer: 'return=representation'
     },
     body: JSON.stringify(patch)
-  } as any);
+  });
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`Supabase patch ${table} failed: ${res.status} ${res.statusText} - ${text}`);
@@ -86,10 +88,9 @@ export async function restDelete(table: string, match: Record<string, string>) {
   const res = await fetch(url, {
     method: 'DELETE',
     headers: {
-      apikey: SERVICE_ROLE!,
+      apikey: SERVICE_ROLE,
       Authorization: `Bearer ${SERVICE_ROLE}`
     }
-  } as any);
+  });
   if (!res.ok) throw new Error(`Supabase delete ${table} failed: ${res.status} ${res.statusText}`);
 }
-

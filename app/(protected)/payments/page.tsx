@@ -134,21 +134,27 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
 
       {/* 컨트롤 바 */}
       <section className="ui-control">
-        <form method="get" className="flex flex-wrap items-center gap-2">
-          <label className="text-sm font-semibold text-slate-700">학교</label>
-          <select name="schoolId" defaultValue={selectedSchoolId} className="ui-select w-auto">
-            <option value="ALL">전체</option>
-            {schools.map((s) => (
-              <option key={s.id} value={s.id}>{s.name}</option>
-            ))}
-          </select>
-          <label className="ml-2 text-sm font-semibold text-slate-700">연도</label>
-          <select name="year" defaultValue={String(selectedYear)} className="ui-select w-auto">
-            {Array.from({ length: 5 }, (_, i) => selectedYear - 2 + i).map((yy) => (
-              <option key={yy} value={yy}>{yy}</option>
-            ))}
-          </select>
-          <button className="ui-btn-outline border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100">조회</button>
+        <form method="get" className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+          <div className="grid grid-cols-[auto_1fr] items-center gap-2">
+            <label className="text-sm font-semibold text-slate-700" htmlFor="schoolId">학교</label>
+            <select id="schoolId" name="schoolId" defaultValue={selectedSchoolId} className="ui-select w-full sm:w-auto">
+              <option value="ALL">전체</option>
+              {schools.map((s) => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="grid grid-cols-[auto_1fr] items-center gap-2">
+            <label className="text-sm font-semibold text-slate-700" htmlFor="year">연도</label>
+            <select id="year" name="year" defaultValue={String(selectedYear)} className="ui-select w-full sm:w-auto">
+              {Array.from({ length: 5 }, (_, i) => selectedYear - 2 + i).map((yy) => (
+                <option key={yy} value={yy}>{yy}</option>
+              ))}
+            </select>
+          </div>
+          <button className="ui-btn-outline col-span-2 border-amber-300 bg-amber-50 py-2 text-amber-700 hover:bg-amber-100 sm:col-span-1 sm:py-1.5">
+            조회
+          </button>
         </form>
       </section>
 

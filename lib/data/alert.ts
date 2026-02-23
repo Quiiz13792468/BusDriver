@@ -1,3 +1,5 @@
+import 'server-only';
+
 import crypto from 'node:crypto';
 
 import type { AlertRecord, AlertType } from '@/lib/data/types';

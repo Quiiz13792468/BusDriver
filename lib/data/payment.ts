@@ -1,3 +1,5 @@
+import 'server-only';
+
 import type { PaymentRecord, PaymentStatus } from '@/lib/data/types';
 import { getStudentsBySchool } from '@/lib/data/student';
 import { supaEnabled, restSelect, restInsert, restDelete } from '@/lib/supabase/rest';

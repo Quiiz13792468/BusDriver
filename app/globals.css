@@ -5,6 +5,7 @@
 
 :root {
   color-scheme: light;
+  --font-body: "Apple SD Gothic Neo", "Malgun Gothic", "Nanum Gothic", system-ui, -apple-system, "Segoe UI", sans-serif;
   --page-bg: #f5f1eb;
   --page-accent: #efe8df;
   --surface: #ffffff;
@@ -24,6 +25,7 @@
 
 body {
   margin: 0;
+  font-family: var(--font-body);
   background:
     radial-gradient(circle at 18% 12%, rgba(62, 166, 143, 0.12), transparent 38%),
     radial-gradient(circle at 85% 8%, rgba(244, 97, 47, 0.12), transparent 40%),

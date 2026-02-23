@@ -1,3 +1,5 @@
+import 'server-only';
+
 import crypto from 'node:crypto';
 
 import type { SchoolRecord } from '@/lib/data/types';
