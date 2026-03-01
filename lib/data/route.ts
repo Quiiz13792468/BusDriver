@@ -2,7 +2,7 @@ import 'server-only';
 
 import crypto from 'node:crypto';
 
-import type { RouteRecord, StudentRecord } from '@/lib/data/types';
+import type { RouteRecord, RouteStopRecord, StudentRecord } from '@/lib/data/types';
 import { getStudentsBySchool, updateStudent } from '@/lib/data/student';
 import { supaEnabled, restSelect, restInsert, restPatch, restDelete } from '@/lib/supabase/rest';
 
@@ -29,11 +29,24 @@ export async function updateRoute(id: string, patch: Partial<{ name: string; sto
   const now = new Date().toISOString();
   if (patch.name) await restPatch('routes', { id }, { name: patch.name, updated_at: now });
   if (patch.stops) {
+    // Preserve existing coords when stop names match (e.g. on reorder)
+    const coordsByName = new Map<string, { lat: number | null; lng: number | null }>();
+    for (const s of current.stopRecords) {
+      coordsByName.set(s.name, { lat: s.lat, lng: s.lng });
+    }
     await restDelete('route_stops', { route_id: id });
-    const rows = patch.stops.map((name, idx) => ({ id: crypto.randomUUID(), route_id: id, name, position: idx }));
+    const rows = patch.stops.map((name, idx) => {
+      const c = coordsByName.get(name);
+      return { id: crypto.randomUUID(), route_id: id, name, position: idx, lat: c?.lat ?? null, lng: c?.lng ?? null };
+    });
     if (rows.length) await restInsert('route_stops', rows);
   }
   return (await getRouteById(id))!;
+}
+
+export async function updateStopCoords(stopId: string, lat: number, lng: number): Promise<void> {
+  ensureSupabase();
+  await restPatch('route_stops', { id: stopId }, { lat, lng });
 }
 
 export async function deleteRoute(id: string) {
@@ -50,7 +63,16 @@ export async function getRouteById(id: string) {
   const r = rows[0];
   if (!r) return null;
   const stops = await restSelect<any>('route_stops', { route_id: id }, { order: 'position.asc' });
-  const rec: RouteRecord = { id: r.id, schoolId: r.school_id, name: r.name, stops: stops.map((s) => s.name), createdAt: r.created_at, updatedAt: r.updated_at };
+  const stopRecords: RouteStopRecord[] = stops.map((s) => ({
+    id: s.id,
+    routeId: id,
+    name: s.name,
+    position: s.position,
+    lat: s.lat ?? null,
+    lng: s.lng ?? null,
+    description: s.description ?? null,
+  }));
+  const rec: RouteRecord = { id: r.id, schoolId: r.school_id, name: r.name, stops: stops.map((s) => s.name), stopRecords, createdAt: r.created_at, updatedAt: r.updated_at };
   return rec;
 }
 
@@ -60,7 +82,16 @@ export async function getRoutesBySchool(schoolId: string): Promise<RouteRecord[]
   const all: RouteRecord[] = [];
   for (const r of rows) {
     const stops = await restSelect<any>('route_stops', { route_id: r.id }, { order: 'position.asc' });
-    all.push({ id: r.id, schoolId: r.school_id, name: r.name, stops: stops.map((s) => s.name), createdAt: r.created_at, updatedAt: r.updated_at });
+    const stopRecords: RouteStopRecord[] = stops.map((s) => ({
+      id: s.id,
+      routeId: r.id,
+      name: s.name,
+      position: s.position,
+      lat: s.lat ?? null,
+      lng: s.lng ?? null,
+      description: s.description ?? null,
+    }));
+    all.push({ id: r.id, schoolId: r.school_id, name: r.name, stops: stops.map((s) => s.name), stopRecords, createdAt: r.created_at, updatedAt: r.updated_at });
   }
   return all;
 }

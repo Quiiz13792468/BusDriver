@@ -97,6 +97,28 @@ export async function getBoardPostWithComments(postId: string) {
   return { ...post, author: author ? { id: author.id, name: author.name } : { id: post.authorId, name: null }, comments: topLevel.map((n) => decorate(n)) };
 }
 
+export async function getBoardPostById(postId: string): Promise<BoardPostRecord | null> {
+  ensureSupabase();
+  const rows = await restSelect<any>('board_posts', { id: postId }, { limit: 1 });
+  const r = rows[0];
+  if (!r) return null;
+  return {
+    id: r.id,
+    title: r.title,
+    content: r.content,
+    authorId: r.author_id,
+    schoolId: r.school_id ?? null,
+    targetParentId: r.target_parent_id ?? null,
+    parentOnly: !!r.parent_only,
+    locked: !!r.locked,
+    viewCount: r.view_count ?? 0,
+    commentCount: r.comment_count ?? 0,
+    lastCommentAt: r.last_comment_at ?? null,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  };
+}
+
 export async function createBoardPost(input: {
   title: string;
   content: string;

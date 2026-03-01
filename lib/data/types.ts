@@ -110,11 +110,22 @@ export type AlertRecord = {
   createdAt: string;
 };
 
+export type RouteStopRecord = {
+  id: string;
+  routeId: string;
+  name: string;
+  position: number;
+  lat: number | null;
+  lng: number | null;
+  description: string | null;
+};
+
 export type RouteRecord = {
   id: string;
   schoolId: string;
   name: string;
   stops: string[];
+  stopRecords: RouteStopRecord[];
   createdAt: string;
   updatedAt: string;
 };

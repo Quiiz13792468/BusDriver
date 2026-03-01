@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(find:*)",
+      "Skill(bkit)",
+      "WebSearch",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}

@@ -1,13 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { signOut } from 'next-auth/react';
 import clsx from 'clsx';
-
-import { BusIcon } from '@/components/layout/icons';
-import { useNavigationOverlay } from '@/components/navigation-overlay';
 
 type HeaderUserMenuProps = {
   role?: string;
@@ -15,134 +10,73 @@ type HeaderUserMenuProps = {
   email?: string | null;
 };
 
-type MenuItem = {
-  href?: string;
-  label: string;
-  action?: () => Promise<void> | void;
-};
-
 export function HeaderUserMenu({ role, name, email }: HeaderUserMenuProps) {
-  const pathname = usePathname() ?? '';
-  const { show } = useNavigationOverlay();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  const baseItems = useMemo<MenuItem[]>(() => {
-    if (role === 'ADMIN') {
-      const adminItems: MenuItem[] = [
-        { href: '/dashboard', label: '대시보드' },
-        { href: '/schools', label: '학교/학생 관리' },
-        { href: '/payments', label: '입금 현황' },
-        { href: '/board', label: '문의 요청' }
-      ];
-      adminItems.push({ href: '/payments?payment=1', label: '입금 기록 추가' });
-      return adminItems;
-    }
-    return [
-      { href: '/dashboard', label: '대시보드' },
-      { href: '/board', label: '문의 게시판' }
-    ];
-  }, [role]);
+  const displayName = name ?? email ?? (role === 'ADMIN' ? '관리자' : '사용자');
+  const roleLabel   = role === 'ADMIN' ? '관리자' : '학부모';
+  const initial     = (displayName[0] ?? '?').toUpperCase();
 
-  const items = useMemo<MenuItem[]>(
-    () => [
-      ...baseItems,
-      {
-        label: '로그아웃',
-        action: () => {
-          void signOut({ callbackUrl: '/login' });
-        }
-      }
-    ],
-    [baseItems]
-  );
-
-  const toggleOpen = useCallback(() => {
-    setOpen((prev) => !prev);
-  }, []);
-
-  const close = useCallback(() => {
-    setOpen(false);
-  }, []);
+  const close = useCallback(() => setOpen(false), []);
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (!containerRef.current) return;
-      if (!containerRef.current.contains(event.target as Node)) {
-        close();
-      }
+    if (!open) return;
+    function onOutside(e: MouseEvent) {
+      if (!containerRef.current?.contains(e.target as Node)) close();
     }
-
-    if (open) {
-      window.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      window.removeEventListener('mousedown', handleClickOutside);
-    };
+    window.addEventListener('mousedown', onOutside);
+    return () => window.removeEventListener('mousedown', onOutside);
   }, [open, close]);
-
-  const displayName = name ?? email ?? (role === 'ADMIN' ? '관리자' : '사용자');
 
   return (
     <div className="relative" ref={containerRef}>
       <button
         type="button"
-        onClick={toggleOpen}
-        className="ui-btn-outline inline-flex items-center gap-2 bg-white/95 px-4 py-2 text-base font-semibold shadow-lg shadow-slate-200/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-200"
+        onClick={() => setOpen((v) => !v)}
+        className="flex h-9 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-primary-200 hover:text-primary-700 active:scale-95"
         aria-expanded={open}
         aria-haspopup="menu"
       >
-        <BusIcon className="h-5 w-5 text-primary-600" />
-        <span className="truncate max-w-[9rem] sm:max-w-[14rem]">{displayName}</span>
-        <span aria-hidden className={clsx('text-sm transition-transform', open ? 'rotate-180' : 'rotate-0')}>
-          v
+        {/* Avatar */}
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">
+          {initial}
         </span>
+        <span className="max-w-[7rem] truncate">{displayName}</span>
+        <svg
+          className={clsx('h-3.5 w-3.5 text-slate-400 transition-transform', open && 'rotate-180')}
+          viewBox="0 0 24 24" fill="none"
+        >
+          <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       </button>
 
-      {open ? (
-        <div className="absolute left-0 z-50 mt-2 w-60 overflow-hidden ui-card shadow-2xl shadow-slate-200/60 ring-1 ring-white md:left-auto md:right-0">
-          <nav className="flex flex-col divide-y divide-slate-100 text-base text-slate-700" role="menu">
-            {items.map((item) => {
-              if (item.href) {
-                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={clsx(
-                      'px-4 py-3 transition hover:bg-primary-50/80 hover:text-primary-700',
-                      isActive ? 'text-primary-600' : undefined
-                    )}
-                    onClick={() => {
-                      show();
-                      close();
-                    }}
-                    role="menuitem"
-                  >
-                    {item.label}
-                  </Link>
-                );
-              }
+      {open && (
+        <div className="absolute right-0 z-50 mt-2 w-52 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-2xl shadow-slate-200/60">
+          {/* 사용자 정보 */}
+          <div className="border-b border-slate-100 px-4 py-3">
+            <p className="text-sm font-semibold text-slate-900 truncate">{displayName}</p>
+            {email && <p className="text-xs text-slate-500 truncate">{email}</p>}
+            <span className="mt-1 inline-block rounded-full bg-primary-50 px-2 py-0.5 text-xs font-medium text-primary-700">
+              {roleLabel}
+            </span>
+          </div>
 
-              return (
-                <button
-                  key={item.label}
-                  type="button"
-                  onClick={() => {
-                    item.action?.();
-                    close();
-                  }}
-                  className="px-4 py-3 text-left transition hover:bg-primary-50/80 hover:text-primary-700"
-                  role="menuitem"
-                >
-                  {item.label}
-                </button>
-              );
-            })}
-          </nav>
+          {/* 로그아웃 */}
+          <button
+            type="button"
+            onClick={() => { close(); void signOut({ callbackUrl: '/login' }); }}
+            className="flex w-full items-center gap-2 px-4 py-3 text-sm font-medium text-rose-600 transition hover:bg-rose-50"
+            role="menuitem"
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M16 17l5-5-5-5M21 12H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            로그아웃
+          </button>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }

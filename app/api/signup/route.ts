@@ -1,11 +1,48 @@
 import { NextResponse } from 'next/server';
 
 import { createUser, getUserByEmail, setParentAdminUser } from '@/lib/data/user';
+import { validateInviteToken, markTokenUsed } from '@/lib/data/invite';
 import { signupSchema } from '@/lib/validation';
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+
+    // ── 초대 링크 기반 학부모 가입 ──
+    if (body?.inviteToken) {
+      const { inviteToken, email, name, password, phone } = body;
+
+      if (!email || !name || !password) {
+        return NextResponse.json({ ok: false, error: '이름, 이메일, 비밀번호를 입력해주세요.' }, { status: 400 });
+      }
+
+      const tokenRecord = await validateInviteToken(inviteToken);
+      if (!tokenRecord) {
+        return NextResponse.json({ ok: false, error: '유효하지 않거나 만료된 초대 링크입니다.' }, { status: 400 });
+      }
+
+      const existing = await getUserByEmail(email.trim());
+      if (existing) {
+        return NextResponse.json({ ok: false, error: '이미 사용 중인 이메일입니다.' }, { status: 400 });
+      }
+
+      const user = await createUser({
+        email: email.trim(),
+        password,
+        role: 'PARENT',
+        name: name.trim(),
+        phone: phone?.trim() ?? null,
+        studentName: null,
+        studentPhone: null,
+      });
+
+      await setParentAdminUser(user.id, tokenRecord.adminId);
+      await markTokenUsed(inviteToken, user.id);
+
+      return NextResponse.json({ ok: true });
+    }
+
+    // ── 기존 관리자 가입 (adminEmail 방식) ──
     const parsed = signupSchema.safeParse(body);
     if (!parsed.success) {
       const msg = parsed.error.errors[0]?.message ?? '입력값을 확인해주세요.';
@@ -18,13 +55,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: '관리자 회원가입은 허용되지 않습니다.' }, { status: 403 });
     }
 
-    let adminUserId: string | null = null;
+    // 학부모가 직접 가입 시도할 경우 초대 링크를 요청하도록 안내
     if (role === 'PARENT') {
-      const admin = await getUserByEmail(adminEmail!);
-      if (!admin || admin.role !== 'ADMIN') {
-        return NextResponse.json({ ok: false, error: '담당 기사님(관리자) 이메일이 올바르지 않습니다.' }, { status: 400 });
-      }
-      adminUserId = admin.id;
+      return NextResponse.json({ ok: false, error: '학부모 가입은 담당 기사님의 초대 링크로만 가능합니다.' }, { status: 400 });
     }
 
     const user = await createUser({
@@ -34,12 +67,8 @@ export async function POST(req: Request) {
       name,
       phone: parentPhone ?? null,
       studentName: studentName ?? null,
-      studentPhone: studentPhone ?? null
+      studentPhone: studentPhone ?? null,
     });
-
-    if (role === 'PARENT' && adminUserId) {
-      await setParentAdminUser(user.id, adminUserId);
-    }
 
     return NextResponse.json({ ok: true });
   } catch (err: any) {

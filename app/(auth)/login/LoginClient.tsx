@@ -360,61 +360,39 @@ export default function LoginClient() {
               })}
             </div>
 
-            <div className="mt-5 grid gap-3">
-              <input
-                type="text"
-                placeholder="이름"
-                value={signupName}
-                onChange={(event) => setSignupName(event.target.value)}
-                className="ui-input px-4 py-3"
-              />
-              <input
-                type="email"
-                placeholder="이메일"
-                value={signupEmail}
-                onChange={(event) => setSignupEmail(event.target.value)}
-                className="ui-input px-4 py-3"
-              />
-              {signupRole === 'parent' ? (
-                <>
-                  <input
-                    type="email"
-                    placeholder="담당 기사님(관리자) 이메일"
-                    value={signupAdminEmail}
-                    onChange={(event) => setSignupAdminEmail(event.target.value)}
-                    className="ui-input px-4 py-3"
-                  />
-                  <input
-                    type="text"
-                    placeholder="학부모 전화번호"
-                    value={signupParentPhone}
-                    onChange={(event) => setSignupParentPhone(event.target.value)}
-                    className="ui-input px-4 py-3"
-                  />
-                  <input
-                    type="text"
-                    placeholder="학생 이름"
-                    value={signupStudentName}
-                    onChange={(event) => setSignupStudentName(event.target.value)}
-                    className="ui-input px-4 py-3"
-                  />
-                  <input
-                    type="text"
-                    placeholder="학생 전화번호"
-                    value={signupStudentPhone}
-                    onChange={(event) => setSignupStudentPhone(event.target.value)}
-                    className="ui-input px-4 py-3"
-                  />
-                </>
-              ) : null}
-              <input
-                type="password"
-                placeholder="비밀번호"
-                value={signupPassword}
-                onChange={(event) => setSignupPassword(event.target.value)}
-                className="ui-input px-4 py-3"
-              />
-            </div>
+            {signupRole === 'parent' ? (
+              <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-center">
+                <p className="text-sm font-semibold text-emerald-800">학부모 가입은 초대 링크로만 가능합니다</p>
+                <p className="mt-1 text-xs text-emerald-700">
+                  담당 기사님(관리자)께 초대 링크를 요청해주세요.<br />
+                  링크를 받으면 바로 가입하실 수 있습니다.
+                </p>
+              </div>
+            ) : (
+              <div className="mt-5 grid gap-3">
+                <input
+                  type="text"
+                  placeholder="이름"
+                  value={signupName}
+                  onChange={(event) => setSignupName(event.target.value)}
+                  className="ui-input px-4 py-3"
+                />
+                <input
+                  type="email"
+                  placeholder="이메일"
+                  value={signupEmail}
+                  onChange={(event) => setSignupEmail(event.target.value)}
+                  className="ui-input px-4 py-3"
+                />
+                <input
+                  type="password"
+                  placeholder="비밀번호"
+                  value={signupPassword}
+                  onChange={(event) => setSignupPassword(event.target.value)}
+                  className="ui-input px-4 py-3"
+                />
+              </div>
+            )}
 
             {signupError ? (
               <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -430,17 +408,19 @@ export default function LoginClient() {
               >
                 취소
               </button>
-              <button
-                type="button"
-                onClick={handleSignupSubmit}
-                className={clsx(
-                  'ui-btn px-4 py-2 text-base font-semibold',
-                  signingUp ? 'bg-slate-200 text-slate-500 hover:bg-slate-200' : 'bg-primary-600 text-white'
-                )}
-                disabled={signingUp}
-              >
-                {signingUp ? '요청 처리 중...' : '요청 보내기'}
-              </button>
+              {signupRole !== 'parent' && (
+                <button
+                  type="button"
+                  onClick={handleSignupSubmit}
+                  className={clsx(
+                    'ui-btn px-4 py-2 text-base font-semibold',
+                    signingUp ? 'bg-slate-200 text-slate-500 hover:bg-slate-200' : 'bg-primary-600 text-white'
+                  )}
+                  disabled={signingUp}
+                >
+                  {signingUp ? '요청 처리 중...' : '요청 보내기'}
+                </button>
+              )}
             </div>
           </div>
         </div>

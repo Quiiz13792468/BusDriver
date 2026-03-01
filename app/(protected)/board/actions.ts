@@ -4,11 +4,12 @@ import { revalidatePath } from 'next/cache';
 
 import { requireSession } from '@/lib/auth/session';
 import { createAlert } from '@/lib/data/alert';
-import { createBoardComment, createBoardPost } from '@/lib/data/board';
+import { createBoardComment, createBoardPost, getBoardPostById } from '@/lib/data/board';
 import { getBoardPostWithComments } from '@/lib/data/board';
 import { lockBoardPost } from '@/lib/data/board';
+import { createBoardNotification } from '@/lib/data/board-notifications';
 import { getStudentsByParent } from '@/lib/data/student';
-import { getParentProfile } from '@/lib/data/user';
+import { getParentProfile, getUserById } from '@/lib/data/user';
 import { getSchoolById } from '@/lib/data/school';
 import { boardPostSchema, commentSchema } from '@/lib/validation';
 
@@ -111,11 +112,26 @@ export async function createBoardCommentAction(_prev: ActionResponse | undefined
     };
   }
 
-  await createBoardComment({
+  const comment = await createBoardComment({
     ...parsed.data,
     authorId: session.user?.id as string,
     parentCommentId: parsed.data.parentCommentId ?? null
   });
+
+  // 관리자가 댓글을 달면 게시글 작성자(학부모)에게 알림 생성
+  if (session.user?.role === 'ADMIN') {
+    const post = await getBoardPostById(parsed.data.postId);
+    if (post) {
+      const postAuthor = await getUserById(post.authorId);
+      if (postAuthor?.role === 'PARENT') {
+        await createBoardNotification({
+          receiverId: post.authorId,
+          postId: post.id,
+          commentId: comment.id,
+        }).catch(() => {}); // 알림 생성 실패는 조용히 무시
+      }
+    }
+  }
 
   revalidatePath(`/board/${parsed.data.postId}`);
   return { status: 'success', message: COMMENT_SUCCESS_MESSAGE };

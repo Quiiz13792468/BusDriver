@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 
 import { requireSession } from '@/lib/auth/session';
-import { assignStudentToRoute, createRoute, deleteRoute, updateRoute } from '@/lib/data/route';
+import { assignStudentToRoute, createRoute, deleteRoute, updateRoute, updateStopCoords } from '@/lib/data/route';
 import { updateStudent } from '@/lib/data/student';
 
 type ActionResponse = {
@@ -74,6 +74,12 @@ export async function assignStudentsBulkToRouteAction(
   }
   revalidatePath('/routes');
   return { status: 'success', message: '일괄 배정이 완료되었습니다.' };
+}
+
+export async function updateStopCoordsAction(stopId: string, routeId: string, lat: number, lng: number): Promise<void> {
+  await requireSession('ADMIN');
+  await updateStopCoords(stopId, lat, lng);
+  revalidatePath(`/routes/${routeId}`);
 }
 
 export async function saveRouteStopsAction(

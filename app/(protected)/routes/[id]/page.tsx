@@ -7,7 +7,9 @@ import { getStudentsBySchool } from '@/lib/data/student';
 import { assignStudentToRouteAction } from '@/app/(protected)/routes/actions.clean';
 import { RouteStopsEditor } from '@/components/route-stops-editor';
 import { BulkAssignStudents } from '@/components/bulk-assign-students';
-import { UiTable, UiTbody, UiTh, UiThead, UiTr, UiTd } from '@/components/ui/table';
+import { RouteMapSection } from '@/components/route-map-section';
+import { RouteStopAccordion } from '@/components/route-stop-accordion';
+import type { StopGroup } from '@/components/route-stop-accordion';
 
 type PageProps = {
   params: { id: string };
@@ -24,6 +26,19 @@ export default async function RouteDetailPage({ params }: PageProps) {
 
   const unassigned = all.filter((s) => s.routeId !== route.id);
 
+  // Group assigned students by stop for accordion
+  const stopGroups: StopGroup[] = route.stops.map((stopName) => ({
+    stopName,
+    students: assigned
+      .filter((s) => s.pickupPoint === stopName)
+      .map((s) => ({ id: s.id, name: s.name, phone: s.phone })),
+  }));
+
+  // Students assigned but no specific stop
+  const noStopStudents = assigned.filter(
+    (s) => !s.pickupPoint || !route.stops.includes(s.pickupPoint)
+  );
+
   return (
     <div className="space-y-5 sm:space-y-6">
       <header className="ui-card ui-card-pad space-y-1">
@@ -33,45 +48,53 @@ export default async function RouteDetailPage({ params }: PageProps) {
           </Link>
           {route.name}
         </h1>
-        <p className="text-base text-slate-700">정차 지점 {route.stops.length}개</p>
+        <p className="text-base text-slate-700">
+          정차 지점 {route.stops.length}개 · 배정 학생 {assigned.length}명
+        </p>
       </header>
 
+      {/* 카카오맵 */}
       <section className="ui-card ui-card-pad space-y-3">
-        <h2 className="text-lg font-semibold text-slate-900">정차 지점 정렬/편집</h2>
+        <h2 className="text-lg font-semibold text-slate-900">노선 지도</h2>
+        <RouteMapSection routeId={route.id} initialStops={route.stopRecords} />
+      </section>
+
+      {/* 정류장별 탑승 학생 (accordion) */}
+      <section className="ui-card ui-card-pad space-y-3">
+        <h2 className="text-lg font-semibold text-slate-900">정류장별 탑승 학생</h2>
+        <RouteStopAccordion groups={stopGroups} />
+        {noStopStudents.length > 0 && (
+          <div className="mt-2 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3">
+            <p className="mb-2 text-xs font-semibold text-amber-700">정류장 미배정 학생 ({noStopStudents.length}명)</p>
+            <ul className="space-y-1">
+              {noStopStudents.map((s) => (
+                <li key={s.id} className="flex items-center gap-2 text-sm text-slate-700">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                  {s.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </section>
+
+      {/* 정차 지점 편집 */}
+      <section className="ui-card ui-card-pad space-y-3">
+        <h2 className="text-lg font-semibold text-slate-900">정차 지점 편집</h2>
         <RouteStopsEditor routeId={route.id} initialStops={route.stops} />
       </section>
 
-      <section className="ui-card ui-card-pad space-y-3">
-        <h2 className="text-lg font-semibold text-slate-900">배정 학생</h2>
-        <div className="ui-table-wrap">
-          <UiTable>
-            <UiThead className="sticky top-0 z-10">
-              <UiTr>
-                <UiTh className="text-left">학생</UiTh>
-                <UiTh className="text-left">탑승지점</UiTh>
-              </UiTr>
-            </UiThead>
-            <UiTbody>
-              {assigned.map((s) => (
-                <UiTr key={s.id} className="border-t">
-                  <UiTd className="text-slate-800">{s.name}</UiTd>
-                  <UiTd className="text-slate-700">{s.pickupPoint ?? '-'}</UiTd>
-                </UiTr>
-              ))}
-              {assigned.length === 0 ? (
-                <UiTr>
-                  <UiTd colSpan={2} className="text-center text-slate-700">
-                    배정된 학생이 없습니다.
-                  </UiTd>
-                </UiTr>
-              ) : null}
-            </UiTbody>
-          </UiTable>
-        </div>
-      </section>
-
-      <AssignStudentForm routeId={route.id} students={unassigned.map((s) => ({ id: s.id, name: s.name }))} stops={route.stops} />
-      <BulkAssignStudents routeId={route.id} students={unassigned.map((s) => ({ id: s.id, name: s.name }))} stops={route.stops} />
+      {/* 학생 배정 */}
+      <AssignStudentForm
+        routeId={route.id}
+        students={unassigned.map((s) => ({ id: s.id, name: s.name }))}
+        stops={route.stops}
+      />
+      <BulkAssignStudents
+        routeId={route.id}
+        students={unassigned.map((s) => ({ id: s.id, name: s.name }))}
+        stops={route.stops}
+      />
     </div>
   );
 }

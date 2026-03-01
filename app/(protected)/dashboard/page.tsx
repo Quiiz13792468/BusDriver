@@ -4,7 +4,7 @@ import { getAlerts } from '@/lib/data/alert';
 import { getSchools } from '@/lib/data/school';
 import { getAllPayments, getPaymentsByStudent } from '@/lib/data/payment';
 import { getAllStudents, getStudentsByParent } from '@/lib/data/student';
-import { DashboardIcon, SchoolIcon, RouteIcon, WalletIcon, BoardIcon } from '@/components/layout/nav-icons';
+import { DashboardIcon, SchoolIcon, RouteIcon, WalletIcon, BoardIcon, MapIcon } from '@/components/layout/nav-icons';
 import { PageHeader } from '@/components/layout/page-header';
 import { RequestPaymentButton } from '@/components/request-payment-button';
 import { MonthControls } from '@/app/(protected)/dashboard/_components/month-controls';
@@ -12,6 +12,7 @@ import { LinkWithLoading } from '@/components/link-with-loading';
 import { AlertPanel } from '@/app/(protected)/dashboard/_components/alert-panel';
 import { UiTable, UiTbody, UiTh, UiThead, UiTr, UiTd } from '@/components/ui/table';
 import { AdSlot } from '@/components/ads/ad-slot';
+import { InviteLinkGenerator } from '@/components/invite-link-generator';
 
 type Props = { searchParams?: Record<string, string | string[] | undefined> };
 
@@ -129,6 +130,11 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
           <DashLink href="/payments" title="입금 현황" desc="월별·학생별 입금 현황" Icon={WalletIcon} color="from-amber-300 via-yellow-400 to-amber-400" />
           <DashLink href="/board" title="문의 게시판" desc="문의 확인 및 답변" Icon={BoardIcon} color="from-yellow-300 via-amber-300 to-yellow-400" />
         </div>
+      </section>
+
+      {/* 학부모 초대 링크 */}
+      <section>
+        <InviteLinkGenerator />
       </section>
 
       {/* 알림 리스트 */}
@@ -290,6 +296,14 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
 
       <section>
         <div className="grid gap-3 md:grid-cols-2">
+          <Link href="/dashboard/route" className="ui-card ui-card-compact transition hover:border-amber-200 hover:bg-amber-50/60 md:flex md:h-[120px] md:flex-col md:justify-center">
+            <div className="mb-1 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 px-2 py-1 text-base font-semibold text-slate-900/90">
+              <MapIcon className="h-4 w-4 text-slate-800/70" />
+              <span>노선 확인</span>
+            </div>
+            <p className="text-base text-slate-700">자녀의 탑승 노선과 정차 지점을 확인합니다.</p>
+          </Link>
+
           <Link href="/dashboard/pickup" className="ui-card ui-card-compact transition hover:border-amber-200 hover:bg-amber-50/60 md:flex md:h-[120px] md:flex-col md:justify-center">
             <div className="mb-1 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 px-2 py-1 text-base font-semibold text-slate-900/90">
               <RouteIcon className="h-4 w-4 text-slate-800/70" />
