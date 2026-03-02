@@ -78,7 +78,8 @@ export function RecordPaymentModal({ schools, students }: RecordPaymentModalProp
               닫기
             </button>
           </div>
-          <div className="max-h-[70vh] space-y-4 overflow-y-auto p-5">
+          <div className="max-h-[70vh] overflow-y-auto">
+          <div className="space-y-4 p-5 pb-8">
             <div className="grid gap-1.5">
               <label className="text-sm font-semibold text-slate-700" htmlFor="payment-school">
                 학교 선택
@@ -114,6 +115,7 @@ export function RecordPaymentModal({ schools, students }: RecordPaymentModalProp
                 학교를 선택하면 입금 기록을 입력할 수 있습니다.
               </div>
             )}
+          </div>
           </div>
         </div>
       </div>

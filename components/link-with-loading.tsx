@@ -4,9 +4,14 @@ import Link, { LinkProps } from 'next/link';
 import { PropsWithChildren } from 'react';
 import { useNavigationOverlay } from '@/components/navigation-overlay';
 
-type LinkWithLoadingProps = PropsWithChildren<LinkProps & { className?: string; title?: string; ariaLabel?: string }>;
+type LinkWithLoadingProps = PropsWithChildren<LinkProps & {
+  className?: string;
+  title?: string;
+  ariaLabel?: string;
+  loadingMessage?: string;
+}>;
 
-export function LinkWithLoading({ children, className, title, ariaLabel, ...props }: LinkWithLoadingProps) {
+export function LinkWithLoading({ children, className, title, ariaLabel, loadingMessage = '이동 중...', ...props }: LinkWithLoadingProps) {
   const { show } = useNavigationOverlay();
   return (
     <Link
@@ -15,7 +20,7 @@ export function LinkWithLoading({ children, className, title, ariaLabel, ...prop
       title={title}
       aria-label={ariaLabel}
       onClick={(e) => {
-        show();
+        show(loadingMessage);
         props.onClick?.(e as any);
       }}
     >

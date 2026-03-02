@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 import { requireSession } from "@/lib/auth/session";
 import { recordPayment } from "@/lib/data/payment";
@@ -60,6 +60,7 @@ export async function createSchoolAction(
   }
 
   await createSchool(parsed.data);
+  revalidateTag('schools');
   revalidatePath("/schools");
   return { status: "success", message: SCHOOL_CREATED_MESSAGE };
 }
@@ -73,6 +74,7 @@ export async function updateSchoolAction(
 ) {
   await requireSession("ADMIN");
   await updateSchool(id, data);
+  revalidateTag('schools');
   revalidatePath(`/schools/${id}`);
 }
 
@@ -114,6 +116,7 @@ export async function updateSchoolFormAction(
     note: parsed.data.note ?? null
   });
 
+  revalidateTag('schools');
   revalidatePath("/schools");
   revalidatePath(`/schools/${raw.schoolId}`);
   return { status: "success", message: SCHOOL_UPDATED_MESSAGE };
@@ -135,6 +138,9 @@ export async function deleteSchoolAction(
   }
 
   await deleteSchool(schoolId);
+  revalidateTag('schools');
+  revalidateTag('students');
+  revalidateTag('routes');
   revalidatePath("/schools");
   revalidatePath("/routes");
   revalidatePath("/payments");
@@ -178,6 +184,7 @@ export async function createStudentAction(
 
   const schoolId = parsed.data.schoolId ? String(parsed.data.schoolId) : null;
   await createStudent({ ...parsed.data, schoolId });
+  revalidateTag('students');
   if (schoolId) {
     revalidatePath(`/schools/${schoolId}`);
   } else {
@@ -194,6 +201,7 @@ export async function updateStudentStatusAction(
 ) {
   await requireSession("ADMIN");
   await updateStudent(studentId, params);
+  revalidateTag('students');
   revalidatePath(`/schools/${schoolId}`);
 }
 
@@ -221,6 +229,7 @@ export async function assignStudentToSchoolAction(
     pickupPoint: null
   });
 
+  revalidateTag('students');
   revalidatePath(`/schools/${parsed.data.schoolId}`);
   revalidatePath("/dashboard/students");
   return { status: "success", message: STUDENT_ASSIGNED_MESSAGE };
@@ -250,6 +259,7 @@ export async function unassignStudentFromSchoolAction(
     pickupPoint: null
   });
 
+  revalidateTag('students');
   revalidatePath(`/schools/${parsed.data.schoolId}`);
   revalidatePath("/dashboard/students");
   revalidatePath("/dashboard");
@@ -305,6 +315,7 @@ export async function recordPaymentAction(
   }
 
   await recordPayment(parsed.data);
+  revalidateTag('payments');
   revalidatePath(`/schools/${parsed.data.schoolId}`);
   revalidatePath("/payments");
   return { status: "success", message: PAYMENT_RECORDED_MESSAGE };
@@ -375,6 +386,7 @@ export async function updateStudentInfoAction(
     depositDay: depositDay ?? null,
     suspendedAt: suspendedAt ? new Date(suspendedAt) : null
   });
+  revalidateTag('students');
   if (schoolId) {
     revalidatePath(`/schools/${schoolId}`);
   } else {

@@ -4,9 +4,6 @@ import { getSchools } from '@/lib/data/school';
 import { getRoutesBySchool } from '@/lib/data/route';
 import { RouteCreateCard } from '@/components/route-create-card';
 import { LinkWithLoading } from '@/components/link-with-loading';
-import { PageHeader } from '@/components/layout/page-header';
-
-export const dynamic = 'force-dynamic';
 
 export default async function RoutesPage() {
   await requireSession('ADMIN');
@@ -18,8 +15,6 @@ export default async function RoutesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="노선 관리" description="학교별 노선을 확인하고 추가/편집할 수 있습니다." />
-
       <div className="space-y-6">
         {routesBySchool.map(({ school, routes }) => (
           <section key={school.id} className="space-y-3">

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import clsx from 'clsx';
 import { DashboardIcon, SchoolIcon, RouteIcon, WalletIcon, BoardIcon } from '@/components/layout/nav-icons';
+import { useNavigationOverlay } from '@/components/navigation-overlay';
 
 type MobileBottomNavProps = {
   role: string;
@@ -34,11 +35,13 @@ const PARENT_TABS: NavItem[] = [
 
 function NavTab({ item, active }: { item: NavItem; active: boolean }) {
   const Icon = item.icon;
+  const { show } = useNavigationOverlay();
   return (
     <Link
       href={item.href}
+      onClick={() => { if (!active) show('이동 중...'); }}
       className={clsx(
-        'flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-semibold transition-colors',
+        'relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-semibold transition-colors',
         active ? 'text-primary-600' : 'text-slate-400 hover:text-slate-600'
       )}
     >
@@ -54,6 +57,7 @@ function NavTab({ item, active }: { item: NavItem; active: boolean }) {
 export function MobileBottomNav({ role }: MobileBottomNavProps) {
   const pathname = usePathname() ?? '';
   const searchParams = useSearchParams();
+  const { show } = useNavigationOverlay();
 
   function isActive(item: NavItem) {
     const prefix = item.matchPrefix ?? item.href;
@@ -65,7 +69,6 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
   }
 
   if (role !== 'ADMIN') {
-    // 학부모: 단순 2탭
     return (
       <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-stretch border-t border-slate-200 bg-white/95 backdrop-blur-sm safe-bottom md:hidden">
         {PARENT_TABS.map((item) => (
@@ -75,7 +78,6 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
     );
   }
 
-  // 관리자: 좌 2탭 + 중앙 FAB + 우 3탭
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-stretch border-t border-slate-200 bg-white/95 backdrop-blur-sm md:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       {ADMIN_LEFT.map((item) => (
@@ -86,6 +88,7 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
       <div className="relative flex flex-none items-center justify-center px-2">
         <Link
           href="/payments?payment=1"
+          onClick={() => show('이동 중...')}
           className="flex h-14 w-14 -translate-y-3 flex-col items-center justify-center rounded-full bg-primary-600 shadow-lg shadow-primary-200/60 transition active:scale-95 active:bg-primary-700"
           aria-label="입금 등록"
         >

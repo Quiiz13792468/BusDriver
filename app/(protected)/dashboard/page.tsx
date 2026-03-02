@@ -4,8 +4,7 @@ import { getAlerts } from '@/lib/data/alert';
 import { getSchools } from '@/lib/data/school';
 import { getAllPayments, getPaymentsByStudent } from '@/lib/data/payment';
 import { getAllStudents, getStudentsByParent } from '@/lib/data/student';
-import { DashboardIcon, SchoolIcon, RouteIcon, WalletIcon, BoardIcon, MapIcon } from '@/components/layout/nav-icons';
-import { PageHeader } from '@/components/layout/page-header';
+import { RouteIcon, BoardIcon, MapIcon } from '@/components/layout/nav-icons';
 import { RequestPaymentButton } from '@/components/request-payment-button';
 import { MonthControls } from '@/app/(protected)/dashboard/_components/month-controls';
 import { LinkWithLoading } from '@/components/link-with-loading';
@@ -117,20 +116,8 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="대시보드"
-        description={`${name}님 환영합니다. 빠른 이동, 최근 알림, 이번 달 입금 현황을 확인하세요.`}
-      />
-
-      {/* 빠른 이동 4카드 */}
-      <section>
-        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          <DashLink href="/schools" title="학교/학생 관리" desc="학교, 학생 정보 관리" Icon={SchoolIcon} color="from-amber-400 via-yellow-400 to-amber-500" />
-          <DashLink href="/routes" title="노선 관리" desc="노선/정차 지점 관리" Icon={RouteIcon} color="from-yellow-400 via-amber-400 to-yellow-500" />
-          <DashLink href="/payments" title="입금 현황" desc="월별·학생별 입금 현황" Icon={WalletIcon} color="from-amber-300 via-yellow-400 to-amber-400" />
-          <DashLink href="/board" title="문의 게시판" desc="문의 확인 및 답변" Icon={BoardIcon} color="from-yellow-300 via-amber-300 to-yellow-400" />
-        </div>
-      </section>
+      {/* 인사말 */}
+      <p className="text-base font-semibold text-slate-800">{name}님, 안녕하세요!</p>
 
       {/* 학부모 초대 링크 */}
       <section>
@@ -163,7 +150,34 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
             typeParam={typeParam}
           />
         </div>
-        <div className="ui-table-wrap">
+
+        {/* 모바일: 카드 */}
+        <div className="space-y-2 md:hidden">
+          {rows.length === 0 ? (
+            <p className="ui-empty">이번 달 입금 기록이 없습니다.</p>
+          ) : rows.map((r, idx) => (
+            <div key={idx} className="rounded-xl border border-slate-200 p-3">
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <span className="font-semibold text-slate-900">{r.student}</span>
+                  <span className="ml-2 text-sm text-slate-500">{r.school}</span>
+                </div>
+                <span className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold ${r.status === '입금완료' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                  {r.status}
+                </span>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                {r.paid > 0 && <span>입금 <strong className="text-emerald-600">{r.paid.toLocaleString()}원</strong></span>}
+                {r.partial > 0 && <span>부분 <strong className="text-amber-600">{r.partial.toLocaleString()}원</strong></span>}
+                {r.shortage > 0 && <span>부족 <strong className="text-rose-600">{r.shortage.toLocaleString()}원</strong></span>}
+                {r.memo && <span className="text-slate-500">메모: {r.memo}</span>}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* 데스크톱: 테이블 */}
+        <div className="ui-table-wrap hidden md:block">
           <UiTable>
             <UiThead className="bg-slate-50">
               <UiTr>
@@ -200,10 +214,39 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
 
       {/* 연간 실적 */}
       <section className="ui-card ui-card-pad space-y-2">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">{y} 실적</h2>
+        <h2 className="text-lg font-semibold text-slate-900">{y} 실적</h2>
+
+        {/* 모바일: 컴팩트 목록 */}
+        <div className="space-y-1 md:hidden">
+          {monthlyStats.map((stat) => (
+            <div
+              key={stat.month}
+              className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${stat.paid + stat.partial === 0 ? 'border-slate-100 text-slate-400' : 'border-slate-200'}`}
+            >
+              <span className="w-7 shrink-0 font-medium text-slate-700">{stat.month}월</span>
+              <div className="flex flex-1 flex-wrap justify-end gap-x-3 gap-y-0.5">
+                {(stat.paid + stat.partial) > 0 ? (
+                  <span className="text-emerald-600">{(stat.paid + stat.partial).toLocaleString()}원</span>
+                ) : (
+                  <span className="text-slate-400">기록 없음</span>
+                )}
+                {stat.shortage > 0 ? (
+                  <LinkWithLoading
+                    href={`/dashboard/shortages?year=${y}&month=${stat.month}`}
+                    className="font-semibold text-rose-600 underline decoration-rose-300 underline-offset-2"
+                  >
+                    부족 {stat.shortage.toLocaleString()}원
+                  </LinkWithLoading>
+                ) : (stat.paid + stat.partial) > 0 ? (
+                  <span className="font-semibold text-emerald-500">완납</span>
+                ) : null}
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="ui-table-wrap">
+
+        {/* 데스크톱: 테이블 */}
+        <div className="ui-table-wrap hidden md:block">
           <UiTable>
             <UiThead className="bg-slate-50">
               <UiTr>
@@ -247,22 +290,6 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
   );
 }
 
-function DashLink({ href, title, desc, Icon, color = 'from-amber-400 to-yellow-400' }: { href: string; title: string; desc: string; Icon?: any; color?: string }) {
-  return (
-    <LinkWithLoading
-      href={href}
-      className="group ui-card ui-card-compact transition hover:border-amber-200 hover:bg-amber-50/70"
-    >
-      <div className={`mb-2 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r ${color} px-2 py-1 text-base font-semibold text-slate-900/90`}
-      >
-        {Icon ? <Icon className="h-4 w-4 text-slate-800/70" /> : null}
-        <span>{title}</span>
-      </div>
-      <div className="text-base text-slate-700">{desc}</div>
-    </LinkWithLoading>
-  );
-}
-
 function arrayFirst(v?: string | string[]) {
   return Array.isArray(v) ? v[0] : v;
 }
@@ -289,10 +316,7 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
   const currentMonth = today.getMonth() + 1;
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="대시보드"
-        description={`${name}님 환영합니다. 학생 정보 확인, 탑승지점 변경 요청, 문의 등록을 할 수 있습니다.`}
-      />
+      <p className="text-base font-semibold text-slate-800">{name}님, 안녕하세요!</p>
 
       <section>
         <div className="grid gap-3 md:grid-cols-2">

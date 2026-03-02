@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 import { requireSession } from '@/lib/auth/session';
 import { assignStudentToRoute, createRoute, deleteRoute, updateRoute } from '@/lib/data/route';
@@ -24,6 +24,7 @@ export async function createRouteAction(_prev: ActionResponse | undefined, formD
     .map((s) => s.trim())
     .filter(Boolean);
   await createRoute({ schoolId, name: name.trim(), stops });
+  revalidateTag('routes');
   revalidatePath('/routes');
   return { status: 'success', message: '노선이 생성되었습니다.' };
 }
@@ -31,12 +32,14 @@ export async function createRouteAction(_prev: ActionResponse | undefined, formD
 export async function updateRouteAction(id: string, data: { name?: string; stops?: string[] }) {
   await requireSession('ADMIN');
   await updateRoute(id, data);
+  revalidateTag('routes');
   revalidatePath('/routes');
 }
 
 export async function deleteRouteAction(id: string) {
   await requireSession('ADMIN');
   await deleteRoute(id);
+  revalidateTag('routes');
   revalidatePath('/routes');
 }
 
@@ -53,6 +56,8 @@ export async function assignStudentToRouteAction(
   }
   await assignStudentToRoute(studentId, routeId || null);
   await updateStudent(studentId, { pickupPoint: pickupPoint || null });
+  revalidateTag('routes');
+  revalidateTag('students');
   revalidatePath('/routes');
   return { status: 'success', message: '배정이 완료되었습니다.' };
 }
@@ -72,6 +77,8 @@ export async function assignStudentsBulkToRouteAction(
     await assignStudentToRoute(id, routeId || null);
     await updateStudent(id, { pickupPoint: pickupPoint || null });
   }
+  revalidateTag('routes');
+  revalidateTag('students');
   revalidatePath('/routes');
   return { status: 'success', message: '일괄 배정이 완료되었습니다.' };
 }
@@ -94,8 +101,8 @@ export async function saveRouteStopsAction(
     return { status: 'error', message: '정차 지점 데이터 형식이 올바르지 않습니다.' };
   }
   await updateRoute(routeId, { stops });
+  revalidateTag('routes');
   revalidatePath(`/routes/${routeId}`);
   revalidatePath('/routes');
   return { status: 'success', message: '정차 지점을 저장했습니다.' };
 }
-

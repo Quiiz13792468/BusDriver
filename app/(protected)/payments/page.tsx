@@ -4,7 +4,6 @@ import { requireSession } from '@/lib/auth/session';
 import { getAllPayments, getMonthlyPaymentSummary, getPaymentsBySchoolAndMonth } from '@/lib/data/payment';
 import { getSchoolById, getSchools } from '@/lib/data/school';
 import { getAllStudents, getStudentById, getStudentsBySchool } from '@/lib/data/student';
-import { PageHeader } from '@/components/layout/page-header';
 import { RecordPaymentModal } from '@/app/(protected)/payments/_components/record-payment-modal';
 import { UiTable, UiTbody, UiTh, UiThead, UiTr, UiTd } from '@/components/ui/table';
 
@@ -21,7 +20,6 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
     if (schools.length === 0) {
       return (
         <div className="space-y-4">
-          <PageHeader title="입금 현황" description="월별·학교별 입금 현황을 확인할 수 있습니다." />
           <p className="ui-empty">
             등록된 학교가 없습니다.{' '}
             <Link href="/schools" className="font-semibold text-primary-600 hover:text-primary-700">학교 관리</Link>에서 먼저 학교를 추가해주세요.
@@ -114,10 +112,6 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
 
   return (
     <div className="space-y-5 sm:space-y-6">
-      <PageHeader
-        title="입금 현황"
-        description={`${selectedSchool ? `${selectedSchool.name} 기준` : '전체 학교 기준'} · 연도와 학교를 선택해 세부 내역을 확인하세요.`}
-      />
       <RecordPaymentModal
         schools={schools.map((school) => ({
           id: school.id,

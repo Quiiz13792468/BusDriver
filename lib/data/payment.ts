@@ -62,7 +62,7 @@ export async function recordPayment(input: {
 
 export async function getPaymentsByStudent(studentId: string): Promise<PaymentRecord[]> {
   ensureSupabase();
-  const rows = await restSelect<any>('payments', { student_id: studentId });
+  const rows = await restSelect<any>('payments', { student_id: studentId }, { next: { tags: ['payments'] } });
   const payments: PaymentRecord[] = rows.map((r) => ({
     id: r.id,
     studentId: r.student_id,
@@ -81,7 +81,7 @@ export async function getPaymentsByStudent(studentId: string): Promise<PaymentRe
 
 export async function getPaymentsBySchool(schoolId: string): Promise<PaymentRecord[]> {
   ensureSupabase();
-  const rows = await restSelect<any>('payments', { school_id: schoolId });
+  const rows = await restSelect<any>('payments', { school_id: schoolId }, { next: { tags: ['payments'] } });
   const payments: PaymentRecord[] = rows.map((r) => ({
     id: r.id,
     studentId: r.student_id,
@@ -126,7 +126,7 @@ export async function getMonthlyPaymentSummary(params: { schoolId: string; year:
 
 export async function getAllPayments(): Promise<PaymentRecord[]> {
   ensureSupabase();
-  const rows = await restSelect<any>('payments', {});
+  const rows = await restSelect<any>('payments', {}, { next: { tags: ['payments'] } });
   const payments: PaymentRecord[] = rows.map((r) => ({
     id: r.id,
     studentId: r.student_id,

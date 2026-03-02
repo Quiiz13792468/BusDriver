@@ -11,7 +11,7 @@ export function supaEnabled() {
   return Boolean(SUPABASE_URL && SERVICE_ROLE);
 }
 
-export async function restSelect<T>(table: string, query: Record<string, string | number | null | undefined>, opts?: { order?: string; limit?: number }) {
+export async function restSelect<T>(table: string, query: Record<string, string | number | null | undefined>, opts?: { order?: string; limit?: number; next?: { revalidate?: number | false; tags?: string[] } }) {
   const params = new URLSearchParams();
   params.set('select', '*');
   for (const [k, v] of Object.entries(query)) {
@@ -30,7 +30,8 @@ export async function restSelect<T>(table: string, query: Record<string, string 
       apikey: SERVICE_ROLE,
       Authorization: `Bearer ${SERVICE_ROLE}`,
       'Content-Type': 'application/json'
-    }
+    },
+    ...(opts?.next ? { next: opts.next } : {})
   });
   if (!res.ok) throw new Error(`Supabase select ${table} failed: ${res.status} ${res.statusText}`);
   return (await res.json()) as T[];

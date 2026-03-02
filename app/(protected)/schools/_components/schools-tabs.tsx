@@ -11,7 +11,6 @@ import clsx from "clsx";
 
 import { CollapsibleCard } from "@/components/ui/collapsible-card";
 import { UiTable, UiTbody, UiTh, UiThead, UiTr, UiTd } from "@/components/ui/table";
-import { PageHeader } from "@/components/layout/page-header";
 import { CreateSchoolForm } from "@/app/(protected)/schools/_components/create-school-form";
 import { CreateStudentForm } from "@/app/(protected)/schools/_components/create-student-form";
 import { UpdateSchoolForm } from "@/app/(protected)/schools/_components/update-school-form";
@@ -33,7 +32,6 @@ export function SchoolsTabs({ schools, students }: SchoolsTabsProps) {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="학교·학생 관리" description="학교와 학생 정보를 탭으로 나누어 관리합니다." />
 
       <div className="grid grid-cols-2 gap-2 border-b border-slate-200 sm:flex sm:flex-wrap">
         <TabButton active={activeTab === "schools"} onClick={() => setActiveTab("schools")}>

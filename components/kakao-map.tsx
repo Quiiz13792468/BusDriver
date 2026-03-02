@@ -35,16 +35,31 @@ export function KakaoMap({ stops, onUpdateCoords, readOnly = false, highlightedS
   // Load Kakao Maps SDK
   useEffect(() => {
     if (!hasKey) return;
-    if (window.kakao?.maps) {
-      window.kakao.maps.load(() => setLoaded(true));
+
+    const initMap = () => {
+      if (window.kakao?.maps) {
+        window.kakao.maps.load(() => setLoaded(true));
+      }
+    };
+
+    // Already loaded
+    if (window.kakao) {
+      initMap();
       return;
     }
-    if (document.getElementById('kakao-maps-sdk')) return;
-    const script = document.createElement('script');
-    script.id = 'kakao-maps-sdk';
-    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_KEY}&autoload=false`;
-    script.onload = () => window.kakao.maps.load(() => setLoaded(true));
-    document.head.appendChild(script);
+
+    // Script may already be injected (SPA re-navigation)
+    let script = document.getElementById('kakao-maps-sdk') as HTMLScriptElement | null;
+    if (!script) {
+      script = document.createElement('script');
+      script.id = 'kakao-maps-sdk';
+      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_KEY}&autoload=false`;
+      document.head.appendChild(script);
+    }
+
+    const handleLoad = () => initMap();
+    script.addEventListener('load', handleLoad);
+    return () => script?.removeEventListener('load', handleLoad);
   }, [hasKey]);
 
   // Initialize map instance

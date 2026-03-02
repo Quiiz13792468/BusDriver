@@ -6,7 +6,8 @@
       "Bash(find:*)",
       "Skill(bkit)",
       "WebSearch",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Skill(bkit:pdca)"
     ]
   }
 }

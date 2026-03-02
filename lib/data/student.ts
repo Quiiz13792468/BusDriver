@@ -42,21 +42,21 @@ export async function getStudentById(id: string) {
 
 export async function getStudentsBySchool(schoolId: string): Promise<StudentRecord[]> {
   ensureSupabase();
-  const rows = await restSelect<any>('students', { school_id: schoolId });
+  const rows = await restSelect<any>('students', { school_id: schoolId }, { next: { tags: ['students'] } });
   const list = rows.map(mapRowToStudent);
   return list.sort((a, b) => (a.isActive === b.isActive ? a.name.localeCompare(b.name, 'ko') : a.isActive ? -1 : 1));
 }
 
 export async function getStudentsByParent(parentUserId: string): Promise<StudentRecord[]> {
   ensureSupabase();
-  const rows = await restSelect<any>('students', { parent_user_id: parentUserId });
+  const rows = await restSelect<any>('students', { parent_user_id: parentUserId }, { next: { tags: ['students'] } });
   const list = rows.map(mapRowToStudent);
   return list.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
 }
 
 export async function getAllStudents(): Promise<StudentRecord[]> {
   ensureSupabase();
-  const rows = await restSelect<any>('students', {});
+  const rows = await restSelect<any>('students', {}, { next: { tags: ['students'] } });
   return rows.map(mapRowToStudent).sort((a, b) => a.name.localeCompare(b.name, 'ko'));
 }
 

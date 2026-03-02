@@ -15,7 +15,7 @@ function ensureSupabase() {
 
 export async function getSchools(): Promise<SchoolRecord[]> {
   ensureSupabase();
-  const rows = await restSelect<any>('schools', {}, { order: 'name.asc' });
+  const rows = await restSelect<any>('schools', {}, { order: 'name.asc', next: { tags: ['schools'] } });
   return rows.map((r) => ({
     id: r.id,
     name: r.name,

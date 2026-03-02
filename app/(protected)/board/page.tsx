@@ -8,7 +8,6 @@ import { getSchools } from '@/lib/data/school';
 import { getStudentsByParent } from '@/lib/data/student';
 import { getParentProfile } from '@/lib/data/user';
 import { RequestSchoolMatchButton } from '@/components/request-school-match-button';
-import { PageHeader } from '@/components/layout/page-header';
 import { AdSlot } from '@/components/ads/ad-slot';
 
 export default async function BoardPage() {
@@ -20,8 +19,6 @@ export default async function BoardPage() {
 
     return (
       <div className="space-y-6">
-        <PageHeader title="문의 요청 관리" description="학부모 문의를 확인하고 필요한 안내를 등록하세요." />
-
         <CreatePostForm
           title="공지 작성"
           schools={schools.map((school) => ({ id: school.id, name: school.name }))}
@@ -93,8 +90,6 @@ export default async function BoardPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="문의 게시판" description="문의가 등록되면 관리자에게 알림이 전송되며, 확인 후 답변합니다." />
-
       {childSchools.length === 0 ? (
         <section className="ui-card ui-card-pad text-base text-slate-700">
           <p className="mb-3">
