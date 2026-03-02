@@ -183,7 +183,12 @@ export async function createStudentAction(
   }
 
   const schoolId = parsed.data.schoolId ? String(parsed.data.schoolId) : null;
-  await createStudent({ ...parsed.data, schoolId });
+  try {
+    await createStudent({ ...parsed.data, schoolId });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "학생 등록 중 오류가 발생했습니다.";
+    return { status: "error", message: msg };
+  }
   revalidateTag('students');
   if (schoolId) {
     revalidatePath(`/schools/${schoolId}`);

@@ -79,8 +79,7 @@ export async function getRouteById(id: string) {
 export async function getRoutesBySchool(schoolId: string): Promise<RouteRecord[]> {
   ensureSupabase();
   const rows = await restSelect<any>('routes', { school_id: schoolId }, { order: 'name.asc', next: { tags: ['routes'] } });
-  const all: RouteRecord[] = [];
-  for (const r of rows) {
+  return Promise.all(rows.map(async (r) => {
     const stops = await restSelect<any>('route_stops', { route_id: r.id }, { order: 'position.asc', next: { tags: ['routes'] } });
     const stopRecords: RouteStopRecord[] = stops.map((s) => ({
       id: s.id,
@@ -91,9 +90,8 @@ export async function getRoutesBySchool(schoolId: string): Promise<RouteRecord[]
       lng: s.lng ?? null,
       description: s.description ?? null,
     }));
-    all.push({ id: r.id, schoolId: r.school_id, name: r.name, stops: stops.map((s) => s.name), stopRecords, createdAt: r.created_at, updatedAt: r.updated_at });
-  }
-  return all;
+    return { id: r.id, schoolId: r.school_id, name: r.name, stops: stops.map((s) => s.name), stopRecords, createdAt: r.created_at, updatedAt: r.updated_at };
+  }));
 }
 
 export async function getStudentsByRoute(routeId: string): Promise<StudentRecord[]> {
