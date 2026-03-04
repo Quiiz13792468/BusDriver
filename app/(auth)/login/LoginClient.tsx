@@ -69,12 +69,6 @@ export default function LoginClient() {
     } catch {}
   }, []);
 
-  useEffect(() => {
-    document.body.classList.add('no-scroll');
-    return () => {
-      document.body.classList.remove('no-scroll');
-    };
-  }, []);
 
   useEffect(() => {
     if (searchParams?.get('loggedOut') !== '1') return;
@@ -221,7 +215,7 @@ export default function LoginClient() {
   }
 
   return (
-    <div className="relative flex min-h-[100dvh] box-border items-center justify-center overflow-hidden px-4 py-6 md:py-12">
+    <div className="relative flex min-h-[100dvh] items-center justify-center overflow-x-hidden overflow-y-auto px-4 py-4">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-[-4rem] top-10 h-44 w-44 rounded-full bg-primary-100/60 blur-3xl" />
         <div className="absolute right-[-3rem] top-16 h-56 w-56 rounded-full bg-accent-100/70 blur-3xl" />
@@ -231,21 +225,16 @@ export default function LoginClient() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, ease: 'easeOut' }}
-        className="relative w-full max-w-xl ui-card rounded-[32px] p-6 text-slate-900 shadow-2xl sm:p-8"
+        className="relative w-full max-w-sm ui-card p-4 text-slate-900 shadow-2xl"
       >
-        <div className="flex items-center gap-3">
-          <span className="rounded-2xl bg-primary-100/70 p-3">
-            <BusIcon className="h-7 w-7 text-primary-600" />
+        <div className="flex items-center gap-2">
+          <span className="rounded-xl bg-primary-100/70 p-2">
+            <BusIcon className="h-5 w-5 text-primary-600" />
           </span>
-          <div>
-            <h1 className="text-3xl font-semibold">셔틀콕! 로그인</h1>
-            <p className="mt-1 text-sm text-slate-600">자동 로그인: 최근 30분 내 로그인 기록</p>
-          </div>
+          <h1 className="text-lg font-bold">셔틀콕!</h1>
         </div>
 
-        <p className="mt-4 text-lg text-slate-700">역할을 선택하고 로그인해주세요.</p>
-
-        <div className="mt-6 grid grid-cols-2 gap-4">
+        <div className="mt-3 grid grid-cols-2 gap-2">
           {roleCards.map(([key, info]) => {
             const selected = role === key;
             return (
@@ -254,50 +243,49 @@ export default function LoginClient() {
                 type="button"
                 onClick={() => setRole(key)}
                 className={clsx(
-                  'rounded-2xl border px-4 py-3.5 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-200',
+                  'rounded-xl border px-3 py-2 text-center font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-200',
                   selected
-                    ? 'border-primary-300 bg-primary-50 text-primary-800 shadow-md'
-                    : 'border-slate-200 bg-white text-slate-800 shadow-sm hover:border-primary-300 hover:bg-primary-50 hover:text-primary-800'
+                    ? 'border-primary-300 bg-primary-50 text-primary-800 shadow-sm'
+                    : 'border-slate-200 bg-white text-slate-700 hover:border-primary-300 hover:bg-primary-50'
                 )}
               >
-                <span className="text-lg font-semibold">{info.label}</span>
-                <p className={clsx('mt-2 text-base', selected ? 'text-primary-700' : 'text-slate-700')}>{info.description}</p>
+                {info.label}
               </button>
             );
           })}
         </div>
 
-        <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
-          <div className="space-y-2">
-            <label className="text-base font-semibold text-slate-700" htmlFor="email">이메일</label>
+        <form className="mt-3 space-y-2.5" onSubmit={handleSubmit}>
+          <div>
+            <label className="text-sm font-semibold text-slate-700" htmlFor="email">이메일</label>
             <input
               id="email"
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="ui-input px-4 py-3.5 text-lg"
+              className="ui-input mt-1"
               placeholder="name@example.com"
               autoComplete="email"
               required
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-base font-semibold text-slate-700" htmlFor="password">비밀번호</label>
+          <div>
+            <label className="text-sm font-semibold text-slate-700" htmlFor="password">비밀번호</label>
             <input
               id="password"
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="ui-input px-4 py-3.5 text-lg"
-              placeholder="영문, 숫자 포함 8자 이상"
+              className="ui-input mt-1"
+              placeholder="••••••••"
               autoComplete="current-password"
               required
             />
           </div>
 
           {error ? (
-            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <div className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
               {error}
             </div>
           ) : null}
@@ -305,7 +293,7 @@ export default function LoginClient() {
           <button
             type="submit"
             className={clsx(
-              'w-full ui-btn py-4 text-lg font-semibold',
+              'w-full ui-btn font-semibold',
               loading ? 'bg-slate-200 text-slate-500 hover:bg-slate-200' : 'bg-primary-600 text-white hover:bg-primary-500'
             )}
             disabled={loading}
@@ -314,11 +302,11 @@ export default function LoginClient() {
           </button>
         </form>
 
-        <div className="mt-6 flex justify-end">
+        <div className="mt-2.5 flex justify-end">
           <button
             type="button"
             onClick={() => { setSignupError(null); setSignupOpen(true); }}
-            className="ui-btn-outline px-4 py-2 text-slate-700"
+            className="text-sm text-slate-500 underline-offset-2 hover:text-primary-600 hover:underline"
           >
             회원가입 요청
           </button>
@@ -327,20 +315,20 @@ export default function LoginClient() {
       </motion.div>
 
       {signupOpen ? (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm">
-          <div className="w-[520px] max-w-[90vw] ui-card p-6 shadow-2xl">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm px-4">
+          <div className="w-full max-w-sm ui-card p-4 shadow-2xl">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-slate-900">회원가입 요청</h2>
+              <h2 className="font-semibold text-slate-900">회원가입 요청</h2>
               <button
                 type="button"
                 onClick={() => { setSignupOpen(false); resetSignupForm(); }}
-                className="ui-btn-outline px-3 py-1 text-sm text-slate-600"
+                className="text-sm text-slate-400 hover:text-slate-700"
               >
                 닫기
               </button>
             </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="mt-3 grid grid-cols-2 gap-2">
               {roleCards.map(([key, info]) => {
                 const selected = signupRole === key;
                 return (
@@ -349,62 +337,58 @@ export default function LoginClient() {
                     type="button"
                     onClick={() => setSignupRole(key)}
                     className={clsx(
-                      'rounded-2xl border px-4 py-3 text-left text-sm transition',
+                      'rounded-xl border px-3 py-2 text-center text-sm font-semibold transition',
                       selected ? 'border-primary-300 bg-primary-50 text-primary-800' : 'border-slate-200 bg-white text-slate-700'
                     )}
                   >
-                    <span className="font-semibold">{info.label}</span>
-                    <p className="mt-1 text-xs">{info.description}</p>
+                    {info.label}
                   </button>
                 );
               })}
             </div>
 
             {signupRole === 'parent' ? (
-              <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-center">
+              <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-center">
                 <p className="text-sm font-semibold text-emerald-800">학부모 가입은 초대 링크로만 가능합니다</p>
-                <p className="mt-1 text-xs text-emerald-700">
-                  담당 기사님(관리자)께 초대 링크를 요청해주세요.<br />
-                  링크를 받으면 바로 가입하실 수 있습니다.
-                </p>
+                <p className="mt-1 text-xs text-emerald-700">담당 기사님께 초대 링크를 요청해주세요.</p>
               </div>
             ) : (
-              <div className="mt-5 grid gap-3">
+              <div className="mt-3 grid gap-2">
                 <input
                   type="text"
                   placeholder="이름"
                   value={signupName}
                   onChange={(event) => setSignupName(event.target.value)}
-                  className="ui-input px-4 py-3"
+                  className="ui-input"
                 />
                 <input
                   type="email"
                   placeholder="이메일"
                   value={signupEmail}
                   onChange={(event) => setSignupEmail(event.target.value)}
-                  className="ui-input px-4 py-3"
+                  className="ui-input"
                 />
                 <input
                   type="password"
                   placeholder="비밀번호"
                   value={signupPassword}
                   onChange={(event) => setSignupPassword(event.target.value)}
-                  className="ui-input px-4 py-3"
+                  className="ui-input"
                 />
               </div>
             )}
 
             {signupError ? (
-              <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
                 {signupError}
               </div>
             ) : null}
 
-            <div className="mt-5 flex items-center justify-end gap-3">
+            <div className="mt-3 flex items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={() => { setSignupOpen(false); resetSignupForm(); }}
-                className="ui-btn-outline px-4 py-2 text-base text-slate-700"
+                className="ui-btn-outline px-3 py-1.5 text-sm text-slate-700"
               >
                 취소
               </button>
@@ -413,12 +397,12 @@ export default function LoginClient() {
                   type="button"
                   onClick={handleSignupSubmit}
                   className={clsx(
-                    'ui-btn px-4 py-2 text-base font-semibold',
+                    'ui-btn px-3 py-1.5 text-sm font-semibold',
                     signingUp ? 'bg-slate-200 text-slate-500 hover:bg-slate-200' : 'bg-primary-600 text-white'
                   )}
                   disabled={signingUp}
                 >
-                  {signingUp ? '요청 처리 중...' : '요청 보내기'}
+                  {signingUp ? '처리 중...' : '요청 보내기'}
                 </button>
               )}
             </div>

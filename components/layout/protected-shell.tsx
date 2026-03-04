@@ -59,7 +59,7 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
 
         {/* ── 모바일 상단 헤더 ── */}
         <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-sm md:hidden">
-          <div className="flex h-[52px] items-center justify-between px-4">
+          <div className="flex h-[44px] items-center justify-between px-3">
             {/* 로고 + 앱명 → 대시보드로 이동 */}
             <Link href="/dashboard" className="flex items-center gap-2 text-slate-800 transition active:opacity-70">
               <BusIcon className="h-7 w-7 text-primary-600" />
@@ -78,8 +78,8 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
 
         {/* ── 데스크톱: 좌측 사이드바 + 본문 ── */}
         <div className={clsx(
-          'mx-auto hidden max-w-6xl gap-6 px-3 py-8 sm:px-6 md:grid',
-          collapsed ? 'grid-cols-[92px_1fr]' : 'grid-cols-[240px_1fr]'
+          'mx-auto hidden max-w-6xl gap-4 px-3 py-4 sm:px-6 md:grid',
+          collapsed ? 'grid-cols-[80px_1fr]' : 'grid-cols-[220px_1fr]'
         )}>
           <aside className={clsx('sticky top-6 h-fit ui-card ui-card-compact', collapsed && 'p-3')}>
             <div className="mb-2 flex items-center justify-between">
@@ -100,7 +100,7 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
         </div>
 
         {/* ── 모바일 본문 ── */}
-        <main className="mx-auto max-w-6xl px-4 py-4 pb-24 sm:px-6 sm:py-6 md:hidden">
+        <main className="mx-auto max-w-6xl px-3 py-2 pb-[60px] sm:px-4 sm:py-3 md:hidden">
           {children}
         </main>
 

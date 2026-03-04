@@ -31,7 +31,7 @@ export function SchoolsTabs({ schools, students }: SchoolsTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>("schools");
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
 
       <div className="grid grid-cols-2 gap-2 border-b border-slate-200 sm:flex sm:flex-wrap">
         <TabButton active={activeTab === "schools"} onClick={() => setActiveTab("schools")}>
@@ -73,7 +73,7 @@ function SchoolTab({ schools }: { schools: SchoolRecord[] }) {
   const [editSchoolId, setEditSchoolId] = useState<string | null>(null);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <section className="space-y-3">
         <h2 className="text-lg font-semibold text-slate-900">등록된 학교</h2>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -185,7 +185,7 @@ function StudentTab({ schools, students }: { schools: SchoolRecord[]; students: 
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <CollapsibleCard title="학생 등록" description="학생을 먼저 등록하고 학교는 나중에 배정할 수 있습니다." buttonLabel="학생 등록">
         <CreateStudentForm schools={schools.map((school) => ({ id: school.id, name: school.name }))} />
       </CollapsibleCard>

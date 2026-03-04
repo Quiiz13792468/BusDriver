@@ -115,7 +115,7 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* 인사말 */}
       <p className="text-base font-semibold text-slate-800">{name}님, 안녕하세요!</p>
 
@@ -315,7 +315,7 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
   const year = Number.isInteger(selectedYear) ? selectedYear : today.getFullYear();
   const currentMonth = today.getMonth() + 1;
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <p className="text-base font-semibold text-slate-800">{name}님, 안녕하세요!</p>
 
       <section>

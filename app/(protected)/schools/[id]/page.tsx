@@ -106,7 +106,7 @@ export default async function SchoolDetailPage({ params }: SchoolDetailPageProps
   });
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="space-y-3">
       <PageHeader
         title={school.name}
         description={

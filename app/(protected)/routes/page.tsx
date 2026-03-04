@@ -14,8 +14,8 @@ export default async function RoutesPage() {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-6">
+    <div className="space-y-3">
+      <div className="space-y-3">
         {routesBySchool.map(({ school, routes }) => (
           <section key={school.id} className="space-y-3">
             <details className="ui-card" open>

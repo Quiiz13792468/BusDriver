@@ -79,7 +79,7 @@ export default async function ShortagePage({ searchParams }: Props) {
   }>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <header className="ui-card ui-card-pad">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>

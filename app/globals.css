@@ -14,12 +14,12 @@
   --muted: #4c5a57;
   --ring: #77b9ad;
   --shadow-strong: 0 24px 60px rgba(16, 24, 40, 0.12);
-  --radius-card: 24px;
-  --radius-control: 16px;
-  --radius-soft: 12px;
-  --control-height: 48px;
-  --space-card-pad: clamp(16px, 2vw, 22px);
-  --space-card-compact: clamp(12px, 1.6vw, 16px);
+  --radius-card: 20px;
+  --radius-control: 12px;
+  --radius-soft: 10px;
+  --control-height: 42px;
+  --space-card-pad: clamp(10px, 1.2vw, 14px);
+  --space-card-compact: clamp(7px, 0.9vw, 10px);
 }
 
 
@@ -36,7 +36,7 @@ body {
     linear-gradient(180deg, var(--page-bg), var(--page-accent));
   color: var(--ink);
   font-size: 1rem;
-  line-height: 1.65;
+  line-height: 1.45;
   letter-spacing: -0.2px;
 }
 

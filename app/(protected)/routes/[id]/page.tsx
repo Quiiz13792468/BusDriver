@@ -40,7 +40,7 @@ export default async function RouteDetailPage({ params }: PageProps) {
   );
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="space-y-3">
       <header className="ui-card ui-card-pad space-y-1">
         <h1 className="flex items-center gap-2 text-2xl font-semibold text-slate-900 sm:text-3xl">
           <Link href="/routes" className="text-slate-400 hover:text-primary-600" aria-label="뒤로가기">

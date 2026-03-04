@@ -111,7 +111,7 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
   const selectedSchool = selectedSchoolId === 'ALL' ? null : await getSchoolById(selectedSchoolId);
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="space-y-3">
       <RecordPaymentModal
         schools={schools.map((school) => ({
           id: school.id,

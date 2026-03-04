@@ -22,7 +22,7 @@ export default async function ParentRoutePage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <PageHeader
         title="노선 확인"
         description="자녀의 탑승 노선과 정차 지점을 확인하세요."

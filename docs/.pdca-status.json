@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-03-02T23:07:32.299Z",
+  "lastUpdated": "2026-03-03T01:16:25.559Z",
   "activeFeatures": [
     "data",
     "layout",
@@ -45,7 +45,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-01T17:55:40.611Z",
-        "lastUpdated": "2026-03-02T01:06:28.073Z"
+        "lastUpdated": "2026-03-03T01:16:25.558Z"
       },
       "lastFile": "/mnt/d/PJW/수련/BusDriver/components/layout/mobile-bottom-nav.tsx"
     },
@@ -162,7 +162,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-01T18:17:32.304Z",
-        "lastUpdated": "2026-03-01T18:17:32.304Z"
+        "lastUpdated": "2026-03-03T00:50:19.740Z"
       },
       "lastFile": "/mnt/d/PJW/수련/BusDriver/app/(auth)/login/LoginClient.tsx"
     },
@@ -266,7 +266,7 @@
   "session": {
     "startedAt": "2026-03-01T11:27:46.800Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-03-02T23:07:32.299Z"
+    "lastActivity": "2026-03-03T01:16:25.559Z"
   },
   "history": [
     {
@@ -794,6 +794,78 @@
     {
       "timestamp": "2026-03-02T23:07:32.299Z",
       "feature": "schools",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T00:49:15.749Z",
+      "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T00:49:51.419Z",
+      "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T00:50:19.740Z",
+      "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T01:15:22.657Z",
+      "feature": "layout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T01:15:29.103Z",
+      "feature": "layout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T01:15:36.225Z",
+      "feature": "layout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T01:15:43.353Z",
+      "feature": "layout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T01:15:48.876Z",
+      "feature": "layout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T01:15:54.517Z",
+      "feature": "layout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T01:15:59.166Z",
+      "feature": "layout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T01:16:21.755Z",
+      "feature": "layout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T01:16:25.559Z",
+      "feature": "layout",
       "phase": "do",
       "action": "updated"
     }

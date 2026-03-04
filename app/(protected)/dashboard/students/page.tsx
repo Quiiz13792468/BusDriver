@@ -26,7 +26,7 @@ export default async function DashboardStudentsPage({ searchParams }: StudentsPa
       : students.filter((student) => student.schoolId === selectedSchoolId);
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="space-y-3">
       <header className="ui-card ui-card-pad">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>

@@ -20,7 +20,7 @@ export default async function ParentPickupPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <PageHeader
         title="탑승지점 변경 요청"
         description="학생의 노선과 탑승 지점을 선택하고 변경 요청을 등록하세요."

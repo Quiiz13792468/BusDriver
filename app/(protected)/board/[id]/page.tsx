@@ -45,7 +45,7 @@ export default async function BoardPostPage({ params }: BoardPostPageProps) {
   }));
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="space-y-3">
       <PostReadMarker
         postId={post.id}
         viewerId={session.user!.id}
