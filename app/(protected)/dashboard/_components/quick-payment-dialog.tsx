@@ -83,12 +83,13 @@ export function QuickPaymentDialog({
       return;
     }
 
+    const schoolId = selectedStudent.schoolId;
     startTransition(async () => {
       try {
         const { quickRecordPayment } = await import('@/app/(protected)/dashboard/actions');
         await quickRecordPayment({
           studentId: selectedStudent.id,
-          schoolId: selectedStudent.schoolId,
+          schoolId: schoolId!,
           amount: parsed,
           targetYear: currentYear,
           targetMonth: currentMonth,
