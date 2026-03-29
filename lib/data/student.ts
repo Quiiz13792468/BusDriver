@@ -4,7 +4,7 @@ import crypto from 'node:crypto';
 
 import type { StudentRecord } from '@/lib/data/types';
 import { getPaymentsByStudent } from '@/lib/data/payment';
-import { supaEnabled, restSelect, restInsert, restPatch } from '@/lib/supabase/rest';
+import { supaEnabled, restSelect, restSelectIn, restInsert, restPatch, restCount } from '@/lib/supabase/rest';
 
 function ensureSupabase() {
   if (!supaEnabled()) {
@@ -38,6 +38,13 @@ export async function getStudentById(id: string) {
   ensureSupabase();
   const rows = await restSelect<any>('students', { id }, { limit: 1 });
   return rows[0] ? mapRowToStudent(rows[0]) : null;
+}
+
+export async function getStudentsByIds(ids: string[]): Promise<StudentRecord[]> {
+  ensureSupabase();
+  if (ids.length === 0) return [];
+  const rows = await restSelectIn<any>('students', 'id', ids);
+  return rows.map(mapRowToStudent);
 }
 
 export async function getStudentsBySchool(schoolId: string): Promise<StudentRecord[]> {
@@ -116,55 +123,51 @@ export async function createStudent(input: {
 
 export async function updateStudent(
   id: string,
-  input: Partial<{
-    schoolId: string | null;
-    parentUserId: string | null;
-    name: string;
-    guardianName: string;
-    phone: string | null;
-    homeAddress: string | null;
-    pickupPoint: string | null;
-    routeId: string | null;
-    emergencyContact: string | null;
-    feeAmount: number;
-    depositDay: number | null;
-    notes: string | null;
-    isActive: boolean;
-    suspendedAt: Date | null;
-  }>
-) {
+  input: {
+    schoolId?: string | null;
+    parentUserId?: string | null;
+    name?: string;
+    guardianName?: string;
+    phone?: string | null;
+    homeAddress?: string | null;
+    pickupPoint?: string | null;
+    routeId?: string | null;
+    emergencyContact?: string | null;
+    feeAmount?: number;
+    depositDay?: number | null;
+    notes?: string | null;
+    isActive?: boolean;
+    suspendedAt?: Date | null;
+  }
+): Promise<StudentRecord> {
   ensureSupabase();
-  const current = await getStudentById(id);
-  if (!current) throw new Error('Student not found.');
-  const now = new Date().toISOString();
-  await restPatch('students', { id }, {
-    school_id: input.schoolId !== undefined ? input.schoolId : current.schoolId,
-    parent_user_id: input.parentUserId ?? current.parentUserId,
-    name: input.name ?? current.name,
-    guardian_name: input.guardianName ?? current.guardianName,
-    phone: input.phone ?? current.phone,
-    home_address: input.homeAddress ?? current.homeAddress,
-    pickup_point: input.pickupPoint ?? current.pickupPoint,
-    route_id: input.routeId ?? current.routeId,
-    emergency_contact: input.emergencyContact ?? current.emergencyContact,
-    fee_amount: input.feeAmount ?? current.feeAmount,
-    deposit_day: (input as any).depositDay !== undefined ? (input as any).depositDay : current.depositDay,
-    notes: input.notes ?? current.notes,
-    is_active: (input as any).isActive !== undefined ? (input as any).isActive : current.isActive,
-    suspended_at: input.suspendedAt
+  const patch: Record<string, any> = { updated_at: new Date().toISOString() };
+  if (input.schoolId !== undefined)        patch.school_id = input.schoolId;
+  if (input.parentUserId !== undefined)    patch.parent_user_id = input.parentUserId;
+  if (input.name !== undefined)            patch.name = input.name;
+  if (input.guardianName !== undefined)    patch.guardian_name = input.guardianName;
+  if (input.phone !== undefined)           patch.phone = input.phone;
+  if (input.homeAddress !== undefined)     patch.home_address = input.homeAddress;
+  if (input.pickupPoint !== undefined)     patch.pickup_point = input.pickupPoint;
+  if (input.routeId !== undefined)         patch.route_id = input.routeId;
+  if (input.emergencyContact !== undefined) patch.emergency_contact = input.emergencyContact;
+  if (input.feeAmount !== undefined)       patch.fee_amount = input.feeAmount;
+  if (input.depositDay !== undefined)      patch.deposit_day = input.depositDay;
+  if (input.notes !== undefined)           patch.notes = input.notes;
+  if (input.isActive !== undefined)        patch.is_active = input.isActive;
+  if (input.suspendedAt !== undefined) {
+    patch.suspended_at = input.suspendedAt
       ? input.suspendedAt instanceof Date
         ? input.suspendedAt.toISOString()
         : (input.suspendedAt as any)
-      : input.suspendedAt === null
-      ? null
-      : current.suspendedAt,
-    updated_at: now
-  });
-  return (await getStudentById(id))!;
+      : null;
+  }
+  const rows = await restPatch('students', { id }, patch);
+  if (!rows[0]) throw new Error('Student not found.');
+  return mapRowToStudent(rows[0]);
 }
 
 export async function countStudents() {
   ensureSupabase();
-  const rows = await restSelect<any>('students', {});
-  return rows.length;
+  return restCount('students', {});
 }

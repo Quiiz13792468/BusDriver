@@ -17,7 +17,7 @@ export function RouteMapSection({
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  function handleUpdateCoords(stopId: string, lat: number, lng: number) {
+  function handleStopDragEnd(stopId: string, lat: number, lng: number) {
     setStops((prev) => prev.map((s) => (s.id === stopId ? { ...s, lat, lng } : s)));
     startTransition(async () => {
       await updateStopCoordsAction(stopId, routeId, lat, lng);
@@ -25,10 +25,18 @@ export function RouteMapSection({
     });
   }
 
+  const mapStops = stops
+    .filter((s) => s.lat != null && s.lng != null)
+    .map((s) => ({ id: s.id, name: s.name, lat: s.lat!, lng: s.lng!, position: s.position }));
+
   return (
     <div className="space-y-2">
       {isPending && <p className="text-xs font-medium text-primary-600">위치 저장 중...</p>}
-      <KakaoMap stops={stops} onUpdateCoords={handleUpdateCoords} />
+      <KakaoMap
+        stops={mapStops}
+        onStopDragEnd={handleStopDragEnd}
+        height="320px"
+      />
     </div>
   );
 }

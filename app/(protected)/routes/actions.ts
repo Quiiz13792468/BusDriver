@@ -1,10 +1,13 @@
 "use server";
 
+import crypto from 'node:crypto';
+
 import { revalidatePath, revalidateTag } from 'next/cache';
 
 import { requireSession } from '@/lib/auth/session';
 import { assignStudentToRoute, createRoute, deleteRoute, updateRoute } from '@/lib/data/route';
 import { updateStudent } from '@/lib/data/student';
+import { restInsert, restPatch, restDelete } from '@/lib/supabase/rest';
 
 type ActionResponse = {
   status: 'success' | 'error';
@@ -72,15 +75,55 @@ export async function assignStudentsBulkToRouteAction(
   const idsRaw = (formData.get('studentIds') as string) || '';
   const ids: string[] = idsRaw.split(',').map((s) => s.trim()).filter(Boolean);
   if (ids.length === 0) return { status: 'error', message: '학생을 선택해주세요.' };
-  for (const id of ids) {
-    // eslint-disable-next-line no-await-in-loop
-    await assignStudentToRoute(id, routeId || null);
-    await updateStudent(id, { pickupPoint: pickupPoint || null });
-  }
+  await Promise.all(
+    ids.map((id) =>
+      assignStudentToRoute(id, routeId || null)
+        .then(() => updateStudent(id, { pickupPoint: pickupPoint || null }))
+    )
+  );
   revalidateTag('routes');
   revalidateTag('students');
   revalidatePath('/routes');
   return { status: 'success', message: '일괄 배정이 완료되었습니다.' };
+}
+
+export async function reorderRouteStops(routeId: string, stops: Array<{ id: string; position: number }>) {
+  await requireSession('ADMIN');
+  // route 소속 검증 후 병렬 업데이트
+  await Promise.all(
+    stops.map((stop) =>
+      restPatch('route_stops', { id: stop.id, route_id: routeId }, { position: stop.position })
+    )
+  );
+  revalidatePath(`/routes/${routeId}`);
+}
+
+export async function addRouteStop(routeId: string, data: { name: string; lat: number; lng: number; position: number; description?: string }) {
+  await requireSession('ADMIN');
+  const id = crypto.randomUUID();
+  await restInsert('route_stops', [{
+    id,
+    route_id: routeId,
+    name: data.name,
+    lat: data.lat,
+    lng: data.lng,
+    position: data.position,
+    description: data.description ?? null,
+  }]);
+  revalidatePath(`/routes/${routeId}`);
+  return id;
+}
+
+export async function deleteRouteStop(routeId: string, stopId: string) {
+  await requireSession('ADMIN');
+  await restDelete('route_stops', { id: stopId });
+  revalidatePath(`/routes/${routeId}`);
+}
+
+export async function updateRouteStop(stopId: string, routeId: string, data: { name?: string; lat?: number; lng?: number; description?: string }) {
+  await requireSession('ADMIN');
+  await restPatch('route_stops', { id: stopId }, data);
+  revalidatePath(`/routes/${routeId}`);
 }
 
 export async function saveRouteStopsAction(

@@ -38,6 +38,7 @@ body {
   font-size: 1rem;
   line-height: 1.45;
   letter-spacing: -0.2px;
+  -webkit-text-size-adjust: 100%;
 }
 
 .ui-overlay-backdrop {
@@ -330,4 +331,14 @@ details[open] .ui-collapse-panel {
   .ui-collapse-panel {
     animation: none !important;
   }
+}
+
+/* Minimum touch target size for elderly users */
+button, a, [role="button"] {
+  min-height: 44px;
+}
+
+/* Safe area for bottom nav (iPhone home indicator) */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }

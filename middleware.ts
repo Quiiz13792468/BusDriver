@@ -1,29 +1,95 @@
-import { NextResponse } from 'next/server';
-import { withAuth } from 'next-auth/middleware';
+// getSession()은 JWT를 로컬 검증(네트워크 없음). 서버 액션에서 민감 작업은 requireSession()의 getUser()로 재검증.
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
 
-export default withAuth(
-  function middleware(req) {
-    const token = req.nextauth.token;
-    const role = token?.role as string | undefined;
-    const { pathname } = req.nextUrl;
+const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+const LAST_ACTIVE_COOKIE = 'bus-last-active';
 
-    if (!role) {
-      return NextResponse.redirect(new URL('/login', req.url));
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({
+    request: { headers: request.headers }
+  });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value;
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          request.cookies.set({ name, value, ...options });
+          response = NextResponse.next({ request: { headers: request.headers } });
+          response.cookies.set({ name, value, ...options });
+        },
+        remove(name: string, options: CookieOptions) {
+          request.cookies.set({ name, value: '', ...options });
+          response = NextResponse.next({ request: { headers: request.headers } });
+          response.cookies.set({ name, value: '', ...options });
+        }
+      }
     }
+  );
 
-    if (pathname.startsWith('/admin') && role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/dashboard', req.url));
-    }
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
+  const { pathname } = request.nextUrl;
 
-    return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => !!token
+  // Check inactivity timeout
+  if (user) {
+    const lastActive = request.cookies.get(LAST_ACTIVE_COOKIE)?.value;
+    const now = Date.now();
+    if (lastActive) {
+      const ts = parseInt(lastActive, 10);
+      if (isNaN(ts)) {
+        // 쿠키 손상 시 재설정
+        response.cookies.set(LAST_ACTIVE_COOKIE, String(Date.now()), {
+          httpOnly: true,
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+        });
+      } else if (now - ts > INACTIVITY_TIMEOUT_MS) {
+        // Inactivity timeout - sign out and redirect
+        await supabase.auth.signOut();
+        const loginUrl = new URL('/login?reason=inactive', request.url);
+        const logoutResponse = NextResponse.redirect(loginUrl);
+        logoutResponse.cookies.delete(LAST_ACTIVE_COOKIE);
+        return logoutResponse;
+      }
     }
+    // Update last active timestamp
+    response.cookies.set(LAST_ACTIVE_COOKIE, String(now), {
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24, // 24 hours
+      secure: process.env.NODE_ENV === 'production'
+    });
   }
-);
+
+  // Redirect unauthenticated users to login
+  if (!user) {
+    const loginUrl = new URL('/login', request.url);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  const role = user.app_metadata?.role as string | undefined;
+
+  // Admin-only route protection
+  if (pathname.startsWith('/admin') && role !== 'ADMIN') {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  return response;
+}
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/schools/:path*', '/students/:path*', '/payments/:path*', '/board/:path*', '/admin/:path*']
+  matcher: [
+    '/dashboard/:path*',
+    '/schools/:path*',
+    '/students/:path*',
+    '/payments/:path*',
+    '/board/:path*',
+    '/admin/:path*'
+  ]
 };

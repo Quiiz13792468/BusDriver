@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getSession, signIn } from 'next-auth/react';
+import { createBrowserClient } from '@/lib/supabase/client';
 
 import { BusIcon } from '@/components/layout/icons';
 import { loginSchema } from '@/lib/validation';
@@ -83,6 +83,15 @@ export default function LoginClient() {
       router.replace('/login');
     })();
   }, [searchParams, router]);
+
+  useEffect(() => {
+    if (searchParams?.get('reason') !== 'inactive') return;
+    void fireAutoPopup({
+      icon: 'warning',
+      title: '자동 로그아웃',
+      text: '30분 이상 활동이 없어 자동으로 로그아웃되었습니다.'
+    });
+  }, [searchParams]);
 
   useEffect(() => {
     if (signupRole !== 'parent') {
@@ -174,25 +183,28 @@ export default function LoginClient() {
 
     const redirectUrl = role === 'admin' ? '/admin' : '/dashboard';
 
-    const result = await signIn('credentials', {
-      redirect: false,
+    const supabase = createBrowserClient();
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
       email,
-      password,
-      role: ROLE_MAP[role].value,
-      callbackUrl: redirectUrl
+      password
     });
 
-    setLoading(false);
-
-    if (result?.error) {
-      const code = result.error.toString();
-      if (code.includes('CredentialsSignin')) {
-        setError('이메일/비밀번호/역할을 확인해주세요.');
-      } else {
-        setError('로그인에 실패했습니다. 잠시 후 다시 시도해주세요.');
-      }
+    if (signInError || !data.user) {
+      setError('이메일/비밀번호를 확인해주세요.');
+      setLoading(false);
       return;
     }
+
+    // Verify role matches
+    const userRole = data.user.app_metadata?.role as string;
+    if (userRole !== ROLE_MAP[role].value) {
+      await supabase.auth.signOut();
+      setError('선택한 역할과 계정 역할이 일치하지 않습니다.');
+      setLoading(false);
+      return;
+    }
+
+    setLoading(false);
 
     try {
       const payload: StoredPreferences = {
@@ -203,14 +215,13 @@ export default function LoginClient() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     } catch {}
 
-    const session = await getSession();
-    const displayName = session?.user?.name ?? email;
+    const displayName = data.user.user_metadata?.name ?? email;
     await fireAutoPopup({
       icon: 'success',
       title: `${displayName}님 환영합니다!`,
       text: '로그인에 성공했습니다. 대시보드로 이동합니다.'
     });
-    router.push(result?.url ?? redirectUrl);
+    router.push(redirectUrl);
     router.refresh();
   }
 

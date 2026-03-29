@@ -7,10 +7,8 @@ import { PageHeader } from '@/components/layout/page-header';
 
 export default async function ParentPickupPage() {
   const session = await requireSession('PARENT');
-  const user = session.user!;
-
   const [students, schools] = await Promise.all([
-    getStudentsByParent(user.id),
+    getStudentsByParent(session.id),
     getSchools()
   ]);
   const schoolMap = new Map(schools.map((school) => [school.id, school.name]));

@@ -5,10 +5,15 @@ import { requireSession } from '@/lib/auth/session';
 import { getRouteById, getStudentsByRoute } from '@/lib/data/route';
 import { getStudentsBySchool } from '@/lib/data/student';
 import { assignStudentToRouteAction } from '@/app/(protected)/routes/actions.clean';
-import { RouteStopsEditor } from '@/components/route-stops-editor';
+import {
+  reorderRouteStops,
+  addRouteStop,
+  deleteRouteStop,
+  updateRouteStop,
+} from '@/app/(protected)/routes/actions';
 import { BulkAssignStudents } from '@/components/bulk-assign-students';
-import { RouteMapSection } from '@/components/route-map-section';
 import { RouteStopAccordion } from '@/components/route-stop-accordion';
+import { RouteBuilder } from '@/components/route-builder';
 import type { StopGroup } from '@/components/route-stop-accordion';
 
 type PageProps = {
@@ -39,6 +44,10 @@ export default async function RouteDetailPage({ params }: PageProps) {
     (s) => !s.pickupPoint || !route.stops.includes(s.pickupPoint)
   );
 
+  const builderStops = route.stopRecords
+    .filter((s) => s.lat != null && s.lng != null)
+    .map((s) => ({ id: s.id, name: s.name, lat: s.lat!, lng: s.lng!, position: s.position, description: s.description }));
+
   return (
     <div className="space-y-3">
       <header className="ui-card ui-card-pad space-y-1">
@@ -53,10 +62,34 @@ export default async function RouteDetailPage({ params }: PageProps) {
         </p>
       </header>
 
-      {/* 카카오맵 */}
+      {/* 노선 빌더 (지도 + 정차 지점 편집) */}
       <section className="ui-card ui-card-pad space-y-3">
-        <h2 className="text-lg font-semibold text-slate-900">노선 지도</h2>
-        <RouteMapSection routeId={route.id} initialStops={route.stopRecords} />
+        <h2 className="text-lg font-semibold text-slate-900">노선 지도 및 정차 지점 편집</h2>
+        <RouteBuilder
+          routeId={route.id}
+          initialStops={builderStops}
+          onReorder={async (stops) => {
+            'use server';
+            await reorderRouteStops(route.id, stops);
+          }}
+          onAdd={async (name, lat, lng) => {
+            'use server';
+            const position = route.stopRecords.length;
+            await addRouteStop(route.id, { name, lat, lng, position });
+          }}
+          onDelete={async (stopId) => {
+            'use server';
+            await deleteRouteStop(route.id, stopId);
+          }}
+          onUpdate={async (stopId, data) => {
+            'use server';
+            await updateRouteStop(stopId, route.id, data);
+          }}
+          onStopDragEnd={async (stopId, lat, lng) => {
+            'use server';
+            await updateRouteStop(stopId, route.id, { lat, lng });
+          }}
+        />
       </section>
 
       {/* 정류장별 탑승 학생 (accordion) */}
@@ -76,12 +109,6 @@ export default async function RouteDetailPage({ params }: PageProps) {
             </ul>
           </div>
         )}
-      </section>
-
-      {/* 정차 지점 편집 */}
-      <section className="ui-card ui-card-pad space-y-3">
-        <h2 className="text-lg font-semibold text-slate-900">정차 지점 편집</h2>
-        <RouteStopsEditor routeId={route.id} initialStops={route.stops} />
       </section>
 
       {/* 학생 배정 */}

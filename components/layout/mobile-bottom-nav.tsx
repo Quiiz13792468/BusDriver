@@ -70,7 +70,7 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
 
   if (role !== 'ADMIN') {
     return (
-      <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-14 items-stretch border-t border-slate-200 bg-white/95 backdrop-blur-sm safe-bottom md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-14 items-stretch border-t border-slate-200 bg-white/95 backdrop-blur-sm md:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
         {PARENT_TABS.map((item) => (
           <NavTab key={item.href} item={item} active={isActive(item)} />
         ))}
@@ -84,20 +84,22 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
         <NavTab key={item.href} item={item} active={isActive(item)} />
       ))}
 
-      {/* 중앙 입금 등록 FAB */}
-      <div className="relative flex flex-none items-center justify-center px-2">
-        <Link
-          href="/payments?payment=1"
-          onClick={() => show('이동 중...')}
-          className="flex h-12 w-12 -translate-y-2 flex-col items-center justify-center rounded-full bg-primary-600 shadow-lg shadow-primary-200/60 transition active:scale-95 active:bg-primary-700"
-          aria-label="입금 등록"
-        >
-          <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-          </svg>
-          <span className="mt-0.5 text-[9px] font-bold leading-none text-white">입금등록</span>
-        </Link>
-      </div>
+      {/* 중앙 입금 등록 FAB — 대시보드에서는 QuickPaymentDialog가 대신하므로 숨김 */}
+      {pathname !== '/dashboard' && (
+        <div className="relative flex flex-none items-center justify-center px-2">
+          <Link
+            href="/payments?payment=1"
+            onClick={() => show('이동 중...')}
+            className="flex h-12 w-12 -translate-y-2 flex-col items-center justify-center rounded-full bg-primary-600 shadow-lg shadow-primary-200/60 transition active:scale-95 active:bg-primary-700"
+            aria-label="입금 등록"
+          >
+            <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+            </svg>
+            <span className="mt-0.5 text-[9px] font-bold leading-none text-white">입금등록</span>
+          </Link>
+        </div>
+      )}
 
       {ADMIN_RIGHT.map((item) => (
         <NavTab key={item.href} item={item} active={isActive(item)} />

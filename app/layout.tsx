@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 
 import './globals.css';
 import { Providers } from '@/components/providers';
+import { PwaRegister } from '@/components/pwa-register';
 
 export const metadata: Metadata = {
   title: '통학버스 관리 서비스',
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             strategy="afterInteractive"
           />
         ) : null}
+        <PwaRegister />
         <Providers>
           <main className="min-h-screen">{children}</main>
         </Providers>

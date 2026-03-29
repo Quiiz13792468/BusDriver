@@ -12,7 +12,7 @@ import { AdSlot } from '@/components/ads/ad-slot';
 
 export default async function BoardPage() {
   const session = await requireSession();
-  const role = session.user?.role;
+  const role = session.role;
 
   if (role === 'ADMIN') {
     const [schools, posts] = await Promise.all([getSchools(), getBoardPosts()]);
@@ -42,7 +42,7 @@ export default async function BoardPage() {
                   <div>
                     <h3 className="text-lg font-semibold text-slate-900">
                       {post.title}
-                      <PostUnreadBadge postId={post.id} viewerId={session.user!.id} lastCommentAt={post.lastCommentAt} />
+                      <PostUnreadBadge postId={post.id} viewerId={session.id} lastCommentAt={post.lastCommentAt} />
                     </h3>
                     <p className="text-sm text-slate-700">작성자 {post.author?.name ?? '없음'} · {new Date(post.createdAt).toLocaleString()}</p>
                     <p className="mt-1 text-sm text-slate-600">조회수 {post.viewCount ?? 0} · 댓글 {post.commentCount ?? 0}</p>
@@ -71,12 +71,11 @@ export default async function BoardPage() {
     );
   }
 
-  const user = session.user!;
   const [students, schools, profile, posts] = await Promise.all([
-    getStudentsByParent(user.id),
+    getStudentsByParent(session.id),
     getSchools(),
-    getParentProfile(user.id),
-    getBoardPosts({ authorId: user.id, targetParentId: user.id })
+    getParentProfile(session.id),
+    getBoardPosts({ authorId: session.id, targetParentId: session.id })
   ]);
   const schoolNameMap = new Map(schools.map((school) => [school.id, school.name]));
   const childSchoolIds = Array.from(new Set(students.map((student) => student.schoolId).filter((id): id is string => Boolean(id))));
@@ -123,7 +122,7 @@ export default async function BoardPage() {
                 <div>
                   <h3 className="text-lg font-semibold text-slate-900">
                     {post.title}
-                    <PostUnreadBadge postId={post.id} viewerId={user.id} lastCommentAt={post.lastCommentAt} />
+                    <PostUnreadBadge postId={post.id} viewerId={session.id} lastCommentAt={post.lastCommentAt} />
                   </h3>
                   <p className="text-sm text-slate-700">등록일 {new Date(post.createdAt).toLocaleString()}</p>
                   <p className="mt-1 text-sm text-slate-600">조회수 {post.viewCount ?? 0} · 댓글 {post.commentCount ?? 0}</p>

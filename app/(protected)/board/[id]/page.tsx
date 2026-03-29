@@ -21,8 +21,8 @@ export default async function BoardPostPage({ params }: BoardPostPageProps) {
     notFound();
   }
 
-  const isAdmin = session.user?.role === 'ADMIN';
-  if (post.parentOnly && !isAdmin && post.authorId !== session.user?.id && post.targetParentId !== session.user?.id) {
+  const isAdmin = session.role === 'ADMIN';
+  if (post.parentOnly && !isAdmin && post.authorId !== session.id && post.targetParentId !== session.id) {
     notFound();
   }
 
@@ -48,7 +48,7 @@ export default async function BoardPostPage({ params }: BoardPostPageProps) {
     <div className="space-y-3">
       <PostReadMarker
         postId={post.id}
-        viewerId={session.user!.id}
+        viewerId={session.id}
         lastCommentAt={post.lastCommentAt ?? null}
         fallbackAt={post.updatedAt}
       />

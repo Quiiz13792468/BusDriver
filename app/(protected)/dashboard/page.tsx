@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { requireSession } from '@/lib/auth/session';
 import { getAlerts } from '@/lib/data/alert';
 import { getSchools } from '@/lib/data/school';
-import { getAllPayments, getPaymentsByStudent } from '@/lib/data/payment';
+import { getAllPayments, getPaymentsByYear, getPaymentsByStudentIds, getEffectiveFee } from '@/lib/data/payment';
 import { getAllStudents, getStudentsByParent } from '@/lib/data/student';
 import { RouteIcon, BoardIcon, MapIcon } from '@/components/layout/nav-icons';
 import { RequestPaymentButton } from '@/components/request-payment-button';
@@ -12,29 +12,23 @@ import { AlertPanel } from '@/app/(protected)/dashboard/_components/alert-panel'
 import { UiTable, UiTbody, UiTh, UiThead, UiTr, UiTd } from '@/components/ui/table';
 import { AdSlot } from '@/components/ads/ad-slot';
 import { InviteLinkGenerator } from '@/components/invite-link-generator';
+import { QuickPaymentDialog } from '@/app/(protected)/dashboard/_components/quick-payment-dialog';
 
 type Props = { searchParams?: Record<string, string | string[] | undefined> };
 
 export default async function DashboardPage({ searchParams }: Props) {
   const session = await requireSession();
-  const role = session.user?.role;
-  const name = session.user?.name ?? '사용자';
+  const role = session.role;
+  const name = session.name ?? '사용자';
 
   if (role === 'ADMIN') {
     return AdminDashboard({ name, searchParams });
   }
 
-  return ParentDashboard({ name, userId: session.user!.id, searchParams });
+  return ParentDashboard({ name, userId: session.id, searchParams });
 }
 
 async function AdminDashboard({ name, searchParams }: { name: string; searchParams?: Record<string, string | string[] | undefined> }) {
-  const [alerts, schools, students, payments] = await Promise.all([
-    getAlerts(),
-    getSchools(),
-    getAllStudents(),
-    getAllPayments()
-  ]);
-
   const today = new Date();
   const yParam = arrayFirst(searchParams?.year);
   const mParam = arrayFirst(searchParams?.month);
@@ -42,7 +36,15 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
   const y = yParam ? Number(yParam) : today.getFullYear();
   const m = mParam ? Number(mParam) : today.getMonth() + 1;
 
+  const [alerts, schools, students, payments] = await Promise.all([
+    getAlerts(),
+    getSchools(),
+    getAllStudents(),
+    getPaymentsByYear(y)
+  ]);
+
   const schoolMap = new Map(schools.map((s) => [s.id, s.name]));
+  const schoolObjMap = new Map(schools.map((s) => [s.id, s]));
   const studentMap = new Map(students.map((s) => [s.id, s]));
 
   const thisMonth = payments.filter((p) => p.targetYear === y && p.targetMonth === m);
@@ -67,8 +69,10 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
     const st = studentMap.get(studentId);
     if (!st) continue;
     const total = agg.paid + agg.partial;
-    const status = total === st.feeAmount ? '입금완료' : '금액부족';
-    const shortage = Math.max(0, (st.feeAmount ?? 0) - total);
+    const school = schoolObjMap.get(agg.schoolId) ?? null;
+    const effectiveFee = getEffectiveFee(st, school);
+    const status = total >= effectiveFee && effectiveFee > 0 ? '입금완료' : '금액부족';
+    const shortage = Math.max(0, effectiveFee - total);
     rows.push({
       school: schoolMap.get(agg.schoolId) ?? '-',
       student: st.name,
@@ -86,7 +90,7 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
   const studentLookup = Object.fromEntries(students.map((s) => [s.id, s.name]));
 
   const yearlyPayments = payments.filter((p) => p.targetYear === y);
-  const totalExpectedAll = students.reduce((sum, st) => sum + (st.feeAmount ?? 0), 0);
+  const now = new Date();
   const monthlyStats = Array.from({ length: 12 }, (_, idx) => {
     const month = idx + 1;
     const monthPayments = yearlyPayments.filter((p) => p.targetMonth === month);
@@ -101,16 +105,25 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
       if (p.status === 'PAID') totalPaid += p.amount;
       if (p.status === 'PARTIAL') totalPartial += p.amount;
     }
+    const endOfMonth = new Date(y, month, 0); // 해당 월 마지막 날
+    const monthActiveStudents = students.filter(
+      (s) => !s.suspendedAt || new Date(s.suspendedAt) > endOfMonth
+    );
     let shortage = 0;
     let count = 0;
-    for (const st of students) {
+    for (const st of monthActiveStudents) {
       const agg = byStudent.get(st.id) ?? { paid: 0, partial: 0 };
       const total = agg.paid + agg.partial;
-      const diff = Math.max(0, (st.feeAmount ?? 0) - total);
+      const stSchool = schoolObjMap.get(st.schoolId ?? '') ?? null;
+      const diff = Math.max(0, getEffectiveFee(st, stSchool) - total);
       shortage += diff;
       if (diff > 0) count += 1;
     }
-    const totalAmount = Math.max(0, totalExpectedAll - (totalPaid + totalPartial));
+    const monthExpected = monthActiveStudents.reduce((sum, st) => {
+      const stSchool = schoolObjMap.get(st.schoolId ?? '') ?? null;
+      return sum + getEffectiveFee(st, stSchool);
+    }, 0);
+    const totalAmount = Math.max(0, monthExpected - (totalPaid + totalPartial));
     return { month, paid: totalPaid, partial: totalPartial, shortage, count, totalAmount };
   });
 
@@ -286,6 +299,15 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
       </section>
 
       <AdSlot placement="대시보드 하단" format="horizontal" />
+
+      <QuickPaymentDialog
+        students={students
+          .filter(s => s.isActive && (!s.suspendedAt || new Date(s.suspendedAt) > now))
+          .map(s => ({ ...s, schoolName: schoolMap.get(s.schoolId ?? '') ?? '-' }))}
+        schools={schools}
+        currentYear={y}
+        currentMonth={m}
+      />
     </div>
   );
 }
@@ -300,12 +322,11 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
     getSchools()
   ]);
   const schoolMap = new Map(schools.map((school) => [school.id, school.name]));
-  const paymentsByStudent = await Promise.all(
-    students.map(async (student) => ({
-      student,
-      payments: await getPaymentsByStudent(student.id)
-    }))
-  );
+  const allStudentPayments = await getPaymentsByStudentIds(students.map((s) => s.id));
+  const paymentsByStudent = students.map((student) => ({
+    student,
+    payments: allStudentPayments.filter((p) => p.studentId === student.id)
+  }));
   const today = new Date();
   const yearParam = arrayFirst(searchParams?.year);
   const selectedYear = yearParam ? Number(yearParam) : today.getFullYear();
@@ -386,6 +407,8 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
         ) : (
           <div className="space-y-4">
             {paymentsByStudent.map(({ student, payments }) => {
+              const studentSchool = schools.find((sc) => sc.id === student.schoolId) ?? null;
+              const effectiveFee = getEffectiveFee(student, studentSchool);
               const list = payments.filter((p) => p.targetYear === year);
               return (
                 <div key={student.id} className="ui-card ui-card-compact">
@@ -393,7 +416,7 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
                     <div>
                       <h3 className="text-base font-semibold text-slate-900">{student.name}</h3>
                       <p className="text-sm text-slate-700">
-                        {student.schoolId ? schoolMap.get(student.schoolId) ?? '학교 정보 없음' : '미배정'} · 기본요금 {student.feeAmount.toLocaleString()}원
+                        {student.schoolId ? schoolMap.get(student.schoolId) ?? '학교 정보 없음' : '미배정'} · 기본요금 {effectiveFee.toLocaleString()}원
                       </p>
                     </div>
                   </div>
@@ -407,7 +430,7 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
                       const paid = monthPayments
                         .filter((p) => p.status === 'PAID' || p.status === 'PARTIAL')
                         .reduce((sum, p) => sum + p.amount, 0);
-                      const status = paid >= student.feeAmount ? '완납' : paid > 0 ? '부분 입금' : '미입금';
+                      const status = effectiveFee > 0 && paid >= effectiveFee ? '완납' : paid > 0 ? '부분 입금' : '미입금';
                       const rowBg = month === currentMonth ? 'bg-amber-50/70' : 'bg-white';
                       return (
                         <div key={`${student.id}-${month}`} className="contents">

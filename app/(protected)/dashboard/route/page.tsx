@@ -9,7 +9,7 @@ import { PageHeader } from '@/components/layout/page-header';
 export default async function ParentRoutePage() {
   const session = await requireSession('PARENT');
   const [students, schools] = await Promise.all([
-    getStudentsByParent(session.user!.id),
+    getStudentsByParent(session.id),
     getSchools(),
   ]);
   const schoolMap = new Map(schools.map((s) => [s.id, s.name]));
@@ -66,9 +66,11 @@ export default async function ParentRoutePage() {
 
               {/* 지도 */}
               <KakaoMap
-                stops={route.stopRecords}
-                readOnly
-                highlightedStopName={student.pickupPoint ?? undefined}
+                stops={route.stopRecords
+                  .filter((s) => s.lat != null && s.lng != null)
+                  .map((s) => ({ id: s.id, name: s.name, lat: s.lat!, lng: s.lng!, position: s.position }))}
+                readonly
+                highlightStopId={route.stopRecords.find((s) => s.name === student.pickupPoint)?.id}
               />
 
               {/* 정류장 목록 */}

@@ -1,6 +1,7 @@
-"use client";
+'use client';
 
 import Link from 'next/link';
+import { useRealtimeAlerts } from '@/lib/supabase/realtime';
 
 type MobileAlertBellProps = {
   count: number;
@@ -8,13 +9,14 @@ type MobileAlertBellProps = {
 };
 
 export function MobileAlertBell({ count, href }: MobileAlertBellProps) {
-  const badge = count > 9 ? '9+' : count > 0 ? String(count) : null;
+  const liveCount = useRealtimeAlerts(count);
+  const badge = liveCount > 9 ? '9+' : liveCount > 0 ? String(liveCount) : null;
 
   return (
     <Link
       href={href}
       className="relative flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-slate-100 active:bg-slate-200"
-      aria-label={`알림 ${count}건`}
+      aria-label={`알림 ${liveCount}건`}
     >
       {/* Bell icon */}
       <svg className="h-6 w-6 text-slate-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

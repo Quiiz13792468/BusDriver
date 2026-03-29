@@ -1,121 +1,196 @@
 "use client";
 
-import { useMemo, useState } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useState } from 'react';
 
-import { saveRouteStopsAction } from '@/app/(protected)/routes/actions.clean';
-import { LoadingOverlay } from '@/components/loading-overlay';
-
-type Props = {
-  routeId: string;
-  initialStops: string[];
-};
-
-type StopItem = { id: string; name: string };
-
-function makeId() {
-  return Math.random().toString(36).slice(2, 10);
+interface StopItem {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+  position: number;
+  description?: string | null;
 }
 
-const initialState = undefined as { status: 'success' | 'error'; message: string } | undefined;
+interface RouteStopsEditorProps {
+  stops: StopItem[];
+  onReorder: (reorderedStops: Array<{ id: string; position: number }>) => void;
+  onAdd: (name: string, lat: number, lng: number) => void;
+  onDelete: (stopId: string) => void;
+  onUpdate: (stopId: string, data: { name?: string; description?: string }) => void;
+  pendingLat?: number | null;
+  pendingLng?: number | null;
+}
 
-export function RouteStopsEditor({ routeId, initialStops }: Props) {
-  const initialItems = useMemo<StopItem[]>(() => initialStops.map((s) => ({ id: makeId(), name: s })), [initialStops]);
-  const [stops, setStops] = useState<StopItem[]>(initialItems);
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
+export function RouteStopsEditor({
+  stops,
+  onReorder,
+  onAdd,
+  onDelete,
+  onUpdate,
+  pendingLat,
+  pendingLng,
+}: RouteStopsEditorProps) {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [newName, setNewName] = useState('');
+  const [editNames, setEditNames] = useState<Record<string, string>>({});
+  const [editDescs, setEditDescs] = useState<Record<string, string>>({});
 
-  const [state, formAction] = useFormState(saveRouteStopsAction, initialState);
+  const sorted = [...stops].sort((a, b) => a.position - b.position);
 
-  const onDragStart = (idx: number) => setDragIndex(idx);
-  const onDragOver = (e: React.DragEvent<HTMLLIElement>, idx: number) => {
-    e.preventDefault();
-    if (dragIndex === null || dragIndex === idx) return;
-    setStops((prev) => {
-      const next = [...prev];
-      const [moved] = next.splice(dragIndex, 1);
-      next.splice(idx, 0, moved);
-      setDragIndex(idx);
-      return next;
-    });
-  };
+  function moveUp(idx: number) {
+    if (idx === 0) return;
+    const next = [...sorted];
+    const tmp = next[idx - 1];
+    next[idx - 1] = next[idx];
+    next[idx] = tmp;
+    onReorder(next.map((s, i) => ({ id: s.id, position: i })));
+  }
+
+  function moveDown(idx: number) {
+    if (idx === sorted.length - 1) return;
+    const next = [...sorted];
+    const tmp = next[idx + 1];
+    next[idx + 1] = next[idx];
+    next[idx] = tmp;
+    onReorder(next.map((s, i) => ({ id: s.id, position: i })));
+  }
+
+  function handleNameBlur(stop: StopItem) {
+    const val = editNames[stop.id];
+    if (val !== undefined && val.trim() !== stop.name) {
+      onUpdate(stop.id, { name: val.trim() || stop.name });
+    }
+  }
+
+  function handleDescBlur(stop: StopItem) {
+    const val = editDescs[stop.id];
+    if (val !== undefined && val !== (stop.description ?? '')) {
+      onUpdate(stop.id, { description: val });
+    }
+  }
+
+  function handleAdd() {
+    const name = newName.trim();
+    if (!name) return;
+    if (pendingLat == null || pendingLng == null) return;
+    onAdd(name, pendingLat, pendingLng);
+    setNewName('');
+  }
+
+  const hasPending = pendingLat != null && pendingLng != null;
 
   return (
-    <form
-      action={(fd) => {
-        fd.append('routeId', routeId);
-        fd.append(
-          'stops',
-          JSON.stringify(
-            stops
-              .map((i) => i.name.trim())
-              .filter((s) => s.length > 0)
-          )
-        );
-        return formAction(fd);
-      }}
-      className="ui-card ui-card-pad space-y-3"
-    >
+    <div className="space-y-3">
       <ul className="divide-y divide-slate-100 rounded-2xl border border-slate-100 bg-white/70">
-        {stops.map((item, idx) => (
-          <li
-            key={item.id}
-            className="flex items-center justify-between gap-2 px-3 py-2.5 text-base"
-            draggable
-            onDragStart={() => onDragStart(idx)}
-            onDragOver={(e) => onDragOver(e, idx)}
-            onDrop={(e) => e.preventDefault()}
-          >
-            <span className="cursor-grab select-none text-slate-600">≡</span>
+        {sorted.length === 0 && (
+          <li className="px-3 py-4 text-center text-base text-slate-500">
+            정차 지점이 없습니다. 지도를 클릭해 위치를 선택하세요.
+          </li>
+        )}
+        {sorted.map((stop, idx) => {
+          const displayName = editNames[stop.id] !== undefined ? editNames[stop.id] : stop.name;
+          const isExpanded = expandedId === stop.id;
+
+          return (
+            <li key={stop.id} className="px-3 py-2.5">
+              <div className="flex items-center gap-2">
+                {/* Position badge */}
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-600 text-xs font-bold text-white">
+                  {stop.position + 1}
+                </span>
+
+                {/* Name input */}
+                <input
+                  value={displayName}
+                  onChange={(e) => setEditNames((prev) => ({ ...prev, [stop.id]: e.target.value }))}
+                  onBlur={() => handleNameBlur(stop)}
+                  className="ui-input min-w-0 flex-1 text-base"
+                />
+
+                {/* Up / Down */}
+                <button
+                  type="button"
+                  aria-label="위로"
+                  disabled={idx === 0}
+                  onClick={() => moveUp(idx)}
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-600 disabled:opacity-30 hover:bg-slate-50"
+                >
+                  ▲
+                </button>
+                <button
+                  type="button"
+                  aria-label="아래로"
+                  disabled={idx === sorted.length - 1}
+                  onClick={() => moveDown(idx)}
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-600 disabled:opacity-30 hover:bg-slate-50"
+                >
+                  ▼
+                </button>
+
+                {/* Toggle description */}
+                <button
+                  type="button"
+                  aria-label="메모 펼치기"
+                  onClick={() => setExpandedId((prev) => (prev === stop.id ? null : stop.id))}
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50"
+                >
+                  {isExpanded ? '▾' : '▸'}
+                </button>
+
+                {/* Delete */}
+                <button
+                  type="button"
+                  aria-label="삭제"
+                  onClick={() => onDelete(stop.id)}
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-rose-200 text-rose-500 hover:bg-rose-50"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Collapsible description */}
+              {isExpanded && (
+                <div className="mt-2 pl-8">
+                  <input
+                    value={editDescs[stop.id] !== undefined ? editDescs[stop.id] : (stop.description ?? '')}
+                    onChange={(e) => setEditDescs((prev) => ({ ...prev, [stop.id]: e.target.value }))}
+                    onBlur={() => handleDescBlur(stop)}
+                    placeholder="메모 (선택)"
+                    className="ui-input w-full text-sm text-slate-600"
+                  />
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+
+      {/* Add stop when map location is pending */}
+      {hasPending && (
+        <div className="rounded-2xl border border-primary-200 bg-primary-50 p-3 space-y-2">
+          <p className="text-xs font-medium text-primary-700">
+            지도에서 위치가 선택되었습니다. 정차 지점 이름을 입력하세요.
+          </p>
+          <div className="flex gap-2">
             <input
-              value={item.name}
-              onChange={(e) => {
-                const v = e.target.value;
-                setStops((prev) => prev.map((x, i) => (i === idx ? { ...x, name: v } : x)));
-              }}
-              className="ui-input flex-1"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleAdd(); }}
+              placeholder="정차 지점 이름"
+              className="ui-input flex-1 text-base"
+              autoFocus
             />
             <button
               type="button"
-              className="ui-btn-outline border-rose-200 px-3 py-1.5 text-base text-rose-600 hover:bg-rose-50"
-              onClick={() => setStops((prev) => prev.filter((_, i) => i !== idx))}
+              onClick={handleAdd}
+              disabled={!newName.trim()}
+              className="rounded-2xl bg-primary-600 px-4 py-2 text-base font-semibold text-white hover:bg-primary-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              삭제
+              추가
             </button>
-          </li>
-        ))}
-        {stops.length === 0 ? (
-          <li className="px-3 py-4 text-center text-base text-slate-700">정차 지점이 없습니다.</li>
-        ) : null}
-      </ul>
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() => setStops((prev) => [...prev, { id: makeId(), name: '' }])}
-          className="ui-btn-outline border-slate-200 px-3 py-2.5 text-base text-slate-700 hover:bg-white"
-        >
-          지점 추가
-        </button>
-        <SaveBtn />
-      </div>
-      {state ? (
-        <p className={`text-base ${state.status === 'success' ? 'text-green-600' : 'text-red-600'}`}>{state.message}</p>
-      ) : null}
-    </form>
-  );
-}
-
-function SaveBtn() {
-  const status = useFormStatus();
-  return (
-    <>
-      <button
-        type="submit"
-        disabled={status.pending}
-        className="rounded-2xl bg-accent-600 px-4 py-2.5 text-base font-semibold text-white hover:bg-accent-500 disabled:cursor-not-allowed disabled:bg-accent-300"
-      >
-        {status.pending ? '저장 중...' : '저장'}
-      </button>
-      <LoadingOverlay show={status.pending} message="저장 중..." />
-    </>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

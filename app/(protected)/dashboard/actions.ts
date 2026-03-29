@@ -5,7 +5,9 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { requireSession } from '@/lib/auth/session';
 import { createAlert, createRouteChangeAlert, resolveAlert } from '@/lib/data/alert';
 import { createBoardPost } from '@/lib/data/board';
-import { getStudentById, updateStudent } from '@/lib/data/student';
+import { recordPayment } from '@/lib/data/payment';
+import { getStudentById, getStudentsByIds, updateStudent } from '@/lib/data/student';
+import type { PaymentStatus } from '@/lib/data/types';
 
 type ActionResponse =
   | {
@@ -31,7 +33,6 @@ export async function requestPaymentCheckAction(
   formData: FormData
 ): Promise<ActionResponse> {
   const session = await requireSession('PARENT');
-  const user = session.user!;
 
   const studentId = formData.get('studentId');
   const schoolId = formData.get('schoolId');
@@ -47,8 +48,15 @@ export async function requestPaymentCheckAction(
   }
 
   const student = await getStudentById(studentId);
-  const studentName = student?.name ?? '학생';
-  const parentName = user.name ?? '학부모';
+  if (!student) {
+    return { status: 'error', message: '학생 정보를 찾을 수 없습니다.' };
+  }
+  // 소유 확인: 해당 학생이 요청한 학부모의 자녀인지 검증
+  if (student.parentUserId !== session.id) {
+    return { status: 'error', message: '권한이 없습니다.' };
+  }
+  const studentName = student.name;
+  const parentName = session.name ?? '학부모';
   const monthLabel = String(month).padStart(2, '0');
   const alertMessage = `${studentName}학생의 학부모${parentName}가 ${year}-${monthLabel}월 입금확인요청했습니다.`;
 
@@ -58,14 +66,14 @@ export async function requestPaymentCheckAction(
     year,
     month,
     type: 'PAYMENT',
-    createdBy: user.id,
+    createdBy: session.id,
     memo: alertMessage
   });
 
   await createBoardPost({
     title: `${year}년 ${monthLabel}월 입금 확인 요청`,
     content: alertMessage,
-    authorId: user.id,
+    authorId: session.id,
     schoolId,
     parentOnly: true
   });
@@ -89,7 +97,6 @@ export async function changePickupPointAction(
   formData: FormData
 ): Promise<ActionResponse> {
   const session = await requireSession('PARENT');
-  const user = session.user!;
 
   const studentId = formData.get('studentId');
   const schoolId = formData.get('schoolId');
@@ -104,12 +111,16 @@ export async function changePickupPointAction(
   if (!current) {
     return { status: 'error', message: '학생 정보를 찾을 수 없습니다.' };
   }
+  // 소유 확인: 해당 학생이 요청한 학부모의 자녀인지 검증
+  if (current.parentUserId !== session.id) {
+    return { status: 'error', message: '권한이 없습니다.' };
+  }
 
   await updateStudent(studentId, { pickupPoint: routeId ? (pickupPoint || null) : null, routeId });
   await createRouteChangeAlert({
     studentId,
     schoolId,
-    createdBy: user.id,
+    createdBy: session.id,
     before: current.pickupPoint,
     after: pickupPoint
   });
@@ -137,24 +148,44 @@ export async function requestShortagePaymentAction(
     return { status: 'error', message: '선택된 학생이 없습니다.' };
   }
 
-  for (const studentId of studentIds) {
-    const student = await getStudentById(studentId);
-    if (!student || !student.parentUserId) continue;
+  // 배치 조회로 N+1 해결
+  const allStudents = await getStudentsByIds(studentIds);
+  const studentMap = new Map(allStudents.map(s => [s.id, s]));
+
+  const posts = studentIds.flatMap((studentId) => {
+    const student = studentMap.get(studentId);
+    if (!student || !student.parentUserId) return [];
     const monthLabel = String(month).padStart(2, '0');
     const message = `${student.name}학생의 ${year}년 ${monthLabel}월 입금 확인 요청입니다. 미납 금액을 확인 후 입금 부탁드립니다.`;
-    await createBoardPost({
+    return [createBoardPost({
       title: `${year}년 ${monthLabel}월 입금 확인 요청`,
       content: message,
-      authorId: session.user!.id,
+      authorId: session.id,
       schoolId: student.schoolId,
       parentOnly: true,
       targetParentId: student.parentUserId
-    });
-  }
+    })];
+  });
+  await Promise.allSettled(posts);
 
   revalidatePath('/board');
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/shortages');
 
   return { status: 'success', message: SHORTAGE_REQUEST_MESSAGE };
+}
+
+export async function quickRecordPayment(input: {
+  studentId: string;
+  schoolId: string;
+  amount: number;
+  targetYear: number;
+  targetMonth: number;
+  status: PaymentStatus;
+  memo: string | null;
+}) {
+  await requireSession('ADMIN');
+  await recordPayment(input);
+  revalidatePath('/dashboard');
+  revalidatePath('/payments');
 }

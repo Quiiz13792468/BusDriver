@@ -1,4 +1,4 @@
-﻿"use server";
+"use server";
 
 import { revalidatePath } from 'next/cache';
 
@@ -48,19 +48,19 @@ export async function createBoardPostAction(
 
   let matchedStudentId: string | null = null;
 
-  if (session.user?.role === 'PARENT') {
+  if (session.role === 'PARENT') {
     if (!parsed.data.schoolId) {
       return { status: 'error', message: SCHOOL_REQUIRED_MESSAGE };
     }
 
-    const students = await getStudentsByParent(session.user.id);
+    const students = await getStudentsByParent(session.id);
     const allowedSchoolIds = new Set(students.map((student) => student.schoolId).filter((id): id is string => Boolean(id)));
     if (!allowedSchoolIds.has(parsed.data.schoolId)) {
       return { status: 'error', message: SCHOOL_NOT_ALLOWED_MESSAGE };
     }
 
     // 추가 제한: 연결된 관리자 소속 학교만 허용
-    const profile = await getParentProfile(session.user.id);
+    const profile = await getParentProfile(session.id);
     const school = await getSchoolById(parsed.data.schoolId);
     if (profile?.adminUserId && school && school.adminUserId && school.adminUserId !== profile.adminUserId) {
       return { status: 'error', message: SCHOOL_NOT_ALLOWED_MESSAGE };
@@ -73,18 +73,18 @@ export async function createBoardPostAction(
   await createBoardPost({
     ...parsed.data,
     schoolId: parsed.data.schoolId ? parsed.data.schoolId : null,
-    authorId: session.user?.id as string,
+    authorId: session.id,
     parentOnly: parsed.data.parentOnly ?? true
   });
 
-  if (session.user?.role === 'PARENT' && parsed.data.schoolId && matchedStudentId) {
+  if (session.role === 'PARENT' && parsed.data.schoolId && matchedStudentId) {
     await createAlert({
       studentId: matchedStudentId,
       schoolId: parsed.data.schoolId,
       year: new Date().getFullYear(),
       month: new Date().getMonth() + 1,
       type: 'INQUIRY',
-      createdBy: session.user.id
+      createdBy: session.id
     });
   }
 
@@ -114,12 +114,12 @@ export async function createBoardCommentAction(_prev: ActionResponse | undefined
 
   const comment = await createBoardComment({
     ...parsed.data,
-    authorId: session.user?.id as string,
+    authorId: session.id,
     parentCommentId: parsed.data.parentCommentId ?? null
   });
 
   // 관리자가 댓글을 달면 게시글 작성자(학부모)에게 알림 생성
-  if (session.user?.role === 'ADMIN') {
+  if (session.role === 'ADMIN') {
     const post = await getBoardPostById(parsed.data.postId);
     if (post) {
       const postAuthor = await getUserById(post.authorId);
@@ -147,21 +147,20 @@ export async function requestSchoolMatchAction(
   _prev: ActionResponse | undefined
 ): Promise<ActionResponse> {
   const session = await requireSession('PARENT');
-  const user = session.user!;
 
   const [students, profile] = await Promise.all([
-    getStudentsByParent(user.id),
-    getParentProfile(user.id)
+    getStudentsByParent(session.id),
+    getParentProfile(session.id)
   ]);
   const student = students[0];
   const studentName = student?.name ?? profile?.studentName ?? '학생';
-  const parentName = user.name ?? '학부모';
+  const parentName = session.name ?? '학부모';
   const message = `${studentName}학생의 학부모 ${parentName}가 게시글 등록을 위해 학교-학생 매칭을 요청했습니다.`;
 
   await createBoardPost({
     title: '학교-학생 매칭 요청',
     content: message,
-    authorId: user.id,
+    authorId: session.id,
     schoolId: student?.schoolId ?? null,
     parentOnly: true
   });
@@ -174,7 +173,7 @@ export async function requestSchoolMatchAction(
       year: now.getFullYear(),
       month: now.getMonth() + 1,
       type: 'INQUIRY',
-      createdBy: user.id,
+      createdBy: session.id,
       memo: message
     });
   }

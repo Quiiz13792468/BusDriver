@@ -129,3 +129,22 @@ export type RouteRecord = {
   createdAt: string;
   updatedAt: string;
 };
+
+export interface PaymentSummary {
+  studentId: string;
+  year: number;
+  month: number;
+  effectiveFee: number; // school fee if set, else student fee
+  totalPaid: number;    // cumulative sum
+  shortage: number;     // effectiveFee - totalPaid (min 0)
+  status: 'PAID' | 'PARTIAL' | 'UNPAID';
+  payments: PaymentRecord[];
+}
+
+export interface School {
+  id: string;
+  name: string;
+  address?: string | null;
+  defaultMonthlyFee: number; // 0 means use student fee
+  adminUserId?: string | null;
+}

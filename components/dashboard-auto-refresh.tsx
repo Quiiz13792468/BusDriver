@@ -1,25 +1,7 @@
 'use client';
 
-import { useEffect, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-
-type DashboardAutoRefreshProps = {
-  intervalMs?: number;
-};
-
-export function DashboardAutoRefresh({ intervalMs = 30_000 }: DashboardAutoRefreshProps) {
-  const router = useRouter();
-  const [, startTransition] = useTransition();
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      startTransition(() => {
-        router.refresh();
-      });
-    }, intervalMs);
-
-    return () => clearInterval(timer);
-  }, [intervalMs, router, startTransition]);
-
+// Auto-refresh is now handled by Supabase Realtime subscriptions in RealtimeProvider.
+// This component is kept for backward compatibility but performs no polling.
+export function DashboardAutoRefresh() {
   return null;
 }

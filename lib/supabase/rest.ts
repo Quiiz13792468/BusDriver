@@ -1,6 +1,11 @@
+/**
+ * REST API wrapper using Service Role key.
+ * For new code, prefer using createAdminClient() from @/lib/supabase/admin.ts
+ * This file is maintained for backward compatibility.
+ */
 import 'server-only';
 
-const SUPABASE_URL = process.env.SUPABASE_URL ?? '';
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL ?? '';
 const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
 
 function baseUrl(path: string) {
@@ -34,6 +39,61 @@ export async function restSelect<T>(table: string, query: Record<string, string 
     ...(opts?.next ? { next: opts.next } : {})
   });
   if (!res.ok) throw new Error(`Supabase select ${table} failed: ${res.status} ${res.statusText}`);
+  return (await res.json()) as T[];
+}
+
+export async function restCount(
+  table: string,
+  query: Record<string, string | number | null | undefined>
+): Promise<number> {
+  const params = new URLSearchParams();
+  params.set('select', '*');
+  for (const [k, v] of Object.entries(query)) {
+    if (v === undefined) continue;
+    if (v === null) {
+      params.set(k, 'is.null');
+    } else {
+      params.set(k, `eq.${v}`);
+    }
+  }
+  params.set('limit', '1');
+  const url = baseUrl(`/rest/v1/${table}?${params.toString()}`);
+  const res = await fetch(url, {
+    headers: {
+      apikey: SERVICE_ROLE,
+      Authorization: `Bearer ${SERVICE_ROLE}`,
+      'Content-Type': 'application/json',
+      Prefer: 'count=exact',
+      Range: '0-0'
+    }
+  });
+  if (!res.ok) throw new Error(`Supabase count ${table} failed: ${res.status} ${res.statusText}`);
+  // Content-Range: 0-0/TOTAL
+  const range = res.headers.get('content-range') ?? '';
+  const total = parseInt(range.split('/')[1] ?? '0', 10);
+  return isNaN(total) ? 0 : total;
+}
+
+export async function restSelectIn<T>(
+  table: string,
+  field: string,
+  values: string[],
+  opts?: { next?: { revalidate?: number | false; tags?: string[] } }
+): Promise<T[]> {
+  if (values.length === 0) return [];
+  const params = new URLSearchParams();
+  params.set('select', '*');
+  params.set(field, `in.(${values.map((v) => `"${v}"`).join(',')})`);
+  const url = baseUrl(`/rest/v1/${table}?${params.toString()}`);
+  const res = await fetch(url, {
+    headers: {
+      apikey: SERVICE_ROLE,
+      Authorization: `Bearer ${SERVICE_ROLE}`,
+      'Content-Type': 'application/json'
+    },
+    ...(opts?.next ? { next: opts.next } : {})
+  });
+  if (!res.ok) throw new Error(`Supabase selectIn ${table} failed: ${res.status} ${res.statusText}`);
   return (await res.json()) as T[];
 }
 
