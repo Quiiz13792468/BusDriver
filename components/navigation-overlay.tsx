@@ -48,17 +48,13 @@ export function PathnameWatcher() {
   const pathname = usePathname();
   const { hide } = useNavigationOverlay();
   useEffect(() => {
-    const t = setTimeout(() => hide(), 40);
-    return () => clearTimeout(t);
+    hide();
   }, [pathname, hide]);
   return null;
 }
 
 function Overlay({ visible, message }: { visible: boolean; message: string }) {
   if (!visible || typeof window === 'undefined') return null as any;
-
-  // 메세지에 따라 서브 텍스트 결정
-  const sub = message.includes('이동') ? '화면을 불러오고 있습니다.' : '잠시만 기다려 주세요.';
 
   return createPortal(
     <div className="ui-overlay-backdrop fixed inset-0 z-[9999] flex items-center justify-center bg-[#13201f]/30 backdrop-blur-sm">
@@ -67,7 +63,6 @@ function Overlay({ visible, message }: { visible: boolean; message: string }) {
           <Image src="/assets/schoolbus_loading.gif" alt="로딩 중" width={64} height={64} unoptimized priority />
         </div>
         <p className="text-lg font-semibold text-slate-900">{message}</p>
-        <p className="mt-1 text-base text-slate-700">{sub}</p>
       </div>
     </div>,
     document.body

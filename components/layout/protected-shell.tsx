@@ -3,7 +3,7 @@
 import clsx from 'clsx';
 import React, { type ReactNode } from 'react';
 import Link from 'next/link';
-import { signOut } from 'next-auth/react';
+import { createBrowserClient } from '@/lib/supabase/client';
 import { HeaderUserMenu } from '@/components/layout/header-user-menu';
 import { MobileAlertBell } from '@/components/layout/mobile-alert-bell';
 import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav';
@@ -33,7 +33,11 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
     let timer: ReturnType<typeof setTimeout> | null = null;
     const resetTimer = () => {
       if (timer) clearTimeout(timer);
-      timer = setTimeout(() => { void signOut({ callbackUrl: '/login?loggedOut=1' }); }, idleLimitMs);
+      timer = setTimeout(async () => {
+        const supabase = createBrowserClient();
+        await supabase.auth.signOut();
+        window.location.href = '/login?loggedOut=1';
+      }, idleLimitMs);
     };
     resetTimer();
     events.forEach((e) => window.addEventListener(e, resetTimer, { passive: true }));
@@ -85,13 +89,21 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
             <div className="mb-2 flex items-center justify-between">
               {!collapsed ? (
                 <div className="px-1 text-base font-semibold text-slate-700">
-                  {`${user.name ?? '사용자'}님 환영합니다.`}
+                  {`${user.name ?? '사용자'}님`}
                 </div>
               ) : (
                 <div className="h-5" />
               )}
-              <button onClick={toggleCollapsed} className="ui-btn-outline whitespace-nowrap px-3 py-1.5 text-sm">
-                {collapsed ? '펼치기' : '접기'}
+              <button onClick={toggleCollapsed} className="ui-btn-outline p-1.5" aria-label={collapsed ? '메뉴 펼치기' : '메뉴 접기'}>
+                {collapsed ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
+                )}
               </button>
             </div>
             <ProtectedNav role={role} orientation="vertical" collapsed={collapsed} />

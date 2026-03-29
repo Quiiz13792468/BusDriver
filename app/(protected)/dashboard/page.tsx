@@ -129,9 +129,6 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
 
   return (
     <div className="space-y-3">
-      {/* 인사말 */}
-      <p className="text-base font-semibold text-slate-800">{name}님, 안녕하세요!</p>
-
       {/* 학부모 초대 링크 */}
       <section>
         <InviteLinkGenerator />
@@ -266,8 +263,7 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
                 <UiTh className="px-[0.3rem]">월</UiTh>
                 <UiTh className="px-[0.3rem]">입금액</UiTh>
                 <UiTh className="px-[0.3rem]">부분입금액</UiTh>
-                <UiTh className="px-[0.3rem]">총 금액</UiTh>
-                <UiTh className="px-[0.3rem]">부족금액</UiTh>
+                <UiTh className="px-[0.3rem]">미입금액</UiTh>
                 <UiTh className="px-[0.3rem]">학생수</UiTh>
               </UiTr>
             </UiThead>
@@ -277,7 +273,6 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
                   <UiTd className="px-[0.3rem] text-center text-slate-800">{stat.month}월</UiTd>
                   <UiTd className="px-[0.3rem] text-right text-emerald-600">{stat.paid.toLocaleString()}원</UiTd>
                   <UiTd className="px-[0.3rem] text-right text-amber-600">{stat.partial.toLocaleString()}원</UiTd>
-                  <UiTd className="px-[0.3rem] text-right font-semibold text-slate-800">{stat.totalAmount.toLocaleString()}원</UiTd>
                   <UiTd className={`px-[0.3rem] text-right font-semibold ${stat.shortage > 0 ? 'text-rose-600' : 'text-slate-700'}`}>
                     {stat.shortage > 0 ? (
                       <LinkWithLoading
@@ -337,8 +332,6 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
   const currentMonth = today.getMonth() + 1;
   return (
     <div className="space-y-3">
-      <p className="text-base font-semibold text-slate-800">{name}님, 안녕하세요!</p>
-
       <section>
         <div className="grid gap-3 md:grid-cols-2">
           <Link href="/dashboard/route" className="ui-card ui-card-compact transition hover:border-amber-200 hover:bg-amber-50/60 md:flex md:h-[120px] md:flex-col md:justify-center">

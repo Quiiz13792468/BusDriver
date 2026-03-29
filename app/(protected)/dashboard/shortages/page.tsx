@@ -1,10 +1,10 @@
 import Link from 'next/link';
 
 import { requireSession } from '@/lib/auth/session';
-import { getAllPayments } from '@/lib/data/payment';
+import { getPaymentsByYear } from '@/lib/data/payment';
 import { getAllStudents } from '@/lib/data/student';
 import { getSchools } from '@/lib/data/school';
-import { getUserById } from '@/lib/data/user';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { MonthControls } from '@/app/(protected)/dashboard/_components/month-controls';
 import { ShortageRequestForm } from '@/app/(protected)/dashboard/_components/shortage-request-form';
 
@@ -17,12 +17,6 @@ function arrayFirst(v?: string | string[]) {
 export default async function ShortagePage({ searchParams }: Props) {
   await requireSession('ADMIN');
 
-  const [payments, students, schools] = await Promise.all([
-    getAllPayments(),
-    getAllStudents(),
-    getSchools()
-  ]);
-
   const today = new Date();
   const yParam = arrayFirst(searchParams?.year);
   const mParam = arrayFirst(searchParams?.month);
@@ -32,8 +26,15 @@ export default async function ShortagePage({ searchParams }: Props) {
   const fixedMinYear = 2024;
   const fixedMaxYear = today.getFullYear() + 1;
 
+  const [payments, students, schools, { data: authData }] = await Promise.all([
+    getPaymentsByYear(year),
+    getAllStudents(),
+    getSchools(),
+    createAdminClient().auth.admin.listUsers({ perPage: 1000 }),
+  ]);
+
   const schoolMap = new Map(schools.map((s) => [s.id, s.name]));
-  const monthPayments = payments.filter((p) => p.targetYear === year && p.targetMonth === month);
+  const monthPayments = payments.filter((p) => p.targetMonth === month);
   const byStudent = new Map<string, { paid: number; partial: number }>();
   for (const p of monthPayments) {
     const entry = byStudent.get(p.studentId) ?? { paid: 0, partial: 0 };
@@ -42,11 +43,12 @@ export default async function ShortagePage({ searchParams }: Props) {
     byStudent.set(p.studentId, entry);
   }
 
-  const parentIds = Array.from(new Set(students.map((s) => s.parentUserId).filter(Boolean))) as string[];
-  const parentUsers = await Promise.all(parentIds.map((id) => getUserById(id)));
   const parentMap = new Map<string, { name: string | null; phone: string | null }>();
-  parentUsers.forEach((u) => {
-    if (u) parentMap.set(u.id, { name: u.name ?? null, phone: u.phone ?? null });
+  (authData?.users ?? []).forEach((u) => {
+    parentMap.set(u.id, {
+      name: (u.user_metadata?.name as string) ?? null,
+      phone: (u.user_metadata?.phone as string) ?? null,
+    });
   });
 
   const rows = students

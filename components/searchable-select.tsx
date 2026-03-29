@@ -89,7 +89,7 @@ export function SearchableSelect({ options, value, onChange, placeholder = 'ê²€ì
               />
               <button
                 type="button"
-                className="ui-btn-outline px-3 py-2.5 text-base text-slate-700 hover:bg-white"
+                className="ui-btn-outline whitespace-nowrap px-3 py-2.5 text-base text-slate-700 hover:bg-white"
                 onClick={() => {
                   setOpen(false);
                   setQuery('');

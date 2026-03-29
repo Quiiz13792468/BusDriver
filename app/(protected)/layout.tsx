@@ -21,8 +21,8 @@ export default async function ProtectedLayout({ children }: ProtectedLayoutProps
 
   // 역할별 알림 수 조회 (병렬)
   const [adminAlerts, parentAlerts] = await Promise.all([
-    role === 'ADMIN' ? countAlerts() : Promise.resolve(0),
-    role === 'PARENT' && userId ? countUnreadBoardNotifications(userId) : Promise.resolve(0),
+    role === 'ADMIN' ? countAlerts().catch(() => 0) : Promise.resolve(0),
+    role === 'PARENT' && userId ? countUnreadBoardNotifications(userId).catch(() => 0) : Promise.resolve(0),
   ]);
   const alertCount = role === 'ADMIN' ? adminAlerts : parentAlerts;
 

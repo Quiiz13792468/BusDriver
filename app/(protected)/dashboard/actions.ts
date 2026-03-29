@@ -88,8 +88,7 @@ export async function requestPaymentCheckAction(
 export async function resolveAlertAction(id: string) {
   await requireSession('ADMIN');
   await resolveAlert(id);
-  revalidatePath('/dashboard/alerts');
-  revalidatePath('/dashboard');
+  revalidateTag('alerts');
 }
 
 export async function changePickupPointAction(

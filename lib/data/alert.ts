@@ -51,14 +51,13 @@ export async function createRouteChangeAlert(params: {
 
 export async function getAlerts(): Promise<AlertRecord[]> {
   ensureSupabase();
-  const rows = await restSelect<any>('alerts', {}, { order: 'created_at.desc' });
+  const rows = await restSelect<any>('alerts', {}, { order: 'created_at.desc', next: { tags: ['alerts'] } });
   return rows.map((r) => ({ id: r.id, studentId: r.student_id, schoolId: r.school_id, year: r.year, month: r.month, type: r.type, status: r.status, createdBy: r.created_by, memo: r.memo ?? null, createdAt: r.created_at } as AlertRecord));
 }
 
 export async function countAlerts() {
   ensureSupabase();
-  const rows = await restSelect<any>('alerts', {});
-  return rows.length;
+  return restCount('alerts', {});
 }
 
 export async function resolveAlert(id: string) {
