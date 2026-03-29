@@ -1,27 +1,18 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 
-import { authOptions } from '@/lib/auth/options';
+import { requireSession } from '@/lib/auth/session';
 import { createInviteToken, validateInviteToken } from '@/lib/data/invite';
 
 // POST /api/invite — 관리자가 초대 토큰 생성
-export async function POST(req: Request) {
+export async function POST() {
   try {
-    const session = await getServerSession(authOptions);
-    const adminId = (session?.user as any)?.id as string | undefined;
-    const role    = (session?.user as any)?.role;
+    const session = await requireSession('ADMIN');
 
-    if (!adminId || role !== 'ADMIN') {
-      return NextResponse.json({ ok: false, error: '관리자만 초대 링크를 생성할 수 있습니다.' }, { status: 403 });
-    }
-
-    const body = await req.json().catch(() => ({}));
-    const expiresInHours = Number(body?.expiresInHours) || 24;
-
-    const record = await createInviteToken(adminId, expiresInHours);
+    const record = await createInviteToken(session.id, 24);
     return NextResponse.json({ ok: true, token: record.token, expiresAt: record.expiresAt });
   } catch (err: any) {
-    return NextResponse.json({ ok: false, error: err?.message ?? '오류가 발생했습니다.' }, { status: 500 });
+    const status = err?.message === 'Unauthorized' ? 403 : 500;
+    return NextResponse.json({ ok: false, error: err?.message ?? '오류가 발생했습니다.' }, { status });
   }
 }
 
