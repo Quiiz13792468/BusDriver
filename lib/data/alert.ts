@@ -3,7 +3,7 @@ import 'server-only';
 import crypto from 'node:crypto';
 
 import type { AlertRecord, AlertType } from '@/lib/data/types';
-import { supaEnabled, restSelect, restInsert, restDelete } from '@/lib/supabase/rest';
+import { supaEnabled, restSelect, restCount, restInsert, restDelete } from '@/lib/supabase/rest';
 
 function ensureSupabase() {
   if (!supaEnabled()) {
