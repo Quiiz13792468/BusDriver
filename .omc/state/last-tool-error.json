@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd \\\"e:\\\\Work\\\\Source\\\\Github\\\\BusDriver\\\" && git add app/(protected)/dashboard/_components/shortage-request-form.tsx app/(protected)/dashboard/page.tsx app/(protected)/dashboard/shortages...",
+  "error": "Exit code 2\n/usr/bin/bash: eval: line 17: syntax error near unexpected token `('\n/usr/bin/bash: eval: line 17: `cd \"e:\\Work\\Source\\Github\\BusDriver\" && git add app/(protected)/dashboard/_components/shortage-request-form.tsx app/(protected)/dashboard/page.tsx app/(protected)/dashboard/shortages/page.tsx app/(protected)/payments/page.tsx app/(protected)/schools/_components/record-payment-form.tsx components/layout/header-user-menu.tsx components/protected-nav.tsx lib/auth/session.ts lib/data/payme...",
+  "timestamp": "2026-03-30T15:13:14.890Z",
+  "retry_count": 1
+}

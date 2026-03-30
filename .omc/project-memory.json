@@ -1,0 +1,375 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1774882240932,
+  "projectRoot": "e:\\Work\\Source\\Github\\BusDriver",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "next",
+        "version": "14.2.3",
+        "category": "fullstack"
+      },
+      {
+        "name": "react",
+        "version": "18.2.0",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "18.2.0",
+        "category": "frontend"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": null,
+    "lintCommand": "npm run lint",
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "next dev",
+      "build": "next build",
+      "start": "next start",
+      "lint": "next lint",
+      "seed:supabase": "tsx scripts/seed-supabase.ts",
+      "import:supabase": "tsx scripts/import-supabase.ts"
+    }
+  },
+  "conventions": {
+    "namingStyle": "camelCase",
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "app",
+      "components",
+      "docs",
+      "lib",
+      "pages",
+      "public",
+      "scripts"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "app": {
+      "path": "app",
+      "purpose": "Application code",
+      "fileCount": 4,
+      "lastAccessed": 1774882240874,
+      "keyFiles": [
+        "globals.css",
+        "layout.tsx",
+        "manifest.ts",
+        "page.tsx"
+      ]
+    },
+    "components": {
+      "path": "components",
+      "purpose": "UI components",
+      "fileCount": 27,
+      "lastAccessed": 1774882240875,
+      "keyFiles": [
+        "bulk-assign-students.tsx",
+        "change-pickup-button.tsx",
+        "dashboard-auto-refresh.tsx",
+        "inactivity-tracker.tsx",
+        "invite-link-generator.tsx"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 4,
+      "lastAccessed": 1774882240893,
+      "keyFiles": [
+        "supabase_migration.md",
+        "supabase_table.txt"
+      ]
+    },
+    "lib": {
+      "path": "lib",
+      "purpose": "Library code",
+      "fileCount": 2,
+      "lastAccessed": 1774882240893,
+      "keyFiles": [
+        "utils.ts",
+        "validation.ts"
+      ]
+    },
+    "migrations": {
+      "path": "migrations",
+      "purpose": "Database migrations",
+      "fileCount": 11,
+      "lastAccessed": 1774882240894,
+      "keyFiles": [
+        "2025_11_01_add_parent_profile_fields.sql",
+        "2025_11_02_add_admin_user_id_to_schools.sql",
+        "2025_11_03_students_school_optional.sql",
+        "2026_02_12_add_auth_login_audit.sql",
+        "2026_03_02_add_board_notifications.sql"
+      ]
+    },
+    "pages": {
+      "path": "pages",
+      "purpose": "Page components",
+      "fileCount": 1,
+      "lastAccessed": 1774882240894,
+      "keyFiles": [
+        "_document.tsx"
+      ]
+    },
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 1,
+      "lastAccessed": 1774882240894,
+      "keyFiles": [
+        "sw.js"
+      ]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 5,
+      "lastAccessed": 1774882240895,
+      "keyFiles": [
+        "import-supabase.ts",
+        "migrate-role-to-app-metadata.ts",
+        "migrate-users-to-supabase-auth.ts",
+        "seed-supabase.ts",
+        "seed.ts"
+      ]
+    },
+    "types": {
+      "path": "types",
+      "purpose": "Type definitions",
+      "fileCount": 2,
+      "lastAccessed": 1774882240895,
+      "keyFiles": [
+        "next-auth.d.ts",
+        "supabase.ts"
+      ]
+    },
+    "app\\api": {
+      "path": "app\\api",
+      "purpose": "API routes",
+      "fileCount": 0,
+      "lastAccessed": 1774882240896,
+      "keyFiles": []
+    },
+    "lib\\data": {
+      "path": "lib\\data",
+      "purpose": "Data files",
+      "fileCount": 11,
+      "lastAccessed": 1774882240897,
+      "keyFiles": [
+        "alert.ts",
+        "board-notifications.ts",
+        "board.ts"
+      ]
+    },
+    "public\\assets": {
+      "path": "public\\assets",
+      "purpose": "Static assets",
+      "fileCount": 1,
+      "lastAccessed": 1774882240899,
+      "keyFiles": [
+        "schoolbus_loading.gif"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "app\\(protected)\\payments\\page.tsx",
+      "accessCount": 12,
+      "lastAccessed": 1774883128200,
+      "type": "file"
+    },
+    {
+      "path": "Todo.md",
+      "accessCount": 12,
+      "lastAccessed": 1774883245976,
+      "type": "file"
+    },
+    {
+      "path": "components\\kakao-map.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1774885154542,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 7,
+      "lastAccessed": 1774885086917,
+      "type": "directory"
+    },
+    {
+      "path": "app\\(protected)\\routes\\actions.ts",
+      "accessCount": 7,
+      "lastAccessed": 1774885119601,
+      "type": "file"
+    },
+    {
+      "path": "lib\\data\\route.ts",
+      "accessCount": 6,
+      "lastAccessed": 1774882907735,
+      "type": "file"
+    },
+    {
+      "path": "app\\(protected)\\dashboard\\shortages\\page.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1774882699741,
+      "type": "file"
+    },
+    {
+      "path": "lib\\auth\\session.ts",
+      "accessCount": 3,
+      "lastAccessed": 1774882800084,
+      "type": "file"
+    },
+    {
+      "path": "app\\(protected)\\dashboard\\_components\\shortage-request-form.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1774883061643,
+      "type": "file"
+    },
+    {
+      "path": "lib\\data\\user.ts",
+      "accessCount": 3,
+      "lastAccessed": 1774883200538,
+      "type": "directory"
+    },
+    {
+      "path": "C:\\Users\\Tom_notebook\\.claude\\projects\\e--Work-Source-Github-BusDriver\\memory\\feedback_no_confirmation.md",
+      "accessCount": 2,
+      "lastAccessed": 1774882684679,
+      "type": "file"
+    },
+    {
+      "path": "lib\\data\\payment.ts",
+      "accessCount": 2,
+      "lastAccessed": 1774882744035,
+      "type": "file"
+    },
+    {
+      "path": "lib\\data\\student.ts",
+      "accessCount": 2,
+      "lastAccessed": 1774882753963,
+      "type": "file"
+    },
+    {
+      "path": "app\\(protected)\\dashboard\\page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1774882807730,
+      "type": "file"
+    },
+    {
+      "path": "lib\\supabase\\rest.ts",
+      "accessCount": 2,
+      "lastAccessed": 1774882901331,
+      "type": "directory"
+    },
+    {
+      "path": "components\\payment-quick-modal.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1774883172649,
+      "type": "file"
+    },
+    {
+      "path": "lib\\data\\types.ts",
+      "accessCount": 2,
+      "lastAccessed": 1774883189855,
+      "type": "file"
+    },
+    {
+      "path": "components\\protected-nav.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774882434936,
+      "type": "file"
+    },
+    {
+      "path": "lib\\data\\school.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774882448920,
+      "type": "file"
+    },
+    {
+      "path": "app\\(protected)\\schools\\page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774882479245,
+      "type": "file"
+    },
+    {
+      "path": "app\\(protected)\\routes\\page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774882480462,
+      "type": "file"
+    },
+    {
+      "path": "REVIEW.md",
+      "accessCount": 1,
+      "lastAccessed": 1774882481207,
+      "type": "file"
+    },
+    {
+      "path": "app\\(protected)\\board\\page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774882489712,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\Tom_notebook\\.claude\\projects\\e--Work-Source-Github-BusDriver\\memory\\MEMORY.md",
+      "accessCount": 1,
+      "lastAccessed": 1774882626662,
+      "type": "file"
+    },
+    {
+      "path": "app\\(protected)\\layout.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774882784457,
+      "type": "file"
+    },
+    {
+      "path": "app\\(protected)\\routes\\[id]\\page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774885007852,
+      "type": "file"
+    },
+    {
+      "path": "lib\\kakao-directions.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774885072492,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}
