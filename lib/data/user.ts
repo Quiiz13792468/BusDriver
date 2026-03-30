@@ -10,7 +10,6 @@ function mapAuthUser(user: any): UserRecord {
     email: user.email ?? '',
     name: (user.user_metadata?.name as string) ?? null,
     phone: (user.user_metadata?.phone as string) ?? null,
-    passwordHash: '', // Supabase Auth 관리 — 앱에서 직접 사용 안 함
     role: (user.app_metadata?.role as Role) ?? 'PARENT',
     createdAt: user.created_at,
     updatedAt: user.updated_at ?? user.created_at,

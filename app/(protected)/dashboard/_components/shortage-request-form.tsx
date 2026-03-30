@@ -18,7 +18,7 @@ type ShortageRow = {
 
 const initialState = { status: 'idle', message: '' } as { status: 'idle' | 'success' | 'error'; message: string };
 
-function SubmitButton({ disabled }: { disabled: boolean }) {
+function SubmitButton({ disabled, count }: { disabled: boolean; count: number }) {
   const { pending } = useFormStatus();
   return (
     <button
@@ -26,7 +26,7 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
       disabled={disabled || pending}
       className={`rounded-full px-4 py-2 text-sm font-semibold transition ${disabled || pending ? 'cursor-not-allowed bg-slate-200 text-slate-400' : 'bg-primary-600 text-white hover:bg-primary-500'}`}
     >
-      {pending ? '요청 중...' : '입금확인요청'}
+      {pending ? '요청 중...' : disabled ? '입금확인요청' : `${count}명 요청`}
     </button>
   );
 }
@@ -55,7 +55,7 @@ export function ShortageRequestForm({ rows, year, month }: { rows: ShortageRow[]
       <input type="hidden" name="month" value={String(month)} />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2 text-base text-slate-700">
-          <span>부족 인원 {rows.length}명 · 총 부족금액 {totalShortage.toLocaleString()}원</span>
+          <span>부족 인원 <span className="inline-flex items-center rounded-full bg-rose-100 px-2.5 py-0.5 text-sm font-bold text-rose-700">{rows.length}명</span> · 총 부족금액 <span className="inline-flex items-center rounded-full bg-rose-100 px-2.5 py-0.5 text-sm font-bold text-rose-700">{totalShortage.toLocaleString()}원</span></span>
           <div className="flex items-center gap-1">
             <button
               type="button"
@@ -75,7 +75,7 @@ export function ShortageRequestForm({ rows, year, month }: { rows: ShortageRow[]
             </button>
           </div>
         </div>
-        <SubmitButton disabled={selectedCount === 0} />
+        <SubmitButton disabled={selectedCount === 0} count={selectedCount} />
       </div>
       {state.message ? (
         <p className={`text-sm ${state.status === 'success' ? 'text-emerald-600' : state.status === 'error' ? 'text-rose-600' : 'text-slate-700'}`}>{state.message}</p>

@@ -97,28 +97,27 @@ export async function createStudent(input: {
   ensureSupabase();
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
-  await restInsert('students', [
-    {
-      id,
-      school_id: input.schoolId ?? null,
-      parent_user_id: input.parentUserId ?? null,
-      name: input.name,
-      guardian_name: input.guardianName,
-      phone: input.phone ?? null,
-      home_address: input.homeAddress ?? null,
-      pickup_point: input.pickupPoint ?? null,
-      route_id: input.routeId ?? null,
-      emergency_contact: input.emergencyContact ?? null,
-      fee_amount: input.feeAmount ?? 0,
-      deposit_day: input.depositDay ?? null,
-      is_active: true,
-      suspended_at: null,
-      notes: input.notes ?? null,
-      created_at: now,
-      updated_at: now
-    }
-  ]);
-  return (await getStudentById(id))!;
+  const row = {
+    id,
+    school_id: input.schoolId ?? null,
+    parent_user_id: input.parentUserId ?? null,
+    name: input.name,
+    guardian_name: input.guardianName,
+    phone: input.phone ?? null,
+    home_address: input.homeAddress ?? null,
+    pickup_point: input.pickupPoint ?? null,
+    route_id: input.routeId ?? null,
+    emergency_contact: input.emergencyContact ?? null,
+    fee_amount: input.feeAmount ?? 0,
+    deposit_day: input.depositDay ?? null,
+    is_active: true,
+    suspended_at: null,
+    notes: input.notes ?? null,
+    created_at: now,
+    updated_at: now
+  };
+  await restInsert('students', [row]);
+  return mapRowToStudent(row);
 }
 
 export async function updateStudent(

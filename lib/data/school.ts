@@ -62,19 +62,27 @@ export async function createSchool(input: {
   ensureSupabase();
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
-  await restInsert('schools', [
-    {
-      id,
-      name: input.name,
-      address: input.address ?? null,
-      default_monthly_fee: input.defaultMonthlyFee ?? 0,
-      note: input.note ?? null,
-      admin_user_id: input.adminUserId ?? null,
-      created_at: now,
-      updated_at: now
-    }
-  ]);
-  return (await getSchoolById(id))!;
+  const row = {
+    id,
+    name: input.name,
+    address: input.address ?? null,
+    default_monthly_fee: input.defaultMonthlyFee ?? 0,
+    note: input.note ?? null,
+    admin_user_id: input.adminUserId ?? null,
+    created_at: now,
+    updated_at: now
+  };
+  await restInsert('schools', [row]);
+  return {
+    id,
+    name: row.name,
+    address: row.address,
+    defaultMonthlyFee: row.default_monthly_fee,
+    note: row.note,
+    adminUserId: row.admin_user_id,
+    createdAt: now,
+    updatedAt: now
+  } as SchoolRecord;
 }
 
 export async function updateSchool(

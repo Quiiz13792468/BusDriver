@@ -1,4 +1,5 @@
 import 'server-only';
+import { redirect } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase/server';
 
 export interface SessionUser {
@@ -28,7 +29,7 @@ export async function getCurrentSession(): Promise<SessionUser | null> {
 
 export async function requireSession(role?: 'ADMIN' | 'PARENT'): Promise<SessionUser> {
   const user = await getCurrentSession();
-  if (!user) throw new Error('로그인이 필요합니다.');
-  if (role && user.role !== role) throw new Error('접근 권한이 없습니다.');
+  if (!user) redirect('/login');
+  if (role && user.role !== role) redirect('/dashboard');
   return user;
 }

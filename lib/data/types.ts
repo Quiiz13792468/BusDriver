@@ -5,7 +5,6 @@ export type UserRecord = {
   email: string;
   name: string | null;
   phone: string | null;
-  passwordHash: string;
   role: Role;
   createdAt: string;
   updatedAt: string;

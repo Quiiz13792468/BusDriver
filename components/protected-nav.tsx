@@ -2,9 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { signOut } from 'next-auth/react';
 import clsx from 'clsx';
-import { useMemo } from 'react';
+import { useMemo, useState, lazy, Suspense } from 'react';
+import { createBrowserClient } from '@/lib/supabase/client';
+
+const PaymentQuickModal = lazy(() =>
+  import('@/components/payment-quick-modal').then((m) => ({ default: m.PaymentQuickModal }))
+);
 import { DashboardIcon, SchoolIcon, RouteIcon, WalletIcon, BoardIcon, LogoutIcon } from '@/components/layout/nav-icons';
 import { useNavigationOverlay } from '@/components/navigation-overlay';
 
@@ -36,17 +40,22 @@ export function ProtectedNav({ role, orientation = 'horizontal', collapsed = fal
     [role]
   );
 
+  const [paymentOpen, setPaymentOpen] = useState(false);
   const isVertical = orientation === 'vertical';
-  const paymentHref = '/payments?payment=1';
-  const paymentAddOpen = searchParams?.get('payment') === '1';
   const isPaymentsPath = pathname === '/payments' || pathname.startsWith('/payments/');
+
+  const handleSignOut = async () => {
+    const supabase = createBrowserClient();
+    await supabase.auth.signOut();
+    window.location.href = '/login?loggedOut=1';
+  };
 
   return (
     <nav className={isVertical ? 'flex flex-col gap-2' : 'flex flex-wrap gap-2 sm:flex-nowrap'}>
       {items.map((item) => {
         const active =
           item.href === '/payments'
-            ? isPaymentsPath && !paymentAddOpen
+            ? isPaymentsPath
             : pathname === item.href || pathname.startsWith(`${item.href}/`);
         const Icon = item.icon as any;
         return (
@@ -92,37 +101,32 @@ export function ProtectedNav({ role, orientation = 'horizontal', collapsed = fal
         );
       })}
       {isVertical && role === 'ADMIN' ? (
-        <Link
-          href={paymentHref}
-          onClick={(e) => {
-            show();
-            setTimeout(() => hide(), 200);
-          }}
-          title={collapsed ? '입금 기록 추가' : undefined}
-          className={clsx(
-            'group relative flex items-center rounded-2xl px-4 py-3 text-base font-semibold transition',
-            collapsed ? 'justify-center' : 'gap-2',
-            paymentAddOpen && isPaymentsPath
-              ? 'bg-primary-50 text-primary-700 shadow-sm'
-              : 'text-slate-700 hover:bg-white/70 hover:text-primary-700'
-          )}
-        >
-          <WalletIcon className="h-5 w-5 shrink-0 text-slate-600" />
-          {collapsed ? null : <span className="relative z-10 whitespace-nowrap">입금 기록 추가</span>}
-          <span
+        <>
+          <button
+            type="button"
+            onClick={() => setPaymentOpen(true)}
+            title={collapsed ? '입금 기록 추가' : undefined}
             className={clsx(
-              'absolute left-0 top-1/2 -translate-y-1/2 h-6 w-[4px] rounded-full bg-primary-500 transition-opacity',
-              paymentAddOpen && isPaymentsPath ? 'opacity-100' : 'opacity-0'
+              'group relative flex items-center rounded-2xl px-4 py-3 text-base font-semibold transition',
+              collapsed ? 'justify-center' : 'gap-2',
+              'text-slate-700 hover:bg-white/70 hover:text-primary-700'
             )}
-            aria-hidden
-          />
-        </Link>
+          >
+            <WalletIcon className="h-5 w-5 shrink-0 text-slate-600" />
+            {collapsed ? null : <span className="relative z-10 whitespace-nowrap">입금 기록 추가</span>}
+          </button>
+          {paymentOpen ? (
+            <Suspense fallback={null}>
+              <PaymentQuickModal onClose={() => setPaymentOpen(false)} />
+            </Suspense>
+          ) : null}
+        </>
       ) : null}
       {isVertical ? (
         <div className="mt-2 border-t border-slate-100 pt-2">
           <button
             type="button"
-            onClick={() => signOut({ callbackUrl: '/login?loggedOut=1' })}
+            onClick={handleSignOut}
             className={clsx(
               'group relative flex w-full items-center rounded-2xl px-4 py-3 text-base font-semibold text-slate-700 hover:bg-rose-50 hover:text-rose-700',
               collapsed ? 'justify-center' : 'gap-2'
@@ -136,3 +140,4 @@ export function ProtectedNav({ role, orientation = 'horizontal', collapsed = fal
     </nav>
   );
 }
+

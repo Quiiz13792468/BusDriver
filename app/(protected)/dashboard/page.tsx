@@ -107,7 +107,7 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
     }
     const endOfMonth = new Date(y, month, 0); // 해당 월 마지막 날
     const monthActiveStudents = students.filter(
-      (s) => !s.suspendedAt || new Date(s.suspendedAt) > endOfMonth
+      (s) => s.isActive && (!s.suspendedAt || new Date(s.suspendedAt) > endOfMonth)
     );
     let shortage = 0;
     let count = 0;

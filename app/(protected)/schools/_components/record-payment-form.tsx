@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type MutableRefObject } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { fireAutoPopup } from '@/lib/ui/swal';
-import { LoadingOverlay } from '@/components/loading-overlay';
+import { useNavigationOverlay } from '@/components/navigation-overlay';
 
 import { recordPaymentAction } from '@/app/(protected)/schools/actions';
 
@@ -301,16 +301,23 @@ function formatDateInput(date: Date) {
 
 function SubmitButton() {
   const status = useFormStatus();
+  const { show, hide } = useNavigationOverlay();
+
+  useEffect(() => {
+    if (status.pending) {
+      show('저장 중...');
+    } else {
+      hide();
+    }
+  }, [status.pending, show, hide]);
+
   return (
-    <div className="relative inline-block w-full">
-      <button
-        type="submit"
-        disabled={status.pending}
-        className="ui-btn w-full"
-      >
-        {status.pending ? '저장 중...' : '입금 기록 추가'}
-      </button>
-      <LoadingOverlay show={status.pending} message="저장 중..." />
-    </div>
+    <button
+      type="submit"
+      disabled={status.pending}
+      className="ui-btn w-full"
+    >
+      {status.pending ? '저장 중...' : '입금 기록 추가'}
+    </button>
   );
 }

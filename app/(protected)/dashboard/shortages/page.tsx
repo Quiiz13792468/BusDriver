@@ -52,6 +52,7 @@ export default async function ShortagePage({ searchParams }: Props) {
   });
 
   const rows = students
+    .filter((st) => st.isActive)
     .map((st) => {
       const agg = byStudent.get(st.id) ?? { paid: 0, partial: 0 };
       const paidAmount = agg.paid + agg.partial;

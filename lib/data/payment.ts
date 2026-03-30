@@ -53,28 +53,21 @@ export async function recordPayment(input: {
       ? now
       : null;
 
-  await restInsert(
-    'payments',
-    [
-      {
-        id,
-        student_id: input.studentId,
-        school_id: input.schoolId,
-        amount: input.amount,
-        target_year: input.targetYear,
-        target_month: input.targetMonth,
-        status: input.status ?? 'PAID',
-        paid_at: paidAt,
-        memo: input.memo ?? null,
-        created_at: now,
-        updated_at: now
-      }
-    ],
-  );
-  const list = await getPaymentsByStudent(input.studentId);
-  const result = list.find((p) => p.id === id);
-  if (!result) throw new Error(`Payment ${id} not found after insert`);
-  return result;
+  const row = {
+    id,
+    student_id: input.studentId,
+    school_id: input.schoolId,
+    amount: input.amount,
+    target_year: input.targetYear,
+    target_month: input.targetMonth,
+    status: input.status ?? 'PAID',
+    paid_at: paidAt,
+    memo: input.memo ?? null,
+    created_at: now,
+    updated_at: now
+  };
+  await restInsert('payments', [row]);
+  return mapRowToPayment(row);
 }
 
 export async function getPaymentsByStudent(studentId: string): Promise<PaymentRecord[]> {

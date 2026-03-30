@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { signOut } from 'next-auth/react';
 import clsx from 'clsx';
+import { createBrowserClient } from '@/lib/supabase/client';
 
 type HeaderUserMenuProps = {
   role?: string;
@@ -13,6 +13,12 @@ type HeaderUserMenuProps = {
 export function HeaderUserMenu({ role, name, email }: HeaderUserMenuProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const handleSignOut = async () => {
+    const supabase = createBrowserClient();
+    await supabase.auth.signOut();
+    window.location.href = '/login?loggedOut=1';
+  };
 
   const displayName = name ?? email ?? (role === 'ADMIN' ? '관리자' : '사용자');
   const roleLabel   = role === 'ADMIN' ? '관리자' : '학부모';
@@ -65,7 +71,7 @@ export function HeaderUserMenu({ role, name, email }: HeaderUserMenuProps) {
           {/* 로그아웃 */}
           <button
             type="button"
-            onClick={() => { close(); void signOut({ callbackUrl: '/login' }); }}
+            onClick={() => { close(); void handleSignOut(); }}
             className="flex w-full items-center gap-2 px-4 py-3 text-sm font-medium text-rose-600 transition hover:bg-rose-50"
             role="menuitem"
           >

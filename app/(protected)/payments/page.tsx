@@ -1,9 +1,9 @@
 import Link from 'next/link';
 
 import { requireSession } from '@/lib/auth/session';
-import { getAllPayments, getMonthlyPaymentSummary, getPaymentsBySchoolAndMonth } from '@/lib/data/payment';
-import { getSchoolById, getSchools } from '@/lib/data/school';
-import { getAllStudents, getStudentById, getStudentsBySchool } from '@/lib/data/student';
+import { getPaymentsByYear, getEffectiveFee } from '@/lib/data/payment';
+import { getSchools } from '@/lib/data/school';
+import { getAllStudents, getStudentsBySchool } from '@/lib/data/student';
 import { RecordPaymentModal } from '@/app/(protected)/payments/_components/record-payment-modal';
 import { UiTable, UiTbody, UiTh, UiThead, UiTr, UiTd } from '@/components/ui/table';
 
@@ -38,59 +38,55 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
 
   const now = new Date();
   const activeStudents = selectedSchoolId === 'ALL'
-    ? allStudents.filter((s) => !s.suspendedAt || new Date(s.suspendedAt) > now)
-    : (await getStudentsBySchool(selectedSchoolId)).filter((s) => !s.suspendedAt || new Date(s.suspendedAt) > now);
+    ? allStudents.filter((s) => s.isActive && (!s.suspendedAt || new Date(s.suspendedAt) > now))
+    : (await getStudentsBySchool(selectedSchoolId)).filter((s) => s.isActive && (!s.suspendedAt || new Date(s.suspendedAt) > now));
   const totalExpected = activeStudents.reduce((sum, s) => sum + (s.feeAmount ?? 0), 0);
   const studentCount = activeStudents.length;
 
-  // 월별 요약 집계
-  const yearlySummary = await (async () => {
-    if (selectedSchoolId === 'ALL') {
-      const perSchool = await Promise.all(
-        schools.map(async (s) => ({ id: s.id, summary: await getMonthlyPaymentSummary({ schoolId: s.id, year: selectedYear }) }))
-      );
-      const merged: Record<number, { paid: number; partial: number; missing: number; totalAmount: number; studentCount: number }> = {} as any;
-      for (let m = 1; m <= 12; m += 1) merged[m] = { paid: 0, partial: 0, missing: 0, totalAmount: totalExpected, studentCount };
-      for (const s of perSchool) {
-        for (let m = 1; m <= 12; m += 1) {
-          const row = (s.summary as any)[m] as { paid: number; partial: number; missing: number };
-          if (!row) continue;
-          merged[m].paid += row.paid;
-          merged[m].partial += row.partial;
-          merged[m].missing += row.missing;
-        }
-      }
-      return merged;
+  // 연도 전체 결제 한 번 조회 (ALL/단일 학교 공용)
+  const schoolObjMap = new Map(schools.map((s) => [s.id, s]));
+  const allYearPayments = await getPaymentsByYear(selectedYear);
+  const yearPayments = selectedSchoolId === 'ALL'
+    ? allYearPayments
+    : allYearPayments.filter((p) => p.schoolId === selectedSchoolId);
+
+  // 월별 요약 집계 — 이미 로드된 데이터에서 인메모리 계산 (DB 쿼리 N→0 추가)
+  const summaryStudents = selectedSchoolId === 'ALL' ? allStudents : activeStudents;
+  const yearlySummary = (() => {
+    const result: Record<number, { paid: number; partial: number; missing: number; totalAmount: number; studentCount: number }> = {} as any;
+    for (let m = 1; m <= 12; m += 1) result[m] = { paid: 0, partial: 0, missing: 0, totalAmount: totalExpected, studentCount };
+    for (const p of yearPayments) {
+      const row = result[p.targetMonth];
+      if (!row) continue;
+      if (p.status === 'PAID') row.paid += p.amount;
+      if (p.status === 'PARTIAL') row.partial += p.amount;
     }
-    const summary = await getMonthlyPaymentSummary({ schoolId: selectedSchoolId, year: selectedYear });
-    const withMeta: Record<number, { paid: number; partial: number; missing: number; totalAmount: number; studentCount: number }> = {} as any;
     for (let m = 1; m <= 12; m += 1) {
-      const row = (summary as any)[m] as { paid: number; partial: number; missing: number };
-      withMeta[m] = { paid: row?.paid ?? 0, partial: row?.partial ?? 0, missing: row?.missing ?? 0, totalAmount: totalExpected, studentCount };
+      const endOfMonth = new Date(selectedYear, m, 0);
+      const monthStudents = summaryStudents.filter(
+        (s) => s.isActive && (!s.suspendedAt || new Date(s.suspendedAt) > endOfMonth)
+      );
+      const expected = monthStudents.reduce((sum, s) => sum + getEffectiveFee(s, schoolObjMap.get(s.schoolId ?? '') ?? null), 0);
+      result[m].missing = Math.max(0, expected - (result[m].paid + result[m].partial));
+      result[m].studentCount = monthStudents.length;
+      result[m].totalAmount = expected;
     }
-    return withMeta;
+    return result;
   })();
 
   // 선택 월 결제 내역
-  const payments = await (async () => {
-    if (selectedSchoolId === 'ALL') {
-      const all = await getAllPayments();
-      return all.filter((p) => p.targetYear === selectedYear && p.targetMonth === selectedMonth);
-    }
-    return getPaymentsBySchoolAndMonth({ schoolId: selectedSchoolId, year: selectedYear, month: selectedMonth });
-  })();
+  const payments = yearPayments.filter((p) => p.targetMonth === selectedMonth);
 
-  // 학생 정보 포함하여 확장
-  const enriched = await Promise.all(
-    payments.map(async (p) => {
-      const student = await getStudentById(p.studentId);
-      return {
-        ...p,
-        studentName: student?.name ?? '학생',
-        studentFee: student?.feeAmount ?? 0
-      };
-    })
-  );
+  // 학생 정보 포함하여 확장 (allStudents Map으로 N+1 제거)
+  const studentMap = new Map(allStudents.map((s) => [s.id, s]));
+  const enriched = payments.map((p) => {
+    const student = studentMap.get(p.studentId);
+    return {
+      ...p,
+      studentName: student?.name ?? '학생',
+      studentFee: student?.feeAmount ?? 0
+    };
+  });
   enriched.sort((a, b) => a.studentName.localeCompare(b.studentName, 'ko'));
 
   // 학생별 합계 산출(상태/부족금액 계산)
@@ -108,7 +104,7 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
     return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name, 'ko'));
   })();
 
-  const selectedSchool = selectedSchoolId === 'ALL' ? null : await getSchoolById(selectedSchoolId);
+  const selectedSchool = selectedSchoolId === 'ALL' ? null : (schools.find((s) => s.id === selectedSchoolId) ?? null);
 
   return (
     <div className="space-y-3">
@@ -167,9 +163,9 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
                 <UiTh>월</UiTh>
                 <UiTh>총 입금액</UiTh>
                 <UiTh>부분 입금</UiTh>
-                <UiTh>총 금액</UiTh>
                 <UiTh>학생수</UiTh>
                 <UiTh>미입금</UiTh>
+                <UiTh>총 금액</UiTh>
               </UiTr>
             </UiThead>
             <UiTbody>
@@ -183,15 +179,15 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
                     </UiTd>
                     <UiTd className="text-right text-emerald-600">{(row?.paid ?? 0).toLocaleString()}원</UiTd>
                     <UiTd className="text-right text-amber-600">{(row?.partial ?? 0).toLocaleString()}원</UiTd>
-                    <UiTd className="text-right font-semibold text-slate-800">
-                      <Link href={`/payments?schoolId=${selectedSchoolId}&year=${selectedYear}&month=${m}`} className="text-slate-800 underline decoration-slate-300 underline-offset-2 hover:text-primary-700">
-                        {(row?.totalAmount ?? 0).toLocaleString()}원
-                      </Link>
-                    </UiTd>
                     <UiTd className="text-center text-slate-700">{row?.studentCount ?? 0}</UiTd>
                     <UiTd className="text-right text-rose-600">
                       <Link href={`/payments?schoolId=${selectedSchoolId}&year=${selectedYear}&month=${m}`} className="underline decoration-rose-300 underline-offset-2 hover:text-rose-700">
                         {(row?.missing ?? 0).toLocaleString()}원
+                      </Link>
+                    </UiTd>
+                    <UiTd className="text-right font-semibold text-slate-800">
+                      <Link href={`/payments?schoolId=${selectedSchoolId}&year=${selectedYear}&month=${m}`} className="text-slate-800 underline decoration-slate-300 underline-offset-2 hover:text-primary-700">
+                        {(row?.totalAmount ?? 0).toLocaleString()}원
                       </Link>
                     </UiTd>
                   </UiTr>
