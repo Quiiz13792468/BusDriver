@@ -10,6 +10,7 @@ declare global {
 
 interface KakaoMapProps {
   stops?: Array<{ id?: string; name: string; lat: number; lng: number; position: number }>;
+  routePath?: { lat: number; lng: number }[];
   onStopDragEnd?: (stopId: string, lat: number, lng: number) => void;
   onMapClick?: (lat: number, lng: number) => void;
   highlightStopId?: string;
@@ -19,6 +20,7 @@ interface KakaoMapProps {
 
 export function KakaoMap({
   stops = [],
+  routePath,
   onStopDragEnd,
   onMapClick,
   highlightStopId,
@@ -32,6 +34,7 @@ export function KakaoMap({
   const polylineRef = useRef<any>(null);
   const boundsInitializedRef = useRef(false);
   const [loaded, setLoaded] = useState(false);
+  const [authError, setAuthError] = useState(false);
 
   const hasKey = Boolean(process.env.NEXT_PUBLIC_KAKAO_MAP_KEY);
 
@@ -59,8 +62,13 @@ export function KakaoMap({
     }
 
     const handleLoad = () => initMap();
+    const handleError = () => setAuthError(true);
     script.addEventListener('load', handleLoad);
-    return () => script?.removeEventListener('load', handleLoad);
+    script.addEventListener('error', handleError);
+    return () => {
+      script?.removeEventListener('load', handleLoad);
+      script?.removeEventListener('error', handleError);
+    };
   }, [hasKey]);
 
   // Stable callback refs to avoid stale closures
@@ -109,14 +117,17 @@ export function KakaoMap({
 
     const stopsWithCoords = stops.filter((s) => s.lat != null && s.lng != null);
 
-    // Draw polyline
-    if (stopsWithCoords.length > 1) {
-      const path = stopsWithCoords.map((s) => new kakao.maps.LatLng(s.lat, s.lng));
+    // Draw polyline — routePath(도로 경로) 우선, 없으면 직선 fallback
+    const polylineSrc = routePath && routePath.length > 1
+      ? routePath
+      : stopsWithCoords.length > 1 ? stopsWithCoords : null;
+    if (polylineSrc) {
+      const path = polylineSrc.map((p) => new kakao.maps.LatLng(p.lat, p.lng));
       const polyline = new kakao.maps.Polyline({
         path,
-        strokeWeight: 4,
+        strokeWeight: 5,
         strokeColor: '#3B82F6',
-        strokeOpacity: 0.7,
+        strokeOpacity: 0.8,
         strokeStyle: 'solid',
       });
       polyline.setMap(map);
@@ -233,14 +244,19 @@ export function KakaoMap({
       map.setBounds(bounds);
       boundsInitializedRef.current = true;
     }
-  }, [stops, loaded, highlightStopId, readonly]);
+  }, [stops, routePath, loaded, highlightStopId, readonly]);
 
   return (
     <div className="relative" style={{ height }}>
       <div ref={mapRef} className="h-full w-full rounded-2xl border border-slate-200 bg-slate-100" />
       {!loaded && (
         <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-slate-100">
-          {hasKey ? (
+          {authError ? (
+            <div className="px-4 text-center">
+              <p className="text-sm font-medium text-slate-600">카카오맵 인증에 실패했습니다</p>
+              <p className="mt-1 text-xs text-slate-500">Kakao Developers 콘솔에서 지도/로컬 서비스를 활성화해주세요</p>
+            </div>
+          ) : hasKey ? (
             <p className="text-sm text-slate-500">지도 로딩 중...</p>
           ) : (
             <div className="px-4 text-center">

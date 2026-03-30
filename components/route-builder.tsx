@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { KakaoMap } from '@/components/kakao-map';
 import { RouteStopsEditor } from '@/components/route-stops-editor';
+import { getRoutePathAction } from '@/app/(protected)/routes/actions';
 
 interface StopItem {
   id: string;
@@ -39,6 +40,21 @@ export function RouteBuilder({
   const [stops, setStops] = useState<StopItem[]>(initialStops);
   const [pendingLat, setPendingLat] = useState<number | null>(null);
   const [pendingLng, setPendingLng] = useState<number | null>(null);
+  const [routePath, setRoutePath] = useState<{ lat: number; lng: number }[]>([]);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // stops 변경 시 도로 경로 재계산 (500ms debounce)
+  useEffect(() => {
+    const stopsWithCoords = stops.filter((s) => s.lat != null && s.lng != null);
+    if (stopsWithCoords.length < 2) { setRoutePath([]); return; }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      getRoutePathAction(stopsWithCoords.map((s) => ({ lat: s.lat, lng: s.lng })))
+        .then(setRoutePath)
+        .catch(() => setRoutePath([]));
+    }, 500);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [stops]);
 
   const handleMapClick = useCallback((lat: number, lng: number) => {
     if (readonly) return;
@@ -55,6 +71,7 @@ export function RouteBuilder({
     <div className="flex flex-col gap-4">
       <KakaoMap
         stops={stops}
+        routePath={routePath.length > 0 ? routePath : undefined}
         onStopDragEnd={readonly ? undefined : handleDragEnd}
         onMapClick={readonly ? undefined : handleMapClick}
         highlightStopId={highlightStopId}

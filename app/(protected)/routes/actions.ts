@@ -3,6 +3,7 @@
 import crypto from 'node:crypto';
 
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { getRoutePath, type DirectionsStop } from '@/lib/kakao-directions';
 
 import { requireSession } from '@/lib/auth/session';
 import { assignStudentToRoute, createRoute, deleteRoute, updateRoute } from '@/lib/data/route';
@@ -148,4 +149,8 @@ export async function saveRouteStopsAction(
   revalidatePath(`/routes/${routeId}`);
   revalidatePath('/routes');
   return { status: 'success', message: '정차 지점을 저장했습니다.' };
+}
+
+export async function getRoutePathAction(stops: DirectionsStop[]): Promise<{ lat: number; lng: number }[]> {
+  return getRoutePath(stops);
 }
