@@ -80,10 +80,10 @@ export function RouteStopsEditor({
   const hasPending = pendingLat != null && pendingLng != null;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 overflow-x-hidden">
       <ul className="divide-y divide-slate-100 rounded-2xl border border-slate-100 bg-white/70">
         {sorted.length === 0 && (
-          <li className="px-3 py-4 text-center text-base text-slate-500">
+          <li className="px-3 py-4 text-center text-base text-slate-700">
             정차 지점이 없습니다. 지도를 클릭해 위치를 선택하세요.
           </li>
         )}
@@ -92,8 +92,8 @@ export function RouteStopsEditor({
           const isExpanded = expandedId === stop.id;
 
           return (
-            <li key={stop.id} className="px-3 py-2.5">
-              <div className="flex items-center gap-2">
+            <li key={stop.id} className="px-2 py-2.5 sm:px-3">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 {/* Position badge */}
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-600 text-xs font-bold text-white">
                   {stop.position + 1}
@@ -104,7 +104,7 @@ export function RouteStopsEditor({
                   value={displayName}
                   onChange={(e) => setEditNames((prev) => ({ ...prev, [stop.id]: e.target.value }))}
                   onBlur={() => handleNameBlur(stop)}
-                  className="ui-input min-w-0 flex-1 text-base"
+                  className="ui-input min-w-0 flex-1 text-base text-slate-900"
                 />
 
                 {/* Up / Down */}
@@ -113,7 +113,7 @@ export function RouteStopsEditor({
                   aria-label="위로"
                   disabled={idx === 0}
                   onClick={() => moveUp(idx)}
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-600 disabled:opacity-30 hover:bg-slate-50"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-base text-slate-700 disabled:opacity-30 hover:bg-slate-50 sm:h-12 sm:w-12"
                 >
                   ▲
                 </button>
@@ -122,7 +122,7 @@ export function RouteStopsEditor({
                   aria-label="아래로"
                   disabled={idx === sorted.length - 1}
                   onClick={() => moveDown(idx)}
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-600 disabled:opacity-30 hover:bg-slate-50"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-base text-slate-700 disabled:opacity-30 hover:bg-slate-50 sm:h-12 sm:w-12"
                 >
                   ▼
                 </button>
@@ -132,7 +132,7 @@ export function RouteStopsEditor({
                   type="button"
                   aria-label="메모 펼치기"
                   onClick={() => setExpandedId((prev) => (prev === stop.id ? null : stop.id))}
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-base text-slate-600 hover:bg-slate-50 sm:h-12 sm:w-12"
                 >
                   {isExpanded ? '▾' : '▸'}
                 </button>
@@ -142,7 +142,7 @@ export function RouteStopsEditor({
                   type="button"
                   aria-label="삭제"
                   onClick={() => onDelete(stop.id)}
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-rose-200 text-rose-500 hover:bg-rose-50"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-rose-200 text-base text-rose-600 hover:bg-rose-50 sm:h-12 sm:w-12"
                 >
                   ✕
                 </button>

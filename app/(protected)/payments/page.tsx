@@ -123,9 +123,9 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
       />
 
       {/* 컨트롤 바 */}
-      <section className="ui-control">
+      <section className="ui-control overflow-x-hidden">
         <form method="get" className="flex flex-col gap-2">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 w-full min-w-0">
             <div className="flex items-center gap-2">
               <label className="shrink-0 text-sm font-semibold text-slate-700" htmlFor="schoolId">학교</label>
               <select id="schoolId" name="schoolId" defaultValue={selectedSchoolId} className="ui-select w-auto">

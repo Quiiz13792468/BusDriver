@@ -168,9 +168,9 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
           ) : rows.map((r, idx) => (
             <div key={idx} className="rounded-xl border border-slate-200 p-3">
               <div className="flex items-center justify-between gap-2">
-                <div>
+                <div className="flex flex-wrap items-center gap-1.5">
                   <span className="font-semibold text-slate-900">{r.student}</span>
-                  <span className="ml-2 text-xs text-slate-500">{r.school}</span>
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">{r.school}</span>
                 </div>
                 <span className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold ${r.status === '입금완료' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
                   {r.status}
@@ -332,27 +332,25 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
   const currentMonth = today.getMonth() + 1;
   return (
     <div className="space-y-3">
-      <section>
-        <div className="flex flex-col gap-3">
-          <Link href="/dashboard/route" className="ui-card ui-card-compact flex items-center gap-4 transition hover:border-amber-200 hover:bg-amber-50/60 active:scale-[0.98]" style={{ minHeight: '60px' }}>
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-yellow-500">
-              <MapIcon className="h-6 w-6 text-white" />
-            </span>
-            <span className="text-lg font-semibold text-slate-900">노선 확인</span>
+      <section className="ui-card p-2">
+        <div className="flex flex-col gap-2">
+          <Link
+            href="/dashboard/route"
+            className="flex min-h-[56px] items-center justify-center rounded-xl bg-amber-50 px-4 text-lg font-bold text-amber-800 transition active:scale-[0.97] active:bg-amber-100"
+          >
+            노선 확인
           </Link>
-
-          <Link href="/dashboard/pickup" className="ui-card ui-card-compact flex items-center gap-4 transition hover:border-amber-200 hover:bg-amber-50/60 active:scale-[0.98]" style={{ minHeight: '60px' }}>
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500">
-              <RouteIcon className="h-6 w-6 text-white" />
-            </span>
-            <span className="text-lg font-semibold text-slate-900">탑승지점 변경 요청</span>
+          <Link
+            href="/dashboard/pickup"
+            className="flex min-h-[56px] items-center justify-center rounded-xl bg-amber-50 px-4 text-lg font-bold text-amber-800 transition active:scale-[0.97] active:bg-amber-100"
+          >
+            탑승지점 변경 요청
           </Link>
-
-          <Link href="/board" className="ui-card ui-card-compact flex items-center gap-4 transition hover:border-amber-200 hover:bg-amber-50/60 active:scale-[0.98]" style={{ minHeight: '60px' }}>
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-300 to-amber-400">
-              <BoardIcon className="h-6 w-6 text-white" />
-            </span>
-            <span className="text-lg font-semibold text-slate-900">문의 게시판</span>
+          <Link
+            href="/board"
+            className="flex min-h-[56px] items-center justify-center rounded-xl bg-amber-50 px-4 text-lg font-bold text-amber-800 transition active:scale-[0.97] active:bg-amber-100"
+          >
+            문의 게시판
           </Link>
         </div>
       </section>

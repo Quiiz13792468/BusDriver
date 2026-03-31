@@ -57,7 +57,6 @@ function NavTab({ item, active }: { item: NavItem; active: boolean }) {
 export function MobileBottomNav({ role }: MobileBottomNavProps) {
   const pathname = usePathname() ?? '';
   const searchParams = useSearchParams();
-  const { show } = useNavigationOverlay();
 
   function isActive(item: NavItem) {
     const prefix = item.matchPrefix ?? item.href;
@@ -83,23 +82,6 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
       {ADMIN_LEFT.map((item) => (
         <NavTab key={item.href} item={item} active={isActive(item)} />
       ))}
-
-      {/* 중앙 입금 등록 FAB — 대시보드에서는 QuickPaymentDialog가 대신하므로 숨김 */}
-      {pathname !== '/dashboard' && (
-        <div className="relative flex flex-none items-center justify-center px-2">
-          <Link
-            href="/payments?payment=1"
-            onClick={() => show('잠시만 기다려 주세요.')}
-            className="flex h-12 w-12 -translate-y-2 flex-col items-center justify-center rounded-full bg-primary-600 shadow-lg shadow-primary-200/60 transition active:scale-95 active:bg-primary-700"
-            aria-label="입금 등록"
-          >
-            <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-            </svg>
-            <span className="mt-0.5 text-[9px] font-bold leading-none text-white">입금등록</span>
-          </Link>
-        </div>
-      )}
 
       {ADMIN_RIGHT.map((item) => (
         <NavTab key={item.href} item={item} active={isActive(item)} />

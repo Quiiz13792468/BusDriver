@@ -3,7 +3,6 @@
 import clsx from 'clsx';
 import React, { type ReactNode } from 'react';
 import Link from 'next/link';
-import { createBrowserClient } from '@/lib/supabase/client';
 import { HeaderUserMenu } from '@/components/layout/header-user-menu';
 import { MobileAlertBell } from '@/components/layout/mobile-alert-bell';
 import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav';
@@ -26,26 +25,8 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
     setCollapsed(v === '1');
   }, []);
 
-  // 자동 로그아웃 (60분 비활성)
-  React.useEffect(() => {
-    const idleLimitMs = 60 * 60 * 1000;
-    const events = ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll', 'click'];
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    const resetTimer = () => {
-      if (timer) clearTimeout(timer);
-      timer = setTimeout(async () => {
-        const supabase = createBrowserClient();
-        await supabase.auth.signOut();
-        window.location.href = '/login?loggedOut=1';
-      }, idleLimitMs);
-    };
-    resetTimer();
-    events.forEach((e) => window.addEventListener(e, resetTimer, { passive: true }));
-    return () => {
-      if (timer) clearTimeout(timer);
-      events.forEach((e) => window.removeEventListener(e, resetTimer));
-    };
-  }, []);
+  // 자동 로그아웃은 middleware(서버)에서 30분 비활성 기준으로 처리함
+  // 클라이언트 중복 타이머 제거
 
   const toggleCollapsed = () => {
     const next = !collapsed;
@@ -63,11 +44,16 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
 
         {/* ── 모바일 상단 헤더 ── */}
         <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-sm md:hidden">
-          <div className="flex h-[44px] items-center justify-between px-3">
-            {/* 로고 + 앱명 → 대시보드로 이동 */}
-            <Link href="/dashboard" className="flex items-center gap-2 text-slate-800 transition active:opacity-70">
-              <BusIcon className="h-7 w-7 text-primary-600" />
-              <span className="text-base font-bold tracking-tight">통학버스 관리</span>
+          <div className="flex h-[52px] items-center justify-between px-3">
+            {/* 좌측: 테두리 있는 버스 아이콘
+                관리자: 클릭 시 입금 등록 페이지로 이동
+                학부모: 대시보드로 이동 */}
+            <Link
+              href={role === 'ADMIN' ? '/payments?payment=1' : '/dashboard'}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white transition active:opacity-70"
+              aria-label={role === 'ADMIN' ? '입금 등록' : '대시보드로 이동'}
+            >
+              <BusIcon className="h-6 w-6 text-primary-600" />
             </Link>
 
             {/* 우측: 알림 벨 + 유저 메뉴 */}

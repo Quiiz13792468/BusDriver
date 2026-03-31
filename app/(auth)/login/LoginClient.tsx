@@ -222,7 +222,6 @@ export default function LoginClient() {
       text: '로그인에 성공했습니다. 대시보드로 이동합니다.'
     });
     router.push(redirectUrl);
-    router.refresh();
   }
 
   return (

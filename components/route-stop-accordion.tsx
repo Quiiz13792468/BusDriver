@@ -45,8 +45,13 @@ export function RouteStopAccordion({ groups }: { groups: StopGroup[] }) {
                 <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
-            {isOpen && (
-              <div className="border-t border-slate-100 bg-slate-50 px-4 py-3">
+            <div
+              className={[
+                'overflow-hidden border-t border-slate-100 bg-slate-50 transition-all duration-200',
+                isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 border-t-0',
+              ].join(' ')}
+            >
+              <div className="px-4 py-3">
                 {g.students.length === 0 ? (
                   <p className="text-sm text-slate-500">이 정류장에 배정된 학생이 없습니다.</p>
                 ) : (
@@ -61,7 +66,7 @@ export function RouteStopAccordion({ groups }: { groups: StopGroup[] }) {
                   </ul>
                 )}
               </div>
-            )}
+            </div>
           </li>
         );
       })}

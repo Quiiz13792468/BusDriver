@@ -44,7 +44,7 @@ export function InviteLinkGenerator() {
   return (
     <div className="ui-card ui-card-pad space-y-4">
       <div>
-        <h3 className="text-base font-bold text-slate-900">학부모 초대 링크 생성</h3>
+        <h2 className="text-lg font-semibold text-slate-900">학부모 초대 링크 생성</h2>
         <p className="mt-0.5 text-sm text-slate-500">1회용 링크로만 가입 가능합니다. 링크를 카카오톡/문자로 전송하세요.</p>
       </div>
 
