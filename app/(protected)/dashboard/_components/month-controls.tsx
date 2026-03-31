@@ -119,14 +119,8 @@ export function MonthControls({
   };
 
   return (
-    <div className="flex items-center gap-2 text-base">
-      <button
-        type="button"
-        onClick={handlePrev}
-        className="ui-btn-outline border-slate-300 shadow-sm hover:border-amber-300 hover:bg-amber-50/60"
-      >
-        이전 월
-      </button>
+    <div className="flex flex-col items-end gap-1.5 text-base">
+      {/* 1행: 년, 월, 조회 버튼 */}
       <form onSubmit={handleSubmit} className="flex items-center gap-1">
         <input type="hidden" name="atype" value={typeParam} />
         <select
@@ -151,13 +145,23 @@ export function MonthControls({
         </select>
         <button className="ui-btn-outline border-amber-300 bg-amber-50 py-1.5 text-amber-700">조회</button>
       </form>
-      <button
-        type="button"
-        onClick={handleNext}
-        className="ui-btn-outline border-slate-300 shadow-sm hover:border-amber-300 hover:bg-amber-50/60"
-      >
-        다음 월
-      </button>
+      {/* 2행: 이전월, 다음월 버튼 */}
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={handlePrev}
+          className="ui-btn-outline border-slate-300 py-1.5 shadow-sm hover:border-amber-300 hover:bg-amber-50/60"
+        >
+          이전월
+        </button>
+        <button
+          type="button"
+          onClick={handleNext}
+          className="ui-btn-outline border-slate-300 py-1.5 shadow-sm hover:border-amber-300 hover:bg-amber-50/60"
+        >
+          다음월
+        </button>
+      </div>
     </div>
   );
 }

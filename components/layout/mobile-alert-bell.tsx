@@ -10,7 +10,8 @@ type MobileAlertBellProps = {
 
 export function MobileAlertBell({ count, href }: MobileAlertBellProps) {
   const liveCount = useRealtimeAlerts(count);
-  const badge = liveCount > 9 ? '9+' : liveCount > 0 ? String(liveCount) : null;
+  const displayLabel = liveCount > 9 ? '9+' : String(liveCount);
+  const hasAlert = liveCount > 0;
 
   return (
     <Link
@@ -29,12 +30,16 @@ export function MobileAlertBell({ count, href }: MobileAlertBellProps) {
         />
       </svg>
 
-      {/* Badge */}
-      {badge && (
-        <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold leading-none text-white">
-          {badge}
-        </span>
-      )}
+      {/* Badge - 항상 표시, 1 이상이면 빨간색 bold */}
+      <span
+        className={`absolute -right-0.5 -top-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] leading-none ${
+          hasAlert
+            ? 'bg-rose-500 font-bold text-white'
+            : 'bg-slate-200 font-normal text-slate-500'
+        }`}
+      >
+        {displayLabel}
+      </span>
     </Link>
   );
 }

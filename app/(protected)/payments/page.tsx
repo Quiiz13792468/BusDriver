@@ -124,27 +124,29 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
 
       {/* 컨트롤 바 */}
       <section className="ui-control">
-        <form method="get" className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
-          <div className="grid grid-cols-[auto_1fr] items-center gap-2">
-            <label className="text-sm font-semibold text-slate-700" htmlFor="schoolId">학교</label>
-            <select id="schoolId" name="schoolId" defaultValue={selectedSchoolId} className="ui-select w-full sm:w-auto">
-              <option value="ALL">전체</option>
-              {schools.map((s) => (
-                <option key={s.id} value={s.id}>{s.name}</option>
-              ))}
-            </select>
+        <form method="get" className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2">
+              <label className="shrink-0 text-sm font-semibold text-slate-700" htmlFor="schoolId">학교</label>
+              <select id="schoolId" name="schoolId" defaultValue={selectedSchoolId} className="ui-select w-auto">
+                <option value="ALL">전체</option>
+                {schools.map((s) => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="shrink-0 text-sm font-semibold text-slate-700" htmlFor="year">연도</label>
+              <select id="year" name="year" defaultValue={String(selectedYear)} className="ui-select w-auto">
+                {Array.from({ length: 5 }, (_, i) => selectedYear - 2 + i).map((yy) => (
+                  <option key={yy} value={yy}>{yy}</option>
+                ))}
+              </select>
+            </div>
+            <button className="ui-btn-outline border-amber-300 bg-amber-50 py-1.5 text-amber-700 hover:bg-amber-100">
+              조회
+            </button>
           </div>
-          <div className="grid grid-cols-[auto_1fr] items-center gap-2">
-            <label className="text-sm font-semibold text-slate-700" htmlFor="year">연도</label>
-            <select id="year" name="year" defaultValue={String(selectedYear)} className="ui-select w-full sm:w-auto">
-              {Array.from({ length: 5 }, (_, i) => selectedYear - 2 + i).map((yy) => (
-                <option key={yy} value={yy}>{yy}</option>
-              ))}
-            </select>
-          </div>
-          <button className="ui-btn-outline col-span-2 border-amber-300 bg-amber-50 py-2 text-amber-700 hover:bg-amber-100 sm:col-span-1 sm:py-1.5">
-            조회
-          </button>
         </form>
       </section>
 
@@ -156,7 +158,33 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
                 월별 입금 요약 {selectedSchool ? `- ${selectedSchool.name}` : '(전체)'}
               </span>
             </summary>
-            <div className="ui-collapse-panel ui-table-wrap">
+            <div className="ui-collapse-panel">
+              {/* 모바일 카드 */}
+              <div className="md:hidden space-y-2">
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
+                  const row = (yearlySummary as any)[m] as { paid: number; partial: number; missing: number; totalAmount: number; studentCount: number };
+                  const isActive = m === selectedMonth;
+                  return (
+                    <Link
+                      key={m}
+                      href={`/payments?schoolId=${selectedSchoolId}&year=${selectedYear}&month=${m}`}
+                      className={`block rounded-xl border p-3 transition ${isActive ? 'border-amber-300 bg-amber-50/60' : 'border-slate-200 bg-white'}`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-base font-bold text-slate-800">{m}월</span>
+                        <span className="text-sm text-slate-500">{row?.studentCount ?? 0}명</span>
+                      </div>
+                      <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5 text-sm">
+                        <span className="text-emerald-600">입금 {(row?.paid ?? 0).toLocaleString()}원</span>
+                        {(row?.partial ?? 0) > 0 && <span className="text-amber-600">부분 {(row?.partial ?? 0).toLocaleString()}원</span>}
+                        {(row?.missing ?? 0) > 0 && <span className="font-semibold text-rose-600">미입금 {(row?.missing ?? 0).toLocaleString()}원</span>}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+              {/* 데스크톱 테이블 */}
+              <div className="ui-table-wrap hidden md:block">
             <UiTable className="text-sm">
             <UiThead>
               <UiTr>
@@ -195,6 +223,7 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
               })}
             </UiTbody>
             </UiTable>
+            </div>
             </div>
           </details>
       </section>

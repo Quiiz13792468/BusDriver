@@ -258,42 +258,233 @@ function StudentAssignmentTable({ schools, students }: { schools: SchoolRecord[]
   const router = useRouter();
   const schoolMap = useMemo(() => new Map(schools.map((school) => [school.id, school.name])), [schools]);
 
+  if (students.length === 0) {
+    return (
+      <section className="ui-card ui-card-pad">
+        <p className="text-center text-base text-slate-700">등록된 학생이 없습니다.</p>
+      </section>
+    );
+  }
+
   return (
-    <section className="ui-card overflow-hidden">
-      <UiTable className="table-fixed">
-        <colgroup>
-          <col className="w-[28%]" />
-          <col className="w-[20%]" />
-          <col className="w-[34%]" />
-          <col className="w-[18%]" />
-        </colgroup>
-        <UiThead>
-          <UiTr>
-            <UiTh className="text-left">학생</UiTh>
-            <UiTh className="text-left">현재 학교</UiTh>
-            <UiTh className="text-left">학교 배정</UiTh>
-            <UiTh className="text-left">상세/편집</UiTh>
-          </UiTr>
-        </UiThead>
-        <UiTbody>
-          {students.map((student) => (
-            <StudentAssignmentRow
-              key={student.id}
-              student={student}
-              schools={schools}
-              schoolMap={schoolMap}
-              onSuccess={() => router.refresh()}
-            />
-          ))}
-          {students.length === 0 ? (
+    <>
+      {/* 모바일(sm 미만): 카드형 */}
+      <div className="space-y-2 sm:hidden">
+        {students.map((student) => (
+          <StudentAssignmentCard
+            key={student.id}
+            student={student}
+            schools={schools}
+            schoolMap={schoolMap}
+            onSuccess={() => router.refresh()}
+          />
+        ))}
+      </div>
+
+      {/* sm 이상: 기존 테이블 */}
+      <section className="ui-card overflow-hidden hidden sm:block">
+        <UiTable className="table-fixed">
+          <colgroup>
+            <col className="w-[28%]" />
+            <col className="w-[20%]" />
+            <col className="w-[34%]" />
+            <col className="w-[18%]" />
+          </colgroup>
+          <UiThead>
             <UiTr>
-              <UiTd colSpan={4} className="text-center text-base text-slate-700">
-                등록된 학생이 없습니다.
-              </UiTd>
+              <UiTh className="text-left">학생</UiTh>
+              <UiTh className="text-left">현재 학교</UiTh>
+              <UiTh className="text-left">학교 배정</UiTh>
+              <UiTh className="text-left">상세/편집</UiTh>
             </UiTr>
-          ) : null}
-        </UiTbody>
-      </UiTable>
+          </UiThead>
+          <UiTbody>
+            {students.map((student) => (
+              <StudentAssignmentRow
+                key={student.id}
+                student={student}
+                schools={schools}
+                schoolMap={schoolMap}
+                onSuccess={() => router.refresh()}
+              />
+            ))}
+          </UiTbody>
+        </UiTable>
+      </section>
+    </>
+  );
+}
+
+function StudentAssignmentCard({
+  student,
+  schools,
+  schoolMap,
+  onSuccess
+}: {
+  student: StudentRecord;
+  schools: SchoolRecord[];
+  schoolMap: Map<string, string>;
+  onSuccess: () => void;
+}) {
+  const [currentSchoolId, setCurrentSchoolId] = useState<string>(student.schoolId ?? "");
+  const [schoolId, setSchoolId] = useState<string>(student.schoolId ?? "");
+  const [pending, setPending] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [updateState, updateAction] = useFormState(updateStudentInfoAction, initialState);
+  const handledUpdateRef = useRef(false);
+  const suspensionStatus = getSuspensionStatus(student.suspendedAt);
+
+  useEffect(() => {
+    setCurrentSchoolId(student.schoolId ?? "");
+    setSchoolId(student.schoolId ?? "");
+  }, [student.schoolId]);
+
+  useEffect(() => {
+    if (updateState?.status === "success" && !handledUpdateRef.current) {
+      handledUpdateRef.current = true;
+      setEditMode(false);
+      setPanelOpen(false);
+      onSuccess();
+    }
+  }, [updateState, onSuccess]);
+
+  useEffect(() => {
+    if (!updateState || updateState.status !== "success") {
+      handledUpdateRef.current = false;
+    }
+  }, [updateState]);
+
+  const handleAssign = async () => {
+    if (!editing) { setEditing(true); return; }
+    if (!schoolId) {
+      await Swal.fire({ icon: "warning", title: "학교 선택 필요", text: "배정할 학교를 선택해주세요." });
+      return;
+    }
+    setPending(true);
+    const fd = new FormData();
+    fd.append("studentId", student.id);
+    fd.append("schoolId", schoolId);
+    const res = await assignStudentToSchoolAction(undefined, fd);
+    setPending(false);
+    await Swal.fire({ icon: res.status === "success" ? "success" : "error", text: res.message });
+    if (res.status === "success") { setCurrentSchoolId(schoolId); setEditing(false); onSuccess(); }
+  };
+
+  const handleUnassign = async () => {
+    if (!currentSchoolId) { await Swal.fire({ icon: "info", text: "이미 미배정 상태입니다." }); return; }
+    const result = await Swal.fire({
+      icon: "warning", title: "학생 배정 해제", text: "학생의 학교 배정을 해제하시겠습니까?",
+      showCancelButton: true, confirmButtonText: "해제", cancelButtonText: "취소", confirmButtonColor: "#e11d48"
+    });
+    if (!result.isConfirmed) return;
+    setPending(true);
+    const fd = new FormData();
+    fd.append("studentId", student.id);
+    fd.append("schoolId", currentSchoolId);
+    const res = await unassignStudentFromSchoolAction(undefined, fd);
+    setPending(false);
+    await Swal.fire({ icon: res.status === "success" ? "success" : "error", text: res.message });
+    if (res.status === "success") { setCurrentSchoolId(""); setSchoolId(""); setEditing(false); onSuccess(); }
+  };
+
+  return (
+    <section className="ui-card ui-card-pad space-y-3">
+      {/* 학생 정보 헤더 */}
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <div className="flex flex-wrap items-center gap-2 font-semibold text-slate-900">
+            <span className="text-base">{student.name}</span>
+            {suspensionStatus ? (
+              <span className={clsx('rounded-full px-2.5 py-1 text-xs font-semibold',
+                suspensionStatus === '이용종료' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700')}>
+                {suspensionStatus}
+              </span>
+            ) : null}
+          </div>
+          <div className="text-sm text-slate-500">보호자 {student.guardianName}</div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setPanelOpen((prev) => !prev)}
+          className="ui-btn-outline shrink-0 px-3 py-1.5 text-sm"
+        >
+          {panelOpen ? "닫기" : "상세/편집"}
+        </button>
+      </div>
+
+      {/* 현재 학교 */}
+      <div className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700">
+        <span className="font-semibold text-slate-500">현재 학교</span>
+        <span className="ml-2">{currentSchoolId ? schoolMap.get(currentSchoolId) ?? "학교 정보 없음" : "미배정"}</span>
+      </div>
+
+      {/* 학교 배정 */}
+      <div className="space-y-2">
+        {editing ? (
+          <select value={schoolId} onChange={(e) => setSchoolId(e.target.value)} className="ui-select w-full">
+            <option value="">미배정</option>
+            {schools.map((school) => (
+              <option key={school.id} value={school.id}>{school.name}</option>
+            ))}
+          </select>
+        ) : null}
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={handleAssign} disabled={pending} className="ui-btn flex-1 py-2 text-sm">
+            {editing ? "저장" : "배정/변경"}
+          </button>
+          {editing ? (
+            <button type="button" onClick={() => { setEditing(false); setSchoolId(currentSchoolId); }} disabled={pending}
+              className="ui-btn-outline flex-1 py-2 text-sm">취소</button>
+          ) : (
+            <button type="button" onClick={handleUnassign} disabled={pending}
+              className="ui-btn-outline flex-1 border-rose-200 py-2 text-sm text-rose-600 hover:border-rose-300 hover:bg-rose-50">
+              배정 해제
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* 상세/편집 패널 */}
+      {panelOpen ? (
+        <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+          <form action={updateAction} className="ui-control">
+            <input type="hidden" name="studentId" value={student.id} />
+            <input type="hidden" name="schoolId" value={student.schoolId ?? ""} />
+            <input type="hidden" name="routeId" value={student.routeId ?? ""} />
+            <div className="mb-2 text-sm font-semibold text-slate-600">학생 정보</div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <FormInput label="학생 이름" name="name" defaultValue={student.name} required readOnly={!editMode} />
+              <FormInput label="보호자 이름" name="guardianName" defaultValue={student.guardianName} required readOnly={!editMode} />
+              <FormInput label="학생 연락처" name="phone" defaultValue={student.phone ?? ""} readOnly={!editMode} />
+              <FormInput label="비상 연락처" name="emergencyContact" defaultValue={student.emergencyContact ?? ""} readOnly={!editMode} />
+              <FormInput label="기본 요금" name="feeAmount" type="number" min={0} defaultValue={student.feeAmount.toString()} required readOnly={!editMode} />
+              <FormInput label="입금일(일)" name="depositDay" type="number" min={1} defaultValue={student.depositDay?.toString() ?? ""} readOnly={!editMode} />
+              <FormInput label="탑승 지점" name="pickupPoint" defaultValue={student.pickupPoint ?? ""} readOnly={!editMode} />
+              <FormInput label="이용종료일" name="suspendedAt" type="date" defaultValue={student.suspendedAt ? student.suspendedAt.slice(0, 10) : ""} readOnly={!editMode} />
+            </div>
+            <div className="mt-3 grid gap-3">
+              <FormTextarea label="주소" name="homeAddress" defaultValue={student.homeAddress ?? ""} rows={2} readOnly={!editMode} />
+              <FormTextarea label="메모" name="notes" defaultValue={student.notes ?? ""} rows={3} readOnly={!editMode} />
+            </div>
+            {updateState && updateState.status !== "success" ? (
+              <p className="mt-3 text-sm text-rose-600">{updateState.message}</p>
+            ) : null}
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <button type="button" onClick={() => setPanelOpen(false)} className="ui-btn-outline px-4 py-2 text-sm">닫기</button>
+              {editMode ? (
+                <>
+                  <button type="button" onClick={() => setEditMode(false)} className="ui-btn-outline px-4 py-2 text-sm">취소</button>
+                  <FormSubmitButton />
+                </>
+              ) : (
+                <button type="button" onClick={() => setEditMode(true)} className="ui-btn px-5 py-2 text-sm">수정</button>
+              )}
+            </div>
+          </form>
+        </div>
+      ) : null}
     </section>
   );
 }

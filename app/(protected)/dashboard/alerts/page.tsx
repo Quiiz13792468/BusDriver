@@ -3,6 +3,7 @@ import { requireSession } from '@/lib/auth/session';
 import { getAlerts } from '@/lib/data/alert';
 import { getSchools } from '@/lib/data/school';
 import { getAllStudents } from '@/lib/data/student';
+import { PageHeader } from '@/components/layout/page-header';
 
 const ALERT_LABEL: Record<string, string> = {
   PAYMENT: '입금 확인',
@@ -26,7 +27,7 @@ export default async function DashboardAlertsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-lg font-semibold text-slate-900">알림 목록</h1>
+      <PageHeader title="알림 목록" />
 
       {alerts.length === 0 ? (
         <p className="ui-empty">대기 중인 알림이 없습니다.</p>

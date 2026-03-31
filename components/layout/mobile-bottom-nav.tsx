@@ -39,9 +39,9 @@ function NavTab({ item, active }: { item: NavItem; active: boolean }) {
   return (
     <Link
       href={item.href}
-      onClick={() => { if (!active) show('이동 중...'); }}
+      onClick={() => { if (!active) show('잠시만 기다려 주세요.'); }}
       className={clsx(
-        'relative flex flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-[10px] font-semibold transition-colors',
+        'relative flex flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-xs font-semibold transition-colors',
         active ? 'text-primary-600' : 'text-slate-400 hover:text-slate-600'
       )}
     >
@@ -79,7 +79,7 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-14 items-stretch border-t border-slate-200 bg-white/95 backdrop-blur-sm md:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-14 items-stretch overflow-hidden border-t border-slate-200 bg-white/95 backdrop-blur-sm md:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       {ADMIN_LEFT.map((item) => (
         <NavTab key={item.href} item={item} active={isActive(item)} />
       ))}
@@ -89,7 +89,7 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
         <div className="relative flex flex-none items-center justify-center px-2">
           <Link
             href="/payments?payment=1"
-            onClick={() => show('이동 중...')}
+            onClick={() => show('잠시만 기다려 주세요.')}
             className="flex h-12 w-12 -translate-y-2 flex-col items-center justify-center rounded-full bg-primary-600 shadow-lg shadow-primary-200/60 transition active:scale-95 active:bg-primary-700"
             aria-label="입금 등록"
           >

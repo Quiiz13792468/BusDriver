@@ -11,7 +11,7 @@ type LinkWithLoadingProps = PropsWithChildren<LinkProps & {
   loadingMessage?: string;
 }>;
 
-export function LinkWithLoading({ children, className, title, ariaLabel, loadingMessage = '이동 중...', ...props }: LinkWithLoadingProps) {
+export function LinkWithLoading({ children, className, title, ariaLabel, loadingMessage = '잠시만 기다려 주세요.', ...props }: LinkWithLoadingProps) {
   const { show } = useNavigationOverlay();
   return (
     <Link

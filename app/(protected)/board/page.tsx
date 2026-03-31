@@ -89,6 +89,50 @@ export default async function BoardPage() {
 
   return (
     <div className="space-y-3">
+      {/* 내 문의 목록 - 상단 배치 */}
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold text-slate-900">문의 게시판</h2>
+        {posts.length === 0 ? (
+          <p className="ui-empty">등록한 문의가 없습니다.</p>
+        ) : (
+          <div className="space-y-3">
+            {posts.map((post) => (
+              <Link
+                key={post.id}
+                href={`/board/${post.id}`}
+                className={`block ui-card ui-card-pad transition hover:-translate-y-0.5 hover:shadow-lg ${
+                  post.locked
+                    ? 'border-emerald-200 bg-emerald-50/60 ring-1 ring-emerald-200/60 hover:border-emerald-300'
+                    : 'border-slate-200 bg-white/95 hover:border-primary-300'
+                }`}
+              >
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900">
+                      {post.title}
+                      <PostUnreadBadge postId={post.id} viewerId={session.id} lastCommentAt={post.lastCommentAt} />
+                    </h3>
+                    <p className="text-sm text-slate-700">등록일 {new Date(post.createdAt).toLocaleString()}</p>
+                    <p className="mt-1 text-sm text-slate-600">조회수 {post.viewCount ?? 0} · 댓글 {post.commentCount ?? 0}</p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {post.locked ? (
+                      <span className="ui-badge border-emerald-200 bg-emerald-100 text-emerald-700">
+                        답변완료
+                      </span>
+                    ) : null}
+                    <span className="ui-badge">
+                      {post.parentOnly ? '학부모 전용' : '전체 공개'}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* 문의 등록 폼 */}
       {childSchools.length === 0 ? (
         <section className="ui-card ui-card-pad text-base text-slate-700">
           <p className="mb-3">
@@ -104,47 +148,6 @@ export default async function BoardPage() {
           showAllOption={false}
         />
       )}
-
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-slate-900">내가 등록한 문의</h2>
-        <div className="space-y-3">
-          {posts.map((post) => (
-            <Link
-              key={post.id}
-              href={`/board/${post.id}`}
-              className={`block ui-card ui-card-pad transition hover:-translate-y-0.5 hover:shadow-lg ${
-                post.locked
-                  ? 'border-emerald-200 bg-emerald-50/60 ring-1 ring-emerald-200/60 hover:border-emerald-300'
-                  : 'border-slate-200 bg-white/95 hover:border-primary-300'
-              }`}
-            >
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900">
-                    {post.title}
-                    <PostUnreadBadge postId={post.id} viewerId={session.id} lastCommentAt={post.lastCommentAt} />
-                  </h3>
-                  <p className="text-sm text-slate-700">등록일 {new Date(post.createdAt).toLocaleString()}</p>
-                  <p className="mt-1 text-sm text-slate-600">조회수 {post.viewCount ?? 0} · 댓글 {post.commentCount ?? 0}</p>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  {post.locked ? (
-                    <span className="ui-badge border-emerald-200 bg-emerald-100 text-emerald-700">
-                      답변완료
-                    </span>
-                  ) : null}
-                  <span className="ui-badge">
-                    {post.parentOnly ? '학부모 전용' : '전체 공개'}
-                  </span>
-                </div>
-              </div>
-            </Link>
-          ))}
-          {posts.length === 0 ? (
-            <p className="ui-empty">등록한 문의가 없습니다.</p>
-          ) : null}
-        </div>
-      </section>
 
       <AdSlot placement="문의 게시판 하단" format="horizontal" />
     </div>

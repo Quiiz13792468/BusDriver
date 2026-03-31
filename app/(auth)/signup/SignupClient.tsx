@@ -129,7 +129,7 @@ export function SignupClient() {
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label className="mb-1.5 block text-sm font-semibold text-slate-700">이름 *</label>
+            <label className="mb-1.5 block text-base font-semibold text-slate-700">이름 *</label>
             <input
               type="text"
               value={name}
@@ -140,7 +140,7 @@ export function SignupClient() {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-semibold text-slate-700">이메일 *</label>
+            <label className="mb-1.5 block text-base font-semibold text-slate-700">이메일 *</label>
             <input
               type="email"
               value={email}
@@ -152,7 +152,7 @@ export function SignupClient() {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-semibold text-slate-700">전화번호</label>
+            <label className="mb-1.5 block text-base font-semibold text-slate-700">전화번호</label>
             <input
               type="tel"
               value={phone}
@@ -162,7 +162,7 @@ export function SignupClient() {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-semibold text-slate-700">비밀번호 *</label>
+            <label className="mb-1.5 block text-base font-semibold text-slate-700">비밀번호 *</label>
             <div className="relative">
               <input
                 type={pwVisible ? 'text' : 'password'}
@@ -208,7 +208,7 @@ export function SignupClient() {
           </button>
         </form>
 
-        <p className="mt-4 text-center text-xs text-slate-500">
+        <p className="mt-4 text-center text-sm text-slate-500">
           이미 계정이 있으신가요?{' '}
           <Link href="/login" className="font-medium text-primary-600 hover:underline">로그인</Link>
         </p>

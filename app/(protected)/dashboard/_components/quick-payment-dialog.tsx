@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import clsx from 'clsx';
-import Swal from 'sweetalert2';
+import { fireAutoPopup } from '@/lib/ui/swal';
 import type { StudentRecord, SchoolRecord } from '@/lib/data/types';
 import { getEffectiveFee } from '@/lib/data/payment-utils';
 
@@ -74,12 +74,7 @@ export function QuickPaymentDialog({
     if (isNaN(parsed) || parsed <= 0) return;
 
     if (!selectedStudent.schoolId) {
-      await Swal.fire({
-        title: '오류',
-        text: '학교 미배정 학생은 결제 등록이 불가합니다.',
-        icon: 'error',
-        confirmButtonText: '확인'
-      });
+      await fireAutoPopup({ icon: 'error', title: '학교 미배정', text: '학교 미배정 학생은 결제 등록이 불가합니다.' });
       return;
     }
 
@@ -97,21 +92,12 @@ export function QuickPaymentDialog({
           memo: memo || null
         });
 
-        await Swal.fire({
-          title: '등록 완료',
-          icon: 'success',
-          timer: 1500,
-          showConfirmButton: false
-        });
+        await fireAutoPopup({ icon: 'success', title: '등록 완료' });
 
         setOpen(false);
         onSuccess?.();
       } catch (err) {
-        await Swal.fire({
-          title: '오류',
-          text: '결제 등록 중 오류가 발생했습니다.',
-          icon: 'error'
-        });
+        await fireAutoPopup({ icon: 'error', title: '오류', text: '결제 등록 중 오류가 발생했습니다.' });
       }
     });
   }
@@ -166,7 +152,7 @@ export function QuickPaymentDialog({
                 placeholder="학생 이름 또는 학교명 검색"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base focus:border-primary-400 focus:outline-none"
+                className="ui-input"
                 autoFocus
               />
               <div className="max-h-64 overflow-y-auto rounded-xl border border-slate-100">
@@ -178,8 +164,7 @@ export function QuickPaymentDialog({
                       key={student.id}
                       type="button"
                       onClick={() => handleSelectStudent(student)}
-                      className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-primary-50 border-b border-slate-50 last:border-0"
-                      style={{ minHeight: '56px' }}
+                      className="flex min-h-[56px] w-full items-center justify-between border-b border-slate-50 px-4 py-3 text-left last:border-0 hover:bg-primary-50"
                     >
                       <div>
                         <div className="text-base font-semibold text-slate-900">{student.name}</div>
@@ -230,7 +215,7 @@ export function QuickPaymentDialog({
                   type="number"
                   value={amount}
                   onChange={e => setAmount(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base focus:border-primary-400 focus:outline-none"
+                  className="ui-input"
                   inputMode="numeric"
                 />
               </div>
@@ -242,7 +227,7 @@ export function QuickPaymentDialog({
                   value={memo}
                   onChange={e => setMemo(e.target.value)}
                   placeholder="메모 입력"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base focus:border-primary-400 focus:outline-none"
+                  className="ui-input"
                 />
               </div>
 
@@ -250,8 +235,7 @@ export function QuickPaymentDialog({
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="flex-1 rounded-xl border border-slate-200 py-3 text-sm font-semibold text-slate-700"
-                  style={{ minHeight: '48px' }}
+                  className="ui-btn-outline min-h-[48px] flex-1 py-3 text-sm"
                 >
                   이전
                 </button>
@@ -259,8 +243,7 @@ export function QuickPaymentDialog({
                   type="button"
                   onClick={handleSubmit}
                   disabled={!amount || isNaN(parseInt(amount, 10)) || parseInt(amount, 10) <= 0 || isPending}
-                  className="flex-2 flex-1 rounded-xl bg-primary-600 py-3 text-sm font-semibold text-white disabled:bg-slate-200 disabled:text-slate-400"
-                  style={{ minHeight: '48px' }}
+                  className="ui-btn min-h-[48px] flex-1 py-3 text-sm disabled:bg-slate-200 disabled:text-slate-400"
                 >
                   {isPending ? '등록 중...' : '등록하기'}
                 </button>

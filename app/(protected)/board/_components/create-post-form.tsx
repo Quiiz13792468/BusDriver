@@ -20,7 +20,7 @@ type CreatePostFormProps = {
 
 export function CreatePostForm({
   schools,
-  title = '문의 게시판 글 등록',
+  title = '문의 게시판',
   description = '궁금한 점이나 요청 사항을 남겨주세요. 관리자가 확인 후 답변드립니다.',
   lockParentOnly = false,
   showAllOption = true
@@ -61,7 +61,7 @@ export function CreatePostForm({
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700" htmlFor="schoolId">대상 학교</label>
+          <label className="text-sm font-medium text-slate-700" htmlFor="schoolId">학교</label>
           <select
             id="schoolId"
             name="schoolId"
@@ -107,7 +107,7 @@ export function CreatePostForm({
           disabled={status.pending}
           className="ui-btn w-full"
         >
-          {status.pending ? '등록 중…' : '문의 게시판 등록'}
+          {status.pending ? '등록 중…' : '등록'}
         </button>
       </div>
     </form>

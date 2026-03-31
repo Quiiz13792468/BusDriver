@@ -148,7 +148,7 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
 
       {/* 이번 달 입금자 명단 */}
       <section className="ui-card ui-card-pad space-y-2">
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between gap-2">
           <h2 className="text-lg font-semibold text-slate-900">입금자 명단</h2>
           <MonthControls
             year={y}
@@ -170,7 +170,7 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
               <div className="flex items-center justify-between gap-2">
                 <div>
                   <span className="font-semibold text-slate-900">{r.student}</span>
-                  <span className="ml-2 text-sm text-slate-500">{r.school}</span>
+                  <span className="ml-2 text-xs text-slate-500">{r.school}</span>
                 </div>
                 <span className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold ${r.status === '입금완료' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
                   {r.status}
@@ -238,7 +238,7 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
                 {(stat.paid + stat.partial) > 0 ? (
                   <span className="text-emerald-600">{(stat.paid + stat.partial).toLocaleString()}원</span>
                 ) : (
-                  <span className="text-slate-400">기록 없음</span>
+                  <span className="text-slate-400"> - </span>
                 )}
                 {stat.shortage > 0 ? (
                   <LinkWithLoading
@@ -333,29 +333,26 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
   return (
     <div className="space-y-3">
       <section>
-        <div className="grid gap-3 md:grid-cols-2">
-          <Link href="/dashboard/route" className="ui-card ui-card-compact transition hover:border-amber-200 hover:bg-amber-50/60 md:flex md:h-[120px] md:flex-col md:justify-center">
-            <div className="mb-1 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 px-2 py-1 text-base font-semibold text-slate-900/90">
-              <MapIcon className="h-4 w-4 text-slate-800/70" />
-              <span>노선 확인</span>
-            </div>
-            <p className="text-base text-slate-700">자녀의 탑승 노선과 정차 지점을 확인합니다.</p>
+        <div className="flex flex-col gap-3">
+          <Link href="/dashboard/route" className="ui-card ui-card-compact flex items-center gap-4 transition hover:border-amber-200 hover:bg-amber-50/60 active:scale-[0.98]" style={{ minHeight: '60px' }}>
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-yellow-500">
+              <MapIcon className="h-6 w-6 text-white" />
+            </span>
+            <span className="text-lg font-semibold text-slate-900">노선 확인</span>
           </Link>
 
-          <Link href="/dashboard/pickup" className="ui-card ui-card-compact transition hover:border-amber-200 hover:bg-amber-50/60 md:flex md:h-[120px] md:flex-col md:justify-center">
-            <div className="mb-1 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 px-2 py-1 text-base font-semibold text-slate-900/90">
-              <RouteIcon className="h-4 w-4 text-slate-800/70" />
-              <span>탑승지점 변경 요청</span>
-            </div>
-            <p className="text-base text-slate-700">학생의 탑승 위치 변경을 요청합니다.</p>
+          <Link href="/dashboard/pickup" className="ui-card ui-card-compact flex items-center gap-4 transition hover:border-amber-200 hover:bg-amber-50/60 active:scale-[0.98]" style={{ minHeight: '60px' }}>
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500">
+              <RouteIcon className="h-6 w-6 text-white" />
+            </span>
+            <span className="text-lg font-semibold text-slate-900">탑승지점 변경 요청</span>
           </Link>
 
-          <Link href="/board" className="ui-card ui-card-compact transition hover:border-amber-200 hover:bg-amber-50/60 md:flex md:h-[120px] md:flex-col md:justify-center">
-            <div className="mb-1 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-yellow-300 via-amber-300 to-yellow-400 px-2 py-1 text-base font-semibold text-slate-900/90">
-              <BoardIcon className="h-4 w-4 text-slate-800/70" />
-              <span>문의 게시판</span>
-            </div>
-            <p className="text-base text-slate-700">관리자에게 문의를 등록합니다.</p>
+          <Link href="/board" className="ui-card ui-card-compact flex items-center gap-4 transition hover:border-amber-200 hover:bg-amber-50/60 active:scale-[0.98]" style={{ minHeight: '60px' }}>
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-300 to-amber-400">
+              <BoardIcon className="h-6 w-6 text-white" />
+            </span>
+            <span className="text-lg font-semibold text-slate-900">문의 게시판</span>
           </Link>
         </div>
       </section>
@@ -373,7 +370,26 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
                   <span><span className="text-slate-700">학교</span> · {s.schoolId ? schoolMap.get(s.schoolId) ?? '학교 정보 없음' : '미배정'}</span>
                   <span><span className="text-slate-700">전화번호</span> · {s.phone ?? '-'}</span>
                   <span><span className="text-slate-700">기본요금</span> · {s.feeAmount.toLocaleString()}원</span>
-                  <span className="sm:col-span-2"><span className="text-slate-700">탑승위치</span> · {s.pickupPoint ?? '-'}</span>
+                  <span className="sm:col-span-2 flex flex-wrap items-center gap-2">
+                    <span className="text-slate-700">탑승위치</span>
+                    {s.pickupPoint ? (
+                      s.routeId ? (
+                        <Link
+                          href={`/dashboard/route?highlight=${encodeURIComponent(s.pickupPoint)}`}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-800 transition hover:bg-amber-100 active:scale-95"
+                        >
+                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" fill="currentColor"/>
+                          </svg>
+                          {s.pickupPoint}
+                        </Link>
+                      ) : (
+                        <span>· {s.pickupPoint}</span>
+                      )
+                    ) : (
+                      <span>· -</span>
+                    )}
+                  </span>
                 </div>
               </li>
             ))}
@@ -405,42 +421,48 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
               const list = payments.filter((p) => p.targetYear === year);
               return (
                 <div key={student.id} className="ui-card ui-card-compact">
-                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                      <h3 className="text-base font-semibold text-slate-900">{student.name}</h3>
-                      <p className="text-sm text-slate-700">
-                        {student.schoolId ? schoolMap.get(student.schoolId) ?? '학교 정보 없음' : '미배정'} · 기본요금 {effectiveFee.toLocaleString()}원
-                      </p>
-                    </div>
+                  <div className="mb-3">
+                    <h3 className="text-base font-semibold text-slate-900">
+                      {student.name}
+                      {effectiveFee > 0 && (
+                        <span className="ml-2 text-sm font-normal text-slate-500">(요금 {effectiveFee.toLocaleString()}원)</span>
+                      )}
+                    </h3>
                   </div>
-                  <div className="grid grid-cols-4 gap-2 text-base">
-                    <div className="rounded-lg bg-slate-50 px-3 py-1.5 text-center font-semibold text-slate-700 flex items-center justify-center">월</div>
-                    <div className="rounded-lg bg-slate-50 px-3 py-1.5 text-center font-semibold text-slate-700 flex items-center justify-center">상태</div>
-                    <div className="rounded-lg bg-slate-50 px-3 py-1.5 text-center font-semibold text-slate-700 flex items-center justify-center">입금액</div>
-                    <div className="rounded-lg bg-slate-50 px-3 py-1.5 text-center font-semibold text-slate-700 flex items-center justify-center">입금 확인 요청</div>
+                  {/* 모바일: 3열(월/상태/입금액) + 버튼은 별도 행 */}
+                  <div className="space-y-1">
+                    <div className="grid grid-cols-3 gap-1 text-sm">
+                      <div className="rounded-lg bg-slate-50 px-2 py-1.5 text-center font-semibold text-slate-700">월</div>
+                      <div className="rounded-lg bg-slate-50 px-2 py-1.5 text-center font-semibold text-slate-700">상태</div>
+                      <div className="rounded-lg bg-slate-50 px-2 py-1.5 text-center font-semibold text-slate-700">입금액</div>
+                    </div>
                     {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => {
                       const monthPayments = list.filter((p) => p.targetMonth === month);
                       const paid = monthPayments
                         .filter((p) => p.status === 'PAID' || p.status === 'PARTIAL')
                         .reduce((sum, p) => sum + p.amount, 0);
-                      const status = effectiveFee > 0 && paid >= effectiveFee ? '완납' : paid > 0 ? '부분 입금' : '미입금';
+                      const status = effectiveFee > 0 && paid >= effectiveFee ? '완납' : paid > 0 ? '부분' : '미입금';
                       const rowBg = month === currentMonth ? 'bg-amber-50/70' : 'bg-white';
+                      const statusColor = status === '완납' ? 'text-emerald-700' : status === '부분' ? 'text-amber-700' : 'text-rose-700';
                       return (
-                        <div key={`${student.id}-${month}`} className="contents">
-                          <div className={`rounded-lg border border-slate-200 px-3 py-1.5 text-center text-slate-700 flex items-center justify-center ${rowBg}`}>{month}월</div>
-                          <div className={`rounded-lg border border-slate-200 px-3 py-1.5 text-center font-semibold flex items-center justify-center ${rowBg} ${status === '완납' ? 'text-emerald-700' : status === '부분 입금' ? 'text-amber-700' : 'text-rose-700'}`}>{status}</div>
-                          <div className={`rounded-lg border border-slate-200 px-3 py-1.5 text-center text-slate-700 flex items-center justify-center ${rowBg}`}>{paid ? `${paid.toLocaleString()}원` : '-'}</div>
-                          <div className={`rounded-lg border border-slate-200 px-3 py-1.5 text-center flex items-center justify-center ${rowBg}`}>
-                            {student.schoolId ? (
-                              <RequestPaymentButton studentId={student.id} schoolId={student.schoolId} year={year} month={month} />
-                            ) : (
-                              <span className="text-sm text-slate-600">배정 후 가능</span>
-                            )}
+                        <div key={`${student.id}-${month}`} className="space-y-1">
+                          <div className="grid grid-cols-3 gap-1 text-sm">
+                            <div className={`rounded-lg border border-slate-200 px-2 py-1.5 text-center text-slate-700 ${rowBg}`}>{month}월</div>
+                            <div className={`rounded-lg border border-slate-200 px-2 py-1.5 text-center font-semibold ${rowBg} ${statusColor}`}>{status}</div>
+                            <div className={`rounded-lg border border-slate-200 px-2 py-1.5 text-center text-slate-700 ${rowBg}`}>{paid ? `${paid.toLocaleString()}원` : '-'}</div>
                           </div>
+                          {student.schoolId && (
+                            <div className={`rounded-lg border border-slate-200 px-2 py-1.5 text-center ${rowBg}`}>
+                              <RequestPaymentButton studentId={student.id} schoolId={student.schoolId} year={year} month={month} />
+                            </div>
+                          )}
                         </div>
                       );
                     })}
                   </div>
+                  {!student.schoolId && (
+                    <p className="mt-2 text-sm text-slate-500">학교 배정 후 입금 확인 요청이 가능합니다.</p>
+                  )}
                 </div>
               );
             })}
