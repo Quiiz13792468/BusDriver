@@ -225,7 +225,7 @@ export default function LoginClient() {
   }
 
   return (
-    <div className="relative flex min-h-[100dvh] items-center justify-center overflow-x-hidden overflow-y-auto px-4 py-4">
+    <div className="relative flex h-[100dvh] items-center justify-center overflow-hidden px-4 py-4">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-[-4rem] top-10 h-44 w-44 rounded-full bg-primary-100/60 blur-3xl" />
         <div className="absolute right-[-3rem] top-16 h-56 w-56 rounded-full bg-accent-100/70 blur-3xl" />
