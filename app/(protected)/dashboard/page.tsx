@@ -332,29 +332,6 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
   const currentMonth = today.getMonth() + 1;
   return (
     <div className="space-y-3">
-      <section className="ui-card p-2">
-        <div className="flex flex-col gap-2">
-          <Link
-            href="/dashboard/route"
-            className="flex min-h-[56px] items-center justify-center rounded-xl bg-amber-50 px-4 text-lg font-bold text-amber-800 transition active:scale-[0.97] active:bg-amber-100"
-          >
-            노선 확인
-          </Link>
-          <Link
-            href="/dashboard/pickup"
-            className="flex min-h-[56px] items-center justify-center rounded-xl bg-amber-50 px-4 text-lg font-bold text-amber-800 transition active:scale-[0.97] active:bg-amber-100"
-          >
-            탑승지점 변경 요청
-          </Link>
-          <Link
-            href="/board"
-            className="flex min-h-[56px] items-center justify-center rounded-xl bg-amber-50 px-4 text-lg font-bold text-amber-800 transition active:scale-[0.97] active:bg-amber-100"
-          >
-            문의 게시판
-          </Link>
-        </div>
-      </section>
-
       <section className="ui-card ui-card-pad">
         <h2 className="mb-3 text-base font-semibold text-slate-900">학생 정보</h2>
         {students.length === 0 ? (

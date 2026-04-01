@@ -18,7 +18,7 @@ export default async function BoardPage() {
     const [schools, posts] = await Promise.all([getSchools(), getBoardPosts()]);
 
     return (
-      <div className="space-y-3">
+      <div className="space-y-3 pb-10">
         <CreatePostForm
           title="공지 작성"
           schools={schools.map((school) => ({ id: school.id, name: school.name }))}
@@ -88,7 +88,7 @@ export default async function BoardPage() {
   const childSchools = filteredIds.map((id) => ({ id, name: schoolNameMap.get(id) ?? '학교 정보 없음' }));
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 pb-10">
       {/* 내 문의 목록 - 상단 배치 */}
       <section className="space-y-3">
         <h2 className="text-lg font-semibold text-slate-900">문의 게시판</h2>

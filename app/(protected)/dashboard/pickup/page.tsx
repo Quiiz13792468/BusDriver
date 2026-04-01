@@ -14,7 +14,7 @@ export default async function ParentPickupPage() {
   const schoolMap = new Map(schools.map((school) => [school.id, school.name]));
   const schoolIds = Array.from(new Set(students.map((s) => s.schoolId).filter((id): id is string => Boolean(id))));
   const routesBySchool = new Map(
-    await Promise.all(schoolIds.map(async (schoolId) => [schoolId, await getRoutesBySchool(schoolId)] as const))
+    await Promise.all(schoolIds.map((schoolId) => getRoutesBySchool(schoolId).then((routes) => [schoolId, routes] as const)))
   );
 
   return (

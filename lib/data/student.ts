@@ -74,9 +74,11 @@ export async function getUnassignedStudents(): Promise<StudentRecord[]> {
 }
 
 export async function getStudentDetail(id: string) {
-  const student = await getStudentById(id);
+  const [student, payments] = await Promise.all([
+    getStudentById(id),
+    getPaymentsByStudent(id)
+  ]);
   if (!student) return null;
-  const payments = await getPaymentsByStudent(id);
   return { ...student, payments };
 }
 

@@ -56,6 +56,7 @@ export default function LoginClient() {
   const [signupAdminEmail, setSignupAdminEmail] = useState('');
   const [signupError, setSignupError] = useState<string | null>(null);
   const logoutShownRef = useRef(false);
+  const inactiveShownRef = useRef(false);
 
   useEffect(() => {
     try {
@@ -86,12 +87,17 @@ export default function LoginClient() {
 
   useEffect(() => {
     if (searchParams?.get('reason') !== 'inactive') return;
-    void fireAutoPopup({
-      icon: 'warning',
-      title: '자동 로그아웃',
-      text: '30분 이상 활동이 없어 자동으로 로그아웃되었습니다.'
-    });
-  }, [searchParams]);
+    if (inactiveShownRef.current) return;
+    inactiveShownRef.current = true;
+    void (async () => {
+      await fireAutoPopup({
+        icon: 'warning',
+        title: '자동 로그아웃',
+        text: '30분 이상 활동이 없어 자동으로 로그아웃되었습니다.'
+      });
+      router.replace('/login');
+    })();
+  }, [searchParams, router]);
 
   useEffect(() => {
     if (signupRole !== 'parent') {

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import clsx from 'clsx';
-import { DashboardIcon, SchoolIcon, RouteIcon, WalletIcon, BoardIcon } from '@/components/layout/nav-icons';
+import { DashboardIcon, SchoolIcon, RouteIcon, WalletIcon, BoardIcon, MapIcon } from '@/components/layout/nav-icons';
 import { useNavigationOverlay } from '@/components/navigation-overlay';
 
 type MobileBottomNavProps = {
@@ -29,8 +29,10 @@ const ADMIN_RIGHT: NavItem[] = [
 ];
 
 const PARENT_TABS: NavItem[] = [
-  { href: '/dashboard', label: '대시보드', icon: DashboardIcon },
-  { href: '/board',     label: '게시판',   icon: BoardIcon },
+  { href: '/dashboard',         label: '대시보드', icon: DashboardIcon },
+  { href: '/dashboard/route',   label: '노선확인', icon: RouteIcon },
+  { href: '/dashboard/pickup',  label: '노선변경', icon: MapIcon },
+  { href: '/board',             label: '게시판',   icon: BoardIcon },
 ];
 
 function NavTab({ item, active }: { item: NavItem; active: boolean }) {
@@ -63,7 +65,12 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
     if (item.href === '/payments') {
       return pathname.startsWith(prefix) && searchParams?.get('payment') !== '1';
     }
-    if (item.href === '/dashboard') return pathname === '/dashboard' || pathname.startsWith('/dashboard/');
+    // /dashboard 탭은 하위 경로(route, pickup 등)가 별도 탭으로 있을 때 정확히 일치할 때만 active
+    if (item.href === '/dashboard') {
+      const hasSubTab = PARENT_TABS.some((t) => t.href !== '/dashboard' && t.href.startsWith('/dashboard/'));
+      if (hasSubTab) return pathname === '/dashboard';
+      return pathname === '/dashboard' || pathname.startsWith('/dashboard/');
+    }
     return pathname === item.href || pathname.startsWith(`${item.href}/`);
   }
 

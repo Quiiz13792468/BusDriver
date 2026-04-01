@@ -58,8 +58,8 @@ export function ChangePickupButton({ student, routes }: Props) {
               const after = nextPoint || '-';
               Notiflix.Confirm.show(
                 '탑승지점 변경',
-                `변경 전: ${before}\n변경 후: ${after}\n\n그래도 변경하시겠습니까?`,
-                '확인',
+                `변경 전: ${before}\n변경 후: ${after}\n\n저장하시겠습니까?`,
+                '저장',
                 '취소',
                 async () => {
                   if (!student.schoolId) {
