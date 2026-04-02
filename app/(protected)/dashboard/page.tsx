@@ -148,18 +148,16 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
 
       {/* 이번 달 입금자 명단 */}
       <section className="ui-card ui-card-pad space-y-2">
-        <div className="flex items-start justify-between gap-2">
-          <h2 className="text-lg font-semibold text-slate-900">입금자 명단</h2>
-          <MonthControls
-            year={y}
-            month={m}
-            minYear={fixedMinYear}
-            minMonth={1}
-            maxYear={fixedMaxYear}
-            maxMonth={12}
-            typeParam={typeParam}
-          />
-        </div>
+        <h2 className="text-lg font-semibold text-slate-900">입금자 명단</h2>
+        <MonthControls
+          year={y}
+          month={m}
+          minYear={fixedMinYear}
+          minMonth={1}
+          maxYear={fixedMaxYear}
+          maxMonth={12}
+          typeParam={typeParam}
+        />
 
         {/* 모바일: 카드 */}
         <div className="space-y-2 md:hidden">

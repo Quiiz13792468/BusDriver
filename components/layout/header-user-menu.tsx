@@ -44,10 +44,6 @@ export function HeaderUserMenu({ role, name, email }: HeaderUserMenuProps) {
         aria-expanded={open}
         aria-haspopup="menu"
       >
-        {/* Avatar */}
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">
-          {initial}
-        </span>
         <span className="max-w-[7rem] truncate">{displayName}</span>
         <svg
           className={clsx('h-3.5 w-3.5 text-slate-400 transition-transform', open && 'rotate-180')}

@@ -51,7 +51,7 @@ export function AlertPanel({ alerts, typeParam, year, month, schoolMap, studentM
   );
 
   return (
-    <div className="ui-card ui-card-compact">
+    <div className="ui-card ui-card-pad">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <button
           type="button"

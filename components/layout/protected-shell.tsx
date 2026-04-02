@@ -58,8 +58,8 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
 
             {/* 우측: 알림 벨 + 유저 메뉴 */}
             <div className="flex items-center gap-1">
-              <MobileAlertBell count={alertCount} href={alertHref} />
               <HeaderUserMenu role={role} name={user.name} email={user.email} />
+              <MobileAlertBell count={alertCount} href={alertHref} />
             </div>
           </div>
         </header>
