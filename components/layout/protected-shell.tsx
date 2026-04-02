@@ -1,8 +1,12 @@
 "use client";
 
 import clsx from 'clsx';
-import React, { type ReactNode } from 'react';
+import React, { lazy, Suspense, type ReactNode } from 'react';
 import Link from 'next/link';
+
+const PaymentQuickModal = lazy(() =>
+  import('@/components/payment-quick-modal').then((m) => ({ default: m.PaymentQuickModal }))
+);
 import { HeaderUserMenu } from '@/components/layout/header-user-menu';
 import { MobileAlertBell } from '@/components/layout/mobile-alert-bell';
 import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav';
@@ -19,6 +23,7 @@ type ProtectedShellProps = {
 
 export function ProtectedShell({ user, role, alertCount = 0, children }: ProtectedShellProps) {
   const [collapsed, setCollapsed] = React.useState(false);
+  const [paymentOpen, setPaymentOpen] = React.useState(false);
 
   React.useEffect(() => {
     const v = typeof window !== 'undefined' ? localStorage.getItem('navCollapsed') : null;
@@ -45,16 +50,31 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
         {/* ── 모바일 상단 헤더 ── */}
         <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-sm md:hidden">
           <div className="flex h-[52px] items-center justify-between px-3">
-            {/* 좌측: 테두리 있는 버스 아이콘
-                관리자: 클릭 시 입금 등록 페이지로 이동
-                학부모: 대시보드로 이동 */}
-            <Link
-              href={role === 'ADMIN' ? '/payments?payment=1' : '/dashboard'}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white transition active:opacity-70"
-              aria-label={role === 'ADMIN' ? '입금 등록' : '대시보드로 이동'}
-            >
-              <BusIcon className="h-6 w-6 text-primary-600" />
-            </Link>
+            {role === 'ADMIN' ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setPaymentOpen(true)}
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white transition active:opacity-70"
+                  aria-label="입금 등록"
+                >
+                  <BusIcon className="h-6 w-6 text-primary-600" />
+                </button>
+                {paymentOpen && (
+                  <Suspense fallback={null}>
+                    <PaymentQuickModal onClose={() => setPaymentOpen(false)} />
+                  </Suspense>
+                )}
+              </>
+            ) : (
+              <Link
+                href="/dashboard"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white transition active:opacity-70"
+                aria-label="대시보드로 이동"
+              >
+                <BusIcon className="h-6 w-6 text-primary-600" />
+              </Link>
+            )}
 
             {/* 우측: 알림 벨 + 유저 메뉴 */}
             <div className="flex items-center gap-1">

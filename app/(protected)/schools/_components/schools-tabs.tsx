@@ -42,11 +42,13 @@ export function SchoolsTabs({ schools, students }: SchoolsTabsProps) {
         </TabButton>
       </div>
 
-      {activeTab === "schools" ? (
-        <SchoolTab schools={schools} />
-      ) : (
-        <StudentTab schools={schools} students={students} />
-      )}
+      <div className="ui-card ui-card-pad">
+        {activeTab === "schools" ? (
+          <SchoolTab schools={schools} />
+        ) : (
+          <StudentTab schools={schools} students={students} />
+        )}
+      </div>
     </div>
   );
 }
@@ -82,26 +84,21 @@ function SchoolTab({ schools }: { schools: SchoolRecord[] }) {
               key={school.id}
               className="ui-card ui-card-pad transition hover:border-primary-300 hover:shadow-md"
             >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <Link href={`/schools/${school.id}`} className="group">
-                  <p className="text-lg font-semibold text-slate-900 group-hover:text-primary-600">{school.name}</p>
-                  <p className="mt-2 text-base text-slate-700">
-                    기본 금액 {school.defaultMonthlyFee.toLocaleString()}원
-                  </p>
-                  {school.address ? (
-                    <p className="mt-1 text-sm text-slate-700">주소: {school.address}</p>
-                  ) : null}
-                </Link>
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setEditSchoolId((prev) => (prev === school.id ? null : school.id))}
-                    className="ui-btn-outline px-3 py-1.5 text-sm"
-                  >
-                    {editSchoolId === school.id ? "수정 닫기" : "수정"}
-                  </button>
-                  <DeleteSchoolButton schoolId={school.id} schoolName={school.name} />
-                </div>
+              <Link href={`/schools/${school.id}`} className="group block">
+                <p className="text-lg font-semibold text-slate-900 group-hover:text-primary-600">{school.name}</p>
+                <p className="mt-1 text-base text-slate-700">기본 금액 {school.defaultMonthlyFee.toLocaleString()}원</p>
+                {school.address ? <p className="mt-1 text-sm text-slate-500">주소: {school.address}</p> : null}
+                {school.note ? <p className="mt-1 text-sm text-slate-500">{school.note}</p> : null}
+              </Link>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditSchoolId((prev) => (prev === school.id ? null : school.id))}
+                  className="ui-btn-outline px-3 py-1.5 text-sm"
+                >
+                  {editSchoolId === school.id ? "수정 닫기" : "수정"}
+                </button>
+                <DeleteSchoolButton schoolId={school.id} schoolName={school.name} />
               </div>
 
               {editSchoolId === school.id ? (

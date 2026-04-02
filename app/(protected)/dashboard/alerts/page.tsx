@@ -35,26 +35,22 @@ export default async function DashboardAlertsPage() {
         <div className="space-y-2">
           {alerts.map((alert) => (
             <div key={alert.id} className="ui-card ui-card-compact">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${ALERT_COLOR[alert.type] ?? 'bg-slate-100 text-slate-700'}`}>
-                      {ALERT_LABEL[alert.type] ?? '확인 필요'}
-                    </span>
-                    <span className="font-semibold text-slate-900 text-sm">{studentMap.get(alert.studentId) ?? '학생 정보 없음'}</span>
-                    <span className="text-sm text-slate-500 truncate">{schoolMap.get(alert.schoolId) ?? '학교 정보 없음'}</span>
-                  </div>
-                  <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500">
-                    <span>{alert.year}년 {alert.month}월</span>
-                    <span>{new Date(alert.createdAt).toLocaleString()}</span>
-                  </div>
-                  {alert.memo && <p className="mt-1.5 text-sm text-slate-600">{alert.memo}</p>}
-                </div>
+              {/* 1행: 타입 | 이름 | 처리완료 */}
+              <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
+                <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${ALERT_COLOR[alert.type] ?? 'bg-slate-100 text-slate-700'}`}>
+                  {ALERT_LABEL[alert.type] ?? '확인 필요'}
+                </span>
+                <span className="truncate font-semibold text-slate-900">{studentMap.get(alert.studentId) ?? '학생 정보 없음'}</span>
                 <form action={resolveAlertAction.bind(null, alert.id)} className="shrink-0">
-                  <button className="ui-btn px-4 py-1.5 text-sm whitespace-nowrap">
-                    처리 완료
-                  </button>
+                  <button className="ui-btn px-4 py-1.5 text-sm whitespace-nowrap">처리 완료</button>
                 </form>
+              </div>
+              {/* 2행: 상세 정보 전체 폭 */}
+              <div className="mt-2 flex flex-wrap gap-x-3 gap-y-0.5 text-sm text-slate-500">
+                <span className="font-medium text-slate-700">{schoolMap.get(alert.schoolId) ?? '학교 정보 없음'}</span>
+                <span>{alert.year}년 {alert.month}월</span>
+                <span>{new Date(alert.createdAt).toLocaleString()}</span>
+                {alert.memo && <span className="w-full text-slate-600">{alert.memo}</span>}
               </div>
             </div>
           ))}
