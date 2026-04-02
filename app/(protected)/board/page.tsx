@@ -89,50 +89,57 @@ export default async function BoardPage() {
 
   return (
     <div className="space-y-3 pb-10">
-      {/* 내 문의 목록 - 상단 배치 */}
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-slate-900">문의 게시판</h2>
+      {/* 내 문의 목록 - 상단 배치, 최대 3개 고정 높이 스크롤 패널 */}
+      <section>
         {posts.length === 0 ? (
           <p className="ui-empty">등록한 문의가 없습니다.</p>
         ) : (
-          <div className="space-y-3">
-            {posts.map((post) => (
-              <Link
-                key={post.id}
-                href={`/board/${post.id}`}
-                className={`block ui-card ui-card-pad transition hover:-translate-y-0.5 hover:shadow-lg ${
-                  post.locked
-                    ? 'border-emerald-200 bg-emerald-50/60 ring-1 ring-emerald-200/60 hover:border-emerald-300'
-                    : 'border-slate-200 bg-white/95 hover:border-primary-300'
-                }`}
-              >
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-slate-900">
-                      {post.title}
-                      <PostUnreadBadge postId={post.id} viewerId={session.id} lastCommentAt={post.lastCommentAt} />
-                    </h3>
-                    <p className="text-sm text-slate-700">등록일 {new Date(post.createdAt).toLocaleString()}</p>
-                    <p className="mt-1 text-sm text-slate-600">조회수 {post.viewCount ?? 0} · 댓글 {post.commentCount ?? 0}</p>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {post.locked ? (
-                      <span className="ui-badge border-emerald-200 bg-emerald-100 text-emerald-700">
-                        답변완료
-                      </span>
-                    ) : null}
-                    <span className="ui-badge">
-                      {post.parentOnly ? '학부모 전용' : '전체 공개'}
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
+          <div className="relative">
+            <div
+              className="no-scrollbar overflow-y-auto"
+              style={{ maxHeight: '350px', WebkitOverflowScrolling: 'touch' }}
+            >
+              <div className="space-y-[10px]">
+                {posts.map((post) => (
+                  <Link
+                    key={post.id}
+                    href={`/board/${post.id}`}
+                    className={`block ui-card ui-card-pad transition hover:-translate-y-0.5 hover:shadow-lg ${
+                      post.locked
+                        ? 'border-emerald-200 bg-emerald-50/60 ring-1 ring-emerald-200/60 hover:border-emerald-300'
+                        : 'border-slate-200 bg-white/95 hover:border-primary-300'
+                    }`}
+                    style={{ minHeight: '110px' }}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div>
+                        <h3 className="text-lg font-semibold text-slate-900">
+                          {post.title}
+                          <PostUnreadBadge postId={post.id} viewerId={session.id} lastCommentAt={post.lastCommentAt} />
+                        </h3>
+                        <p className="text-sm text-slate-700">등록일 {new Date(post.createdAt).toLocaleString()}</p>
+                        <p className="mt-1 text-sm text-slate-600">조회수 {post.viewCount ?? 0} · 댓글 {post.commentCount ?? 0}</p>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {post.locked ? (
+                          <span className="ui-badge border-emerald-200 bg-emerald-100 text-emerald-700">
+                            답변완료
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+            {posts.length > 3 ? (
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-10 rounded-b-[10px] bg-gradient-to-t from-[#f5f1eb]/80 to-transparent" />
+            ) : null}
           </div>
         )}
       </section>
 
-      {/* 문의 등록 폼 */}
+      {/* 문의 등록 폼 - collapsible */}
       {childSchools.length === 0 ? (
         <section className="ui-card ui-card-pad text-base text-slate-700">
           <p className="mb-3">
@@ -142,10 +149,12 @@ export default async function BoardPage() {
         </section>
       ) : (
         <CreatePostForm
+          title="문의 작성"
           schools={childSchools}
           description="자녀 학교와 관련된 문의를 작성해주세요. 문의가 등록되면 관리자에게 알림이 전송되며, 확인 후 답변합니다."
           lockParentOnly
           showAllOption={false}
+          collapsible
         />
       )}
 

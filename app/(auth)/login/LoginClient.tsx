@@ -221,12 +221,6 @@ export default function LoginClient() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     } catch {}
 
-    const displayName = data.user.user_metadata?.name ?? email;
-    await fireAutoPopup({
-      icon: 'success',
-      title: `${displayName}님 환영합니다!`,
-      text: '로그인에 성공했습니다. 대시보드로 이동합니다.'
-    });
     router.push(redirectUrl);
   }
 
