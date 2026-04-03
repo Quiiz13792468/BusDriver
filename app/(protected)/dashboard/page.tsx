@@ -148,7 +148,7 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
 
       {/* 이번 달 입금자 명단 */}
       <section className="ui-card ui-card-pad space-y-2">
-        <h2 className="text-lg font-semibold text-slate-900">입금자 명단</h2>
+        <h2 className="text-xl font-bold text-slate-900">입금자 명단</h2>
         <MonthControls
           year={y}
           month={m}
@@ -164,21 +164,29 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
           {rows.length === 0 ? (
             <p className="ui-empty">이번 달 입금 기록이 없습니다.</p>
           ) : rows.map((r, idx) => (
-            <div key={idx} className="rounded-xl border border-slate-200 p-3">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="font-semibold text-slate-900">{r.student}</span>
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">{r.school}</span>
+            <div key={idx} className={`rounded-xl border p-4 ${r.status === '입금완료' ? 'border-emerald-200 bg-emerald-50/40' : 'border-rose-200 bg-rose-50/30'}`}>
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-lg font-bold text-slate-900">{r.student}</span>
+                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-sm font-medium text-slate-600">{r.school}</span>
                 </div>
-                <span className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold ${r.status === '입금완료' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                <span className={`shrink-0 rounded-full px-3 py-1 text-sm font-bold ${r.status === '입금완료' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
                   {r.status}
                 </span>
               </div>
-              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-                {r.paid > 0 && <span>입금 <strong className="text-emerald-600">{r.paid.toLocaleString()}원</strong></span>}
-                {r.partial > 0 && <span>부분 <strong className="text-amber-600">{r.partial.toLocaleString()}원</strong></span>}
-                {r.shortage > 0 && <span>부족 <strong className="text-rose-600">{r.shortage.toLocaleString()}원</strong></span>}
-                {r.memo && <span className="text-slate-500">메모: {r.memo}</span>}
+              <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1.5">
+                {r.paid > 0 && (
+                  <span className="text-base">입금 <strong className="text-emerald-700">{r.paid.toLocaleString()}원</strong></span>
+                )}
+                {r.partial > 0 && (
+                  <span className="text-base">부분 <strong className="text-amber-700">{r.partial.toLocaleString()}원</strong></span>
+                )}
+                {r.shortage > 0 && (
+                  <span className="text-base">부족 <strong className="text-rose-700">{r.shortage.toLocaleString()}원</strong></span>
+                )}
+                {r.memo && (
+                  <span className="w-full text-sm text-slate-500">메모: {r.memo}</span>
+                )}
               </div>
             </div>
           ))}
@@ -222,35 +230,41 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
 
       {/* 연간 실적 */}
       <section className="ui-card ui-card-pad space-y-2">
-        <h2 className="text-lg font-semibold text-slate-900">{y} 실적</h2>
+        <h2 className="text-xl font-bold text-slate-900">{y}년 실적</h2>
 
         {/* 모바일: 컴팩트 목록 */}
-        <div className="space-y-1 md:hidden">
-          {monthlyStats.map((stat) => (
-            <div
-              key={stat.month}
-              className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${stat.paid + stat.partial === 0 ? 'border-slate-100 text-slate-400' : 'border-slate-200'}`}
-            >
-              <span className="w-7 shrink-0 font-medium text-slate-700">{stat.month}월</span>
-              <div className="flex flex-1 flex-wrap justify-end gap-x-3 gap-y-0.5">
-                {(stat.paid + stat.partial) > 0 ? (
-                  <span className="text-emerald-600">{(stat.paid + stat.partial).toLocaleString()}원</span>
-                ) : (
-                  <span className="text-slate-400"> - </span>
-                )}
-                {stat.shortage > 0 ? (
-                  <LinkWithLoading
-                    href={`/dashboard/shortages?year=${y}&month=${stat.month}`}
-                    className="font-semibold text-rose-600 underline decoration-rose-300 underline-offset-2"
-                  >
-                    부족 {stat.shortage.toLocaleString()}원
-                  </LinkWithLoading>
-                ) : (stat.paid + stat.partial) > 0 ? (
-                  <span className="font-semibold text-emerald-500">완납</span>
-                ) : null}
+        <div className="space-y-1.5 md:hidden">
+          {monthlyStats.map((stat) => {
+            const total = stat.paid + stat.partial;
+            const isEmpty = total === 0;
+            const isComplete = !isEmpty && stat.shortage === 0;
+            const hasShortage = stat.shortage > 0;
+            return (
+              <div
+                key={stat.month}
+                className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 ${isEmpty ? 'border-slate-100 bg-slate-50/50' : isComplete ? 'border-emerald-200 bg-emerald-50/40' : 'border-rose-200 bg-rose-50/40'}`}
+              >
+                <span className={`w-8 shrink-0 text-base font-bold ${isEmpty ? 'text-slate-400' : 'text-slate-800'}`}>{stat.month}월</span>
+                <div className="flex flex-1 flex-wrap items-center justify-end gap-x-3 gap-y-0.5">
+                  {total > 0 ? (
+                    <span className="text-sm text-emerald-700">{total.toLocaleString()}원</span>
+                  ) : (
+                    <span className="text-sm text-slate-400">기록 없음</span>
+                  )}
+                  {hasShortage ? (
+                    <LinkWithLoading
+                      href={`/dashboard/shortages?year=${y}&month=${stat.month}`}
+                      className="rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-bold text-rose-700"
+                    >
+                      부족 {stat.shortage.toLocaleString()}원
+                    </LinkWithLoading>
+                  ) : isComplete ? (
+                    <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-700">완납</span>
+                  ) : null}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* 데스크톱: 테이블 */}
@@ -331,25 +345,37 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
   return (
     <div className="space-y-3">
       <section className="ui-card ui-card-pad">
-        <h2 className="mb-3 text-base font-semibold text-slate-900">학생 정보</h2>
+        <h2 className="mb-3 text-xl font-bold text-slate-900">학생 정보</h2>
         {students.length === 0 ? (
           <p className="ui-empty">등록된 학생이 없습니다.</p>
         ) : (
           <ul className="space-y-3">
             {students.map((s) => (
-              <li key={s.id} className="ui-card ui-card-compact">
-                <div className="grid gap-1 text-base text-slate-700 sm:grid-cols-2">
-                  <span><span className="text-slate-700">이름</span> · {s.name}</span>
-                  <span><span className="text-slate-700">학교</span> · {s.schoolId ? schoolMap.get(s.schoolId) ?? '학교 정보 없음' : '미배정'}</span>
-                  <span><span className="text-slate-700">전화번호</span> · {s.phone ?? '-'}</span>
-                  <span><span className="text-slate-700">기본요금</span> · {s.feeAmount.toLocaleString()}원</span>
-                  <span className="sm:col-span-2 flex flex-wrap items-center gap-2">
-                    <span className="text-slate-700">탑승위치</span>
+              <li key={s.id} className="rounded-xl border border-slate-200 bg-white p-4">
+                {/* 이름 + 학교 헤더 */}
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <span className="text-xl font-bold text-slate-900">{s.name}</span>
+                  <span className="rounded-full bg-primary-100 px-3 py-0.5 text-sm font-semibold text-primary-700">
+                    {s.schoolId ? schoolMap.get(s.schoolId) ?? '학교 정보 없음' : '미배정'}
+                  </span>
+                </div>
+                {/* 정보 그리드 */}
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-16 shrink-0 text-sm font-medium text-slate-500">전화번호</span>
+                    <span className="text-base font-semibold text-slate-800">{s.phone ?? '-'}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-16 shrink-0 text-sm font-medium text-slate-500">기본요금</span>
+                    <span className="text-base font-bold text-primary-700">{s.feeAmount.toLocaleString()}원</span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 sm:col-span-2">
+                    <span className="w-16 shrink-0 text-sm font-medium text-slate-500">탑승위치</span>
                     {s.pickupPoint ? (
                       s.routeId ? (
                         <Link
                           href={`/dashboard/route?highlight=${encodeURIComponent(s.pickupPoint)}`}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-800 transition hover:bg-amber-100 active:scale-95"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-base font-semibold text-amber-800 transition hover:bg-amber-100 active:scale-95"
                         >
                           <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none">
                             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" fill="currentColor"/>
@@ -357,12 +383,12 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
                           {s.pickupPoint}
                         </Link>
                       ) : (
-                        <span>· {s.pickupPoint}</span>
+                        <span className="text-base font-semibold text-slate-800">{s.pickupPoint}</span>
                       )
                     ) : (
-                      <span>· -</span>
+                      <span className="text-base text-slate-400">미설정</span>
                     )}
-                  </span>
+                  </div>
                 </div>
               </li>
             ))}
@@ -372,9 +398,8 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
 
       <section className="ui-card ui-card-pad space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-lg font-semibold text-slate-900">연도별 입금 내역</h2>
+          <h2 className="text-xl font-bold text-slate-900">입금 내역</h2>
           <form method="get" className="flex items-center gap-2">
-            <label className="text-base text-slate-700" htmlFor="year">연도 선택</label>
             <select id="year" name="year" defaultValue={String(year)} className="ui-select w-auto py-1.5">
               {yearOptions.map((yy) => (
                 <option key={yy} value={yy}>{yy}년</option>
@@ -393,48 +418,62 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
               const effectiveFee = getEffectiveFee(student, studentSchool);
               const list = payments.filter((p) => p.targetYear === year);
               return (
-                <div key={student.id} className="ui-card ui-card-compact">
-                  <div className="mb-3">
-                    <h3 className="text-base font-semibold text-slate-900">
-                      {student.name}
-                      {effectiveFee > 0 && (
-                        <span className="ml-2 text-sm font-normal text-slate-500">(요금 {effectiveFee.toLocaleString()}원)</span>
-                      )}
-                    </h3>
+                <div key={student.id} className="rounded-xl border border-slate-200 bg-white p-4">
+                  {/* 학생 헤더 */}
+                  <div className="mb-3 flex flex-wrap items-center gap-2">
+                    <h3 className="text-lg font-bold text-slate-900">{student.name}</h3>
+                    {effectiveFee > 0 && (
+                      <span className="rounded-full bg-primary-100 px-3 py-0.5 text-sm font-semibold text-primary-700">
+                        월 {effectiveFee.toLocaleString()}원
+                      </span>
+                    )}
                   </div>
-                  {/* 모바일: 3열(월/상태/입금액) + 버튼은 별도 행 */}
-                  <div className="space-y-1">
-                    <div className="grid grid-cols-3 gap-1 text-sm">
-                      <div className="rounded-lg bg-slate-50 px-2 py-1.5 text-center font-semibold text-slate-700">월</div>
-                      <div className="rounded-lg bg-slate-50 px-2 py-1.5 text-center font-semibold text-slate-700">상태</div>
-                      <div className="rounded-lg bg-slate-50 px-2 py-1.5 text-center font-semibold text-slate-700">입금액</div>
-                    </div>
+                  {/* 월별 입금 목록 */}
+                  <div className="space-y-1.5">
                     {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => {
+                      const isFuture = month > currentMonth && year === today.getFullYear();
                       const monthPayments = list.filter((p) => p.targetMonth === month);
                       const paid = monthPayments
                         .filter((p) => p.status === 'PAID' || p.status === 'PARTIAL')
                         .reduce((sum, p) => sum + p.amount, 0);
-                      const status = effectiveFee > 0 && paid >= effectiveFee ? '완납' : paid > 0 ? '부분' : '미입금';
-                      const rowBg = month === currentMonth ? 'bg-amber-50/70' : 'bg-white';
-                      const statusColor = status === '완납' ? 'text-emerald-700' : status === '부분' ? 'text-amber-700' : 'text-rose-700';
+                      const status = effectiveFee > 0 && paid >= effectiveFee ? '완납' : paid > 0 ? '부분입금' : '미입금';
+                      const isCurrent = month === currentMonth && year === today.getFullYear();
+
+                      if (isFuture) return null;
+
                       return (
-                        <div key={`${student.id}-${month}`} className="space-y-1">
-                          <div className="grid grid-cols-3 gap-1 text-sm">
-                            <div className={`rounded-lg border border-slate-200 px-2 py-1.5 text-center text-slate-700 ${rowBg}`}>{month}월</div>
-                            <div className={`rounded-lg border border-slate-200 px-2 py-1.5 text-center font-semibold ${rowBg} ${statusColor}`}>{status}</div>
-                            <div className={`rounded-lg border border-slate-200 px-2 py-1.5 text-center text-slate-700 ${rowBg}`}>{paid ? `${paid.toLocaleString()}원` : '-'}</div>
-                          </div>
-                          {student.schoolId && (
-                            <div className={`rounded-lg border border-slate-200 px-2 py-1.5 text-center ${rowBg}`}>
-                              <RequestPaymentButton studentId={student.id} schoolId={student.schoolId} year={year} month={month} />
-                            </div>
+                        <div
+                          key={`${student.id}-${month}`}
+                          className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${
+                            isCurrent
+                              ? 'border-amber-300 bg-amber-50'
+                              : status === '완납'
+                              ? 'border-emerald-200 bg-emerald-50/40'
+                              : paid > 0
+                              ? 'border-amber-200 bg-amber-50/30'
+                              : 'border-slate-200 bg-white'
+                          }`}
+                        >
+                          <span className={`w-8 shrink-0 text-base font-bold ${isCurrent ? 'text-amber-800' : 'text-slate-700'}`}>
+                            {month}월
+                          </span>
+                          <span className={`flex-1 text-base font-semibold ${
+                            status === '완납' ? 'text-emerald-700' : paid > 0 ? 'text-amber-700' : 'text-slate-400'
+                          }`}>
+                            {status}
+                          </span>
+                          {paid > 0 && (
+                            <span className="text-base font-bold text-slate-800">{paid.toLocaleString()}원</span>
+                          )}
+                          {student.schoolId && status !== '완납' && (
+                            <RequestPaymentButton studentId={student.id} schoolId={student.schoolId} year={year} month={month} />
                           )}
                         </div>
                       );
                     })}
                   </div>
                   {!student.schoolId && (
-                    <p className="mt-2 text-sm text-slate-500">학교 배정 후 입금 확인 요청이 가능합니다.</p>
+                    <p className="mt-3 rounded-lg bg-slate-50 p-3 text-sm text-slate-500">학교 배정 후 입금 확인 요청이 가능합니다.</p>
                   )}
                 </div>
               );

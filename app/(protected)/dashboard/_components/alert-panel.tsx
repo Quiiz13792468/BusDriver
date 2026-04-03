@@ -43,7 +43,7 @@ const ALERT_COLOR: Record<AlertType, string> = {
 const FILTERS: AlertType[] = ['ALL', 'PAYMENT', 'INQUIRY', 'ROUTE_CHANGE'];
 
 export function AlertPanel({ alerts, typeParam, year, month, schoolMap, studentMap }: AlertPanelProps) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const filteredAlerts = useMemo(
     () => (typeParam === 'ALL' ? alerts : alerts.filter((a) => a.type === typeParam)),
@@ -66,19 +66,19 @@ export function AlertPanel({ alerts, typeParam, year, month, schoolMap, studentM
           </span>
           <span className={`text-xs text-slate-600 transition ${open ? 'rotate-180' : 'rotate-0'}`}>▼</span>
         </button>
-        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center">
+        <div className="flex w-full gap-2 overflow-x-auto pb-1 no-scrollbar sm:w-auto sm:flex-wrap sm:overflow-x-visible sm:pb-0">
           {FILTERS.map((t) => (
             <Link
               key={t}
               href={`/dashboard?atype=${t}&year=${year}&month=${month}`}
-              className={`ui-btn-outline w-full px-3 py-2 text-sm ${typeParam === t ? 'border-amber-300 bg-amber-50 text-amber-700' : 'border-slate-200 text-slate-700 hover:border-amber-200 hover:bg-amber-50/60 hover:text-amber-700'} sm:w-auto`}
+              className={`ui-btn-outline shrink-0 px-3 py-2 text-sm ${typeParam === t ? 'border-amber-300 bg-amber-50 text-amber-700' : 'border-slate-200 text-slate-700 hover:border-amber-200 hover:bg-amber-50/60 hover:text-amber-700'}`}
             >
               {t === 'ALL' ? '전체' : ALERT_LABEL[t]}
             </Link>
           ))}
           <Link
             href="/dashboard/alerts"
-            className="ui-btn-outline col-span-2 w-full border-primary-200 bg-primary-50 px-3 py-2 text-sm text-primary-700 shadow-sm hover:border-primary-300 hover:bg-primary-100 sm:col-span-1 sm:w-auto"
+            className="ui-btn-outline shrink-0 border-primary-200 bg-primary-50 px-3 py-2 text-sm text-primary-700 shadow-sm hover:border-primary-300 hover:bg-primary-100"
           >
             전체 보기
           </Link>
