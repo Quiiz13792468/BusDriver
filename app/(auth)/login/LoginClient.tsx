@@ -234,14 +234,17 @@ export default function LoginClient() {
         transition={{ duration: 0.25, ease: 'easeOut' }}
         className="relative w-full max-w-sm ui-card p-4 text-slate-900 shadow-2xl"
       >
-        <div className="flex items-center gap-2">
-          <span className="rounded-xl bg-primary-100/70 p-2">
-            <BusIcon className="h-5 w-5 text-primary-600" />
+        <div className="flex items-center gap-2.5">
+          <span className="rounded-xl bg-primary-600 p-2">
+            <BusIcon className="h-5 w-5 text-white" />
           </span>
-          <h1 className="text-lg font-bold">셔틀콕!</h1>
+          <div>
+            <h1 className="text-lg font-bold leading-tight">셔틀콕!</h1>
+            <p className="text-base text-slate-500 leading-tight">통학버스 관리 서비스</p>
+          </div>
         </div>
 
-        <div className="mt-3 grid grid-cols-2 gap-2">
+        <div className="mt-4 grid grid-cols-2 gap-2">
           {roleCards.map(([key, info]) => {
             const selected = role === key;
             return (
@@ -250,10 +253,10 @@ export default function LoginClient() {
                 type="button"
                 onClick={() => setRole(key)}
                 className={clsx(
-                  'rounded-xl border px-3 py-3 text-center text-base font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-200',
+                  'rounded-xl border px-3 py-3.5 text-center text-base font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-200',
                   selected
-                    ? 'border-primary-300 bg-primary-50 text-primary-800 shadow-sm'
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-primary-300 hover:bg-primary-50'
+                    ? 'border-primary-600 bg-primary-600 text-white shadow-sm'
+                    : 'border-slate-200 bg-white text-slate-600 hover:border-primary-300 hover:bg-primary-50'
                 )}
               >
                 {info.label}
@@ -262,7 +265,11 @@ export default function LoginClient() {
           })}
         </div>
 
-        <form className="mt-3 space-y-2.5" onSubmit={handleSubmit}>
+        <p className="mt-2 min-h-[1.25rem] text-base text-slate-500 leading-snug">
+          {ROLE_MAP[role].description}
+        </p>
+
+        <form className="mt-2 space-y-2.5" onSubmit={handleSubmit}>
           <div>
             <label className="text-base font-semibold text-slate-700" htmlFor="email">이메일</label>
             <input
@@ -299,10 +306,7 @@ export default function LoginClient() {
 
           <button
             type="submit"
-            className={clsx(
-              'w-full ui-btn font-semibold',
-              loading ? 'bg-slate-200 text-slate-500 hover:bg-slate-200' : 'bg-primary-600 text-white hover:bg-primary-500'
-            )}
+            className="w-full ui-btn font-semibold disabled:bg-slate-200 disabled:text-slate-400 disabled:hover:bg-slate-200"
             disabled={loading}
           >
             {loading ? '로그인 중...' : '로그인'}
@@ -355,9 +359,9 @@ export default function LoginClient() {
             </div>
 
             {signupRole === 'parent' ? (
-              <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-center">
-                <p className="text-sm font-semibold text-emerald-800">학부모 가입은 초대 링크로만 가능합니다</p>
-                <p className="mt-1 text-xs text-emerald-700">담당 기사님께 초대 링크를 요청해주세요.</p>
+              <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-center">
+                <p className="text-base font-semibold text-emerald-800">학부모 가입은 초대 링크로만 가능합니다</p>
+                <p className="mt-1.5 text-base text-emerald-700 leading-snug">담당 버스 기사님께<br />초대 링크를 요청해 주세요.</p>
               </div>
             ) : (
               <div className="mt-3 grid gap-2">
