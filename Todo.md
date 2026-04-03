@@ -35,6 +35,10 @@
 
 ## 🧠 Backlog (구조 / 개선)
 
+- [x] Playwright e2e 테스트 환경 세팅 (설치, 설정, 샘플 테스트, 브라우저 바이너리) (2026-04-04)
+
+
+
 - [ ] 입력 컴포넌트 통합 (Input / NumberInput / Select)
 - [ ] 공통 Alert/Toast 시스템 정리
 - [ ] API 호출 layer 정리 (services 구조)

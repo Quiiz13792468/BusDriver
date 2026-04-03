@@ -8,13 +8,16 @@
     "start": "next start",
     "lint": "next lint",
     "seed:supabase": "tsx scripts/seed-supabase.ts",
-    "import:supabase": "tsx scripts/import-supabase.ts"
+    "import:supabase": "tsx scripts/import-supabase.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.45.0",
-    "@supabase/ssr": "^0.5.0",
     "@radix-ui/react-alert-dialog": "1.1.15",
     "@radix-ui/react-dialog": "1.1.15",
+    "@supabase/ssr": "^0.5.0",
+    "@supabase/supabase-js": "^2.45.0",
     "@tanstack/react-query": "^5.45.0",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.0",
@@ -29,6 +32,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.12.7",
     "@types/react": "^18.2.78",
