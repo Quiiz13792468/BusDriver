@@ -41,17 +41,22 @@ export function RouteBuilder({
   const [pendingLat, setPendingLat] = useState<number | null>(null);
   const [pendingLng, setPendingLng] = useState<number | null>(null);
   const [routePath, setRoutePath] = useState<{ lat: number; lng: number }[]>([]);
+  const [routeStatus, setRouteStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // stops 변경 시 도로 경로 재계산 (500ms debounce)
   useEffect(() => {
     const stopsWithCoords = stops.filter((s) => s.lat != null && s.lng != null);
-    if (stopsWithCoords.length < 2) { setRoutePath([]); return; }
+    if (stopsWithCoords.length < 2) { setRoutePath([]); setRouteStatus('idle'); return; }
     if (debounceRef.current) clearTimeout(debounceRef.current);
+    setRouteStatus('loading');
     debounceRef.current = setTimeout(() => {
       getRoutePathAction(stopsWithCoords.map((s) => ({ lat: s.lat, lng: s.lng })))
-        .then(setRoutePath)
-        .catch(() => setRoutePath([]));
+        .then((path) => {
+          setRoutePath(path);
+          setRouteStatus(path.length > 0 ? 'ok' : 'error');
+        })
+        .catch(() => { setRoutePath([]); setRouteStatus('error'); });
     }, 500);
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [stops]);
@@ -69,6 +74,12 @@ export function RouteBuilder({
 
   return (
     <div className="flex flex-col gap-4">
+      {routeStatus === 'loading' && (
+        <p className="text-center text-sm text-slate-500">경로 계산 중...</p>
+      )}
+      {routeStatus === 'error' && (
+        <p className="text-center text-sm text-rose-500">실제 도로 경로를 불러오지 못했습니다. 직선으로 표시됩니다.</p>
+      )}
       <KakaoMap
         stops={stops}
         routePath={routePath.length > 0 ? routePath : undefined}

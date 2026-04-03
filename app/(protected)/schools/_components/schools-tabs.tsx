@@ -31,7 +31,7 @@ export function SchoolsTabs({ schools, students }: SchoolsTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>("schools");
 
   return (
-    <div className="space-y-3">
+    <div>
 
       <div className="grid grid-cols-2 gap-2 border-b border-slate-200 sm:flex sm:flex-wrap">
         <TabButton active={activeTab === "schools"} onClick={() => setActiveTab("schools")}>
@@ -42,7 +42,7 @@ export function SchoolsTabs({ schools, students }: SchoolsTabsProps) {
         </TabButton>
       </div>
 
-      <div className="ui-card ui-card-pad">
+      <div className="ui-card ui-card-pad rounded-t-none border-t-0">
         {activeTab === "schools" ? (
           <SchoolTab schools={schools} />
         ) : (
@@ -84,25 +84,27 @@ function SchoolTab({ schools }: { schools: SchoolRecord[] }) {
               key={school.id}
               className="ui-card ui-card-pad transition hover:border-primary-300 hover:shadow-md"
             >
-              <Link href={`/schools/${school.id}`} className="group block">
-                <p className="text-lg font-semibold text-slate-900 group-hover:text-primary-600">{school.name}</p>
-                <p className="mt-1 text-base text-slate-700">기본 금액 {school.defaultMonthlyFee.toLocaleString()}원</p>
-                {school.address ? <p className="mt-1 text-sm text-slate-500">주소: {school.address}</p> : null}
-                {school.note ? <p className="mt-1 text-sm text-slate-500">{school.note}</p> : null}
-              </Link>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setEditSchoolId((prev) => (prev === school.id ? null : school.id))}
-                  className="ui-btn-outline px-3 py-1.5 text-sm"
-                >
-                  {editSchoolId === school.id ? "수정 닫기" : "수정"}
-                </button>
-                <DeleteSchoolButton schoolId={school.id} schoolName={school.name} />
+              <div className="flex items-start justify-between gap-2">
+                <Link href={`/schools/${school.id}`} className="group min-w-0 flex-1">
+                  <p className="text-lg font-semibold text-slate-900 group-hover:text-primary-600">{school.name}</p>
+                  <p className="mt-1 text-base text-slate-700">기본 금액 {school.defaultMonthlyFee.toLocaleString()}원</p>
+                  {school.address ? <p className="mt-1 text-sm text-slate-500">주소: {school.address}</p> : null}
+                  {school.note ? <p className="mt-1 text-sm text-slate-500">{school.note}</p> : null}
+                </Link>
+                <div className="flex shrink-0 items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setEditSchoolId((prev) => (prev === school.id ? null : school.id))}
+                    className="ui-btn-outline px-3 py-1.5 text-sm"
+                  >
+                    {editSchoolId === school.id ? "닫기" : "수정"}
+                  </button>
+                  <DeleteSchoolButton schoolId={school.id} schoolName={school.name} />
+                </div>
               </div>
 
               {editSchoolId === school.id ? (
-                <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+                <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-[5px]">
                   <UpdateSchoolForm
                     schoolId={school.id}
                     initial={{

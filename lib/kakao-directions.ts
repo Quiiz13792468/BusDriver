@@ -19,13 +19,27 @@ async function fetchSegment(stops: DirectionsStop[]): Promise<{ lat: number; lng
   const params = new URLSearchParams({ origin, destination });
   if (waypoints) params.set('waypoints', waypoints);
 
-  const res = await fetch(
-    `https://apis-navi.kakaomobility.com/v1/directions?${params.toString()}`,
-    { headers: { Authorization: `KakaoAK ${REST_API_KEY}` }, cache: 'no-store' }
-  );
-  if (!res.ok) return [];
+  const url = `https://apis-navi.kakaomobility.com/v1/directions?${params.toString()}`;
+  const res = await fetch(url, {
+    headers: { Authorization: `KakaoAK ${REST_API_KEY}` },
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    console.error(`[kakao-directions] HTTP ${res.status}: ${body}`);
+    return [];
+  }
 
   const data = await res.json();
+
+  // result_code != 0 means routing error (e.g. 104 = no route, 2001 = service unavailable)
+  const resultCode = data.routes?.[0]?.result_code;
+  if (resultCode !== 0) {
+    console.error(`[kakao-directions] result_code=${resultCode}`, data.routes?.[0]?.result_msg ?? '');
+    return [];
+  }
+
   const sections: any[] = data.routes?.[0]?.sections ?? [];
   const coords: { lat: number; lng: number }[] = [];
 
@@ -43,7 +57,11 @@ async function fetchSegment(stops: DirectionsStop[]): Promise<{ lat: number; lng
 export async function getRoutePath(
   stops: DirectionsStop[]
 ): Promise<{ lat: number; lng: number }[]> {
-  if (!REST_API_KEY || stops.length < 2) return [];
+  if (!REST_API_KEY) {
+    console.error('[kakao-directions] KAKAO_REST_API_KEY is not set');
+    return [];
+  }
+  if (stops.length < 2) return [];
 
   try {
     if (stops.length <= MAX_CHUNK) {
@@ -60,7 +78,8 @@ export async function getRoutePath(
       allCoords.push(...path);
     }
     return allCoords;
-  } catch {
+  } catch (err) {
+    console.error('[kakao-directions] unexpected error:', err);
     return [];
   }
 }
