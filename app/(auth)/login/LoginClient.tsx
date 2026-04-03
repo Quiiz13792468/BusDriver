@@ -75,28 +75,24 @@ export default function LoginClient() {
     if (searchParams?.get('loggedOut') !== '1') return;
     if (logoutShownRef.current) return;
     logoutShownRef.current = true;
-    void (async () => {
-      await fireAutoPopup({
-        icon: 'success',
-        title: '로그아웃 완료',
-        text: '고객님의 정보를 안전하게 로그아웃 처리하였습니다.'
-      });
-      router.replace('/login');
-    })();
+    router.replace('/login');
+    void fireAutoPopup({
+      icon: 'success',
+      title: '로그아웃 완료',
+      text: '고객님의 정보를 안전하게 로그아웃 처리하였습니다.'
+    });
   }, [searchParams, router]);
 
   useEffect(() => {
     if (searchParams?.get('reason') !== 'inactive') return;
     if (inactiveShownRef.current) return;
     inactiveShownRef.current = true;
-    void (async () => {
-      await fireAutoPopup({
-        icon: 'warning',
-        title: '자동 로그아웃',
-        text: '30분 이상 활동이 없어 자동으로 로그아웃되었습니다.'
-      });
-      router.replace('/login');
-    })();
+    router.replace('/login');
+    void fireAutoPopup({
+      icon: 'warning',
+      title: '자동 로그아웃',
+      text: '30분 이상 활동이 없어 자동으로 로그아웃되었습니다.'
+    });
   }, [searchParams, router]);
 
   useEffect(() => {
@@ -204,7 +200,8 @@ export default function LoginClient() {
     // Verify role matches
     const userRole = data.user.app_metadata?.role as string;
     if (userRole !== ROLE_MAP[role].value) {
-      await supabase.auth.signOut();
+      // signOut 대신 에러만 표시 — signOut 호출 시 로그아웃 팝업이 트리거될 수 있음
+      await supabase.auth.signOut({ scope: 'local' });
       setError('선택한 역할과 계정 역할이 일치하지 않습니다.');
       setLoading(false);
       return;
