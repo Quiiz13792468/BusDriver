@@ -18,32 +18,44 @@ export default async function ParentPickupPage() {
   );
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <PageHeader
         title="탑승지점 변경 요청"
         description="학생의 노선과 탑승 지점을 선택하고 변경 요청을 등록하세요."
       />
 
       {students.length === 0 ? (
-        <section className="ui-empty">
-          등록된 학생이 없습니다. 먼저 관리자에게 학생 등록을 요청해주세요.
+        <section className="ui-card ui-card-pad py-10 text-center text-lg text-slate-500">
+          등록된 학생이 없습니다.<br />
+          <span className="mt-1 block text-base text-slate-400">먼저 관리자에게 학생 등록을 요청해주세요.</span>
         </section>
       ) : (
         <section className="space-y-4">
           {students.map((student) => (
-            <div key={student.id} className="ui-card ui-card-compact">
-              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <h2 className="text-base font-semibold text-slate-900">{student.name}</h2>
-                  <p className="text-sm text-slate-700">
-                    {student.schoolId ? schoolMap.get(student.schoolId) ?? '학교 정보 없음' : '미배정'} · 현재 탑승지점 {student.pickupPoint ?? '-'}
-                  </p>
-                </div>
+            <div key={student.id} className="ui-card ui-card-pad space-y-4">
+              {/* 학생 헤더 */}
+              <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 pb-3">
+                <h2 className="text-xl font-bold text-slate-900">{student.name}</h2>
+                <span className="rounded-full bg-primary-100 px-3 py-0.5 text-base font-semibold text-primary-700">
+                  {student.schoolId ? schoolMap.get(student.schoolId) ?? '학교 정보 없음' : '미배정'}
+                </span>
               </div>
+
+              {/* 현재 탑승지점 표시 */}
+              <div className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
+                <span className="text-base font-medium text-slate-500">현재 탑승지점</span>
+                <span className={[
+                  'text-lg font-bold',
+                  student.pickupPoint ? 'text-amber-700' : 'text-slate-400'
+                ].join(' ')}>
+                  {student.pickupPoint ?? '미설정'}
+                </span>
+              </div>
+
               {student.schoolId ? (
                 <ChangePickupButton student={student} routes={routesBySchool.get(student.schoolId) ?? []} />
               ) : (
-                <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-lg text-slate-600">
                   학교 배정 후에 탑승지점 변경이 가능합니다.
                 </p>
               )}

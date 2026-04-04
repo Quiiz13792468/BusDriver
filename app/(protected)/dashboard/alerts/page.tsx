@@ -30,28 +30,38 @@ export default async function DashboardAlertsPage() {
       <PageHeader title="알림 목록" />
 
       {alerts.length === 0 ? (
-        <p className="ui-empty">대기 중인 알림이 없습니다.</p>
+        <div className="ui-card ui-card-pad py-10 text-center text-lg text-slate-500">
+          대기 중인 알림이 없습니다.
+        </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {alerts.map((alert) => (
-            <div key={alert.id} className="ui-card ui-card-compact">
-              {/* 1행: 타입 | 이름 | 처리완료 */}
-              <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
-                <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${ALERT_COLOR[alert.type] ?? 'bg-slate-100 text-slate-700'}`}>
+            <div key={alert.id} className="ui-card ui-card-pad space-y-3">
+              {/* 1행: 타입 뱃지 + 학생 이름 */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`shrink-0 rounded-full px-3 py-1 text-base font-bold ${ALERT_COLOR[alert.type] ?? 'bg-slate-100 text-slate-700'}`}>
                   {ALERT_LABEL[alert.type] ?? '확인 필요'}
                 </span>
-                <span className="truncate font-semibold text-slate-900">{studentMap.get(alert.studentId) ?? '학생 정보 없음'}</span>
-                <form action={resolveAlertAction.bind(null, alert.id)} className="shrink-0">
-                  <button className="ui-btn px-4 py-1.5 text-sm whitespace-nowrap">처리 완료</button>
-                </form>
+                <span className="text-xl font-bold text-slate-900">{studentMap.get(alert.studentId) ?? '학생 정보 없음'}</span>
               </div>
-              {/* 2행: 상세 정보 전체 폭 */}
-              <div className="mt-2 flex flex-wrap gap-x-3 gap-y-0.5 text-sm text-slate-500">
-                <span className="font-medium text-slate-700">{schoolMap.get(alert.schoolId) ?? '학교 정보 없음'}</span>
+
+              {/* 2행: 상세 정보 */}
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-base text-slate-600">
+                <span className="font-semibold text-slate-800">{schoolMap.get(alert.schoolId) ?? '학교 정보 없음'}</span>
                 <span>{alert.year}년 {alert.month}월</span>
-                <span>{new Date(alert.createdAt).toLocaleString()}</span>
-                {alert.memo && <span className="w-full text-slate-600">{alert.memo}</span>}
+                <span>{new Date(alert.createdAt).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
               </div>
+
+              {alert.memo && (
+                <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-2.5 text-base text-slate-700">
+                  {alert.memo}
+                </div>
+              )}
+
+              {/* 처리 버튼 - 하단 전체 폭 */}
+              <form action={resolveAlertAction.bind(null, alert.id)}>
+                <button className="ui-btn w-full py-3 text-base font-semibold">처리 완료</button>
+              </form>
             </div>
           ))}
         </div>

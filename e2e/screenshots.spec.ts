@@ -173,4 +173,25 @@ test.describe.serial('UI 스크린샷 캡처', () => {
     }
     await page.screenshot({ path: 'e2e/screenshots/15_parent_board_chat.png', fullPage: true });
   });
+
+  test('관리자 - 노선 관리', async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto('/dashboard/route');
+    await waitForContent(page);
+    await page.screenshot({ path: 'e2e/screenshots/16_admin_route.png', fullPage: true });
+  });
+
+  test('관리자 - 탑승지점', async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto('/dashboard/pickup');
+    await waitForContent(page);
+    await page.screenshot({ path: 'e2e/screenshots/17_admin_pickup.png', fullPage: true });
+  });
+
+  test('관리자 - 알림 목록', async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto('/dashboard/alerts');
+    await waitForContent(page);
+    await page.screenshot({ path: 'e2e/screenshots/19_admin_alerts.png', fullPage: true });
+  });
 });
