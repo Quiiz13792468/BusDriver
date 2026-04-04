@@ -13,7 +13,7 @@ async function fetchSegment(stops: DirectionsStop[]): Promise<{ lat: number; lng
   const destination = `${stops[stops.length - 1].lng},${stops[stops.length - 1].lat}`;
   const waypoints = stops
     .slice(1, -1)
-    .map((s, i) => `WP${i},${s.lng},${s.lat}`)
+    .map((s) => `${s.lng},${s.lat}`)
     .join('|');
 
   const params = new URLSearchParams({ origin, destination });
