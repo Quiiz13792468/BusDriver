@@ -197,25 +197,25 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
           <UiTable>
             <UiThead className="bg-slate-50">
               <UiTr>
-                <UiTh className="px-[0.3rem]">학교</UiTh>
-                <UiTh className="px-[0.3rem]">학생 이름</UiTh>
-                <UiTh className="px-[0.3rem]">입금액</UiTh>
-                <UiTh className="px-[0.3rem]">부분입금액</UiTh>
-                <UiTh className="px-[0.3rem]">메모</UiTh>
-                <UiTh className="px-[0.3rem]">상태</UiTh>
-                <UiTh className="px-[0.3rem]">부족금액</UiTh>
+                <UiTh>학교</UiTh>
+                <UiTh>학생 이름</UiTh>
+                <UiTh>입금액</UiTh>
+                <UiTh>부분입금액</UiTh>
+                <UiTh>메모</UiTh>
+                <UiTh>상태</UiTh>
+                <UiTh>부족금액</UiTh>
               </UiTr>
             </UiThead>
             <UiTbody>
               {rows.map((r, idx) => (
                 <UiTr key={idx} className="border-b border-slate-100 last:border-b-0">
-                  <UiTd className="px-[0.3rem] text-slate-800">{r.school}</UiTd>
-                  <UiTd className="px-[0.3rem] text-slate-800">{r.student}</UiTd>
-                  <UiTd className="px-[0.3rem] text-right text-emerald-600">{r.paid.toLocaleString()}원</UiTd>
-                  <UiTd className="px-[0.3rem] text-right text-amber-600">{r.partial.toLocaleString()}원</UiTd>
-                  <UiTd className="px-[0.3rem] text-slate-700">{r.memo ?? '-'}</UiTd>
-                  <UiTd className={`px-[0.3rem] font-semibold ${r.status === '입금완료' ? 'text-emerald-700' : 'text-rose-700'}`}>{r.status}</UiTd>
-                  <UiTd className="px-[0.3rem] text-right font-semibold text-slate-800">{r.shortage.toLocaleString()}원</UiTd>
+                  <UiTd className="text-slate-800">{r.school}</UiTd>
+                  <UiTd className="whitespace-nowrap text-slate-800">{r.student}</UiTd>
+                  <UiTd className="text-right text-emerald-700">{r.paid.toLocaleString()}원</UiTd>
+                  <UiTd className="text-right text-amber-700">{r.partial.toLocaleString()}원</UiTd>
+                  <UiTd className="text-slate-700">{r.memo ?? '-'}</UiTd>
+                  <UiTd className={`whitespace-nowrap font-semibold ${r.status === '입금완료' ? 'text-emerald-700' : 'text-rose-700'}`}>{r.status}</UiTd>
+                  <UiTd className={`text-right font-semibold ${r.shortage > 0 ? 'text-rose-700' : 'text-slate-800'}`}>{r.shortage.toLocaleString()}원</UiTd>
                 </UiTr>
               ))}
               {rows.length === 0 ? (
@@ -245,21 +245,21 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
                 className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 ${isEmpty ? 'border-slate-100 bg-slate-50/50' : isComplete ? 'border-emerald-200 bg-emerald-50/40' : 'border-rose-200 bg-rose-50/40'}`}
               >
                 <span className={`w-8 shrink-0 text-base font-bold ${isEmpty ? 'text-slate-400' : 'text-slate-800'}`}>{stat.month}월</span>
-                <div className="flex flex-1 flex-wrap items-center justify-end gap-x-3 gap-y-0.5">
+                <div className="flex flex-1 items-center justify-end gap-x-3 gap-y-0.5 flex-wrap">
                   {total > 0 ? (
-                    <span className="text-sm text-emerald-700">{total.toLocaleString()}원</span>
+                    <span className="text-base text-emerald-700">{total.toLocaleString()}원</span>
                   ) : (
-                    <span className="text-sm text-slate-400">기록 없음</span>
+                    <span className="text-base text-slate-400">기록 없음</span>
                   )}
                   {hasShortage ? (
                     <LinkWithLoading
                       href={`/dashboard/shortages?year=${y}&month=${stat.month}`}
-                      className="rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-bold text-rose-700"
+                      className="rounded-full bg-rose-100 px-2.5 py-0.5 text-base font-bold text-rose-700"
                     >
                       부족 {stat.shortage.toLocaleString()}원
                     </LinkWithLoading>
                   ) : isComplete ? (
-                    <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-700">완납</span>
+                    <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-base font-bold text-emerald-700">완납</span>
                   ) : null}
                 </div>
               </div>
@@ -272,20 +272,20 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
           <UiTable>
             <UiThead className="bg-slate-50">
               <UiTr>
-                <UiTh className="px-[0.3rem]">월</UiTh>
-                <UiTh className="px-[0.3rem]">입금액</UiTh>
-                <UiTh className="px-[0.3rem]">부분입금액</UiTh>
-                <UiTh className="px-[0.3rem]">미입금액</UiTh>
-                <UiTh className="px-[0.3rem]">학생수</UiTh>
+                <UiTh>월</UiTh>
+                <UiTh>입금액</UiTh>
+                <UiTh>부분입금액</UiTh>
+                <UiTh>미입금액</UiTh>
+                <UiTh>학생수</UiTh>
               </UiTr>
             </UiThead>
             <UiTbody>
               {monthlyStats.map((stat) => (
                 <UiTr key={stat.month}>
-                  <UiTd className="px-[0.3rem] text-center text-slate-800">{stat.month}월</UiTd>
-                  <UiTd className="px-[0.3rem] text-right text-emerald-600">{stat.paid.toLocaleString()}원</UiTd>
-                  <UiTd className="px-[0.3rem] text-right text-amber-600">{stat.partial.toLocaleString()}원</UiTd>
-                  <UiTd className={`px-[0.3rem] text-right font-semibold ${stat.shortage > 0 ? 'text-rose-600' : 'text-slate-700'}`}>
+                  <UiTd className="text-center text-slate-800">{stat.month}월</UiTd>
+                  <UiTd className="text-right text-emerald-700">{stat.paid.toLocaleString()}원</UiTd>
+                  <UiTd className="text-right text-amber-700">{stat.partial.toLocaleString()}원</UiTd>
+                  <UiTd className={`text-right font-semibold ${stat.shortage > 0 ? 'text-rose-700' : 'text-slate-700'}`}>
                     {stat.shortage > 0 ? (
                       <LinkWithLoading
                         href={`/dashboard/shortages?year=${y}&month=${stat.month}`}
@@ -297,7 +297,7 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
                       `${stat.shortage.toLocaleString()}원`
                     )}
                   </UiTd>
-                  <UiTd className="px-[0.3rem] text-center text-slate-700">{stat.count}</UiTd>
+                  <UiTd className="text-center text-slate-700">{stat.count}</UiTd>
                 </UiTr>
               ))}
             </UiTbody>

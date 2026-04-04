@@ -76,12 +76,6 @@ export function AlertPanel({ alerts, typeParam, year, month, schoolMap, studentM
               {t === 'ALL' ? '전체' : ALERT_LABEL[t]}
             </Link>
           ))}
-          <Link
-            href="/dashboard/alerts"
-            className="ui-btn-outline shrink-0 border-primary-200 bg-primary-50 px-3 py-2 text-sm text-primary-700 shadow-sm hover:border-primary-300 hover:bg-primary-100"
-          >
-            전체 보기
-          </Link>
         </div>
       </div>
 
@@ -93,27 +87,25 @@ export function AlertPanel({ alerts, typeParam, year, month, schoolMap, studentM
           <div className="space-y-2">
             {filteredAlerts.slice(0, 8).map((a) => (
               <div key={a.id} className="rounded-xl border border-slate-200 p-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${ALERT_COLOR[a.type]}`}>
-                        {ALERT_LABEL[a.type]}
-                      </span>
-                      <span className="font-semibold text-slate-900 text-sm">{studentMap[a.studentId] ?? '-'}</span>
-                      <span className="text-sm text-slate-500 truncate">{schoolMap[a.schoolId] ?? '-'}</span>
-                    </div>
-                    <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500">
-                      <span>{a.year}년 {a.month}월</span>
-                      <span>{new Date(a.createdAt).toLocaleString()}</span>
-                    </div>
-                    {a.memo && <p className="mt-1 text-sm text-slate-600 truncate">{a.memo}</p>}
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${ALERT_COLOR[a.type]}`}>
+                      {ALERT_LABEL[a.type]}
+                    </span>
+                    <span className="font-semibold text-slate-900 text-sm">{studentMap[a.studentId] ?? '-'}</span>
+                    <span className="text-sm text-slate-500 truncate">{schoolMap[a.schoolId] ?? '-'}</span>
                   </div>
-                  <form action={resolveAlertAction.bind(null, a.id)} className="shrink-0">
-                    <button className="ui-btn-outline border-emerald-200 px-3 py-1.5 text-xs text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 whitespace-nowrap">
-                      확인
-                    </button>
-                  </form>
+                  <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500">
+                    <span>{a.year}년 {a.month}월</span>
+                    <span>{new Date(a.createdAt).toLocaleString()}</span>
+                  </div>
+                  {a.memo && <p className="mt-1 text-sm text-slate-600 truncate">{a.memo}</p>}
                 </div>
+                <form action={resolveAlertAction.bind(null, a.id)} className="mt-2">
+                  <button className="w-full ui-btn-outline border-emerald-200 px-3 py-1.5 text-xs text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 whitespace-nowrap">
+                    확인
+                  </button>
+                </form>
               </div>
             ))}
             {filteredAlerts.length === 0 && (

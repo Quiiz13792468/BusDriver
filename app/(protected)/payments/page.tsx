@@ -5,6 +5,7 @@ import { getPaymentsByYear, getEffectiveFee } from '@/lib/data/payment';
 import { getSchools } from '@/lib/data/school';
 import { getAllStudents, getStudentsBySchool } from '@/lib/data/student';
 import { RecordPaymentModal } from '@/app/(protected)/payments/_components/record-payment-modal';
+import { CollapsibleSummary } from '@/app/(protected)/payments/_components/collapsible-summary';
 import { UiTable, UiTbody, UiTh, UiThead, UiTr, UiTd } from '@/components/ui/table';
 
 type PaymentsPageProps = {
@@ -152,13 +153,11 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
 
       {/* 월별 요약 */}
       <section className="space-y-2">
-          <details open={selectedSchoolId === 'ALL'} className="ui-collapse">
-            <summary className="ui-collapse-summary">
-              <span className="px-1">
-                월별 입금 요약 {selectedSchool ? `- ${selectedSchool.name}` : '(전체)'}
-              </span>
-            </summary>
-            <div className="ui-collapse-panel">
+          <CollapsibleSummary
+            title={`월별 입금 요약 ${selectedSchool ? `- ${selectedSchool.name}` : '(전체)'}`}
+            defaultOpen={selectedSchoolId === 'ALL'}
+          >
+            <div>
               {/* 모바일 카드 */}
               <div className="md:hidden space-y-2">
                 {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
@@ -225,12 +224,12 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
             </UiTable>
             </div>
             </div>
-          </details>
+          </CollapsibleSummary>
       </section>
 
-      {/* 선택 월 결제 내역 */}
+      {/* 선택 월 입금 내역 */}
       <section className="ui-card ui-card-pad">
-        <h2 className="mb-3 text-base font-semibold text-slate-900">{selectedYear}년 {selectedMonth}월 결제 내역</h2>
+        <h2 className="mb-3 text-base font-semibold text-slate-900">{selectedYear}년 {selectedMonth}월 입금 내역</h2>
         <div className="ui-table-wrap">
           <UiTable>
             <UiThead className="sticky top-0 z-10">
@@ -244,9 +243,11 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
             <UiTbody>
               {enriched.map((p) => (
                 <UiTr key={p.id} className="border-b border-slate-100 last:border-b-0">
-                  <UiTd className="font-medium text-slate-700">{p.studentName}</UiTd>
+                  <UiTd className="whitespace-nowrap font-medium text-slate-700">{p.studentName}</UiTd>
                   <UiTd className="text-right text-slate-700">{p.amount.toLocaleString()}원</UiTd>
-                  <UiTd className="text-left text-slate-700">{p.status === 'PAID' ? '완납' : p.status === 'PARTIAL' ? '부분 입금' : '미입금'}</UiTd>
+                  <UiTd className={`whitespace-nowrap text-left font-semibold ${p.status === 'PAID' ? 'text-emerald-700' : p.status === 'PARTIAL' ? 'text-amber-700' : 'text-rose-700'}`}>
+                    {p.status === 'PAID' ? '완납' : p.status === 'PARTIAL' ? '부분입금' : '미입금'}
+                  </UiTd>
                   <UiTd className="text-left text-slate-700">{p.memo ?? '-'}</UiTd>
                 </UiTr>
               ))}
@@ -278,13 +279,15 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
               {aggregatedRows.map((r) => {
                 const total = r.paid + r.partial;
                 const shortage = Math.max(0, r.fee - total);
-                const status = shortage === 0 ? '입금완료' : '금액부족';
+                const isPaid = shortage === 0 && total > 0;
+                const isPartial = shortage > 0 && total > 0;
+                const statusLabel = isPaid ? '완납' : isPartial ? '부분입금' : '미입금';
                 return (
                   <UiTr key={r.id} className="border-b border-slate-100 last:border-b-0">
-                    <UiTd className="text-slate-800">{r.name}</UiTd>
+                    <UiTd className="whitespace-nowrap text-slate-800">{r.name}</UiTd>
                     <UiTd className="text-right text-emerald-700">{total.toLocaleString()}원</UiTd>
-                    <UiTd className={`font-semibold ${status === '입금완료' ? 'text-emerald-700' : 'text-rose-700'}`}>{status}</UiTd>
-                    <UiTd className="text-right font-semibold text-slate-800">{shortage.toLocaleString()}원</UiTd>
+                    <UiTd className={`whitespace-nowrap font-semibold ${isPaid ? 'text-emerald-700' : isPartial ? 'text-amber-700' : 'text-rose-700'}`}>{statusLabel}</UiTd>
+                    <UiTd className={`text-right font-semibold ${shortage > 0 ? 'text-rose-700' : 'text-slate-800'}`}>{shortage.toLocaleString()}원</UiTd>
                     <UiTd className="text-slate-700">{r.memo ?? '-'}</UiTd>
                   </UiTr>
                 );

@@ -119,11 +119,11 @@ export default async function BoardPage() {
         </section>
 
         <section>
-          <h2 className="mb-3 text-xl font-bold text-slate-900">공지 작성</h2>
           <CreatePostForm
             title="공지 작성"
             schools={schools.map((school) => ({ id: school.id, name: school.name }))}
             description="학교 공지와 안내를 등록해주세요."
+            collapsible
           />
         </section>
 

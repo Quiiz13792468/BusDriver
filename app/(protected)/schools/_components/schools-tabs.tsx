@@ -76,6 +76,14 @@ function SchoolTab({ schools }: { schools: SchoolRecord[] }) {
 
   return (
     <div className="space-y-3">
+      <CollapsibleCard
+        title="학교 등록"
+        description="운영에 사용할 학교 정보를 입력해 주세요"
+        buttonLabel="학교 등록"
+      >
+        <CreateSchoolForm />
+      </CollapsibleCard>
+
       <section className="space-y-3">
         <h2 className="text-lg font-semibold text-slate-900">등록된 학교</h2>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -127,13 +135,6 @@ function SchoolTab({ schools }: { schools: SchoolRecord[] }) {
         </div>
       </section>
 
-      <CollapsibleCard
-        title="새로운 학교 등록"
-        description="운영에 사용할 학교 정보를 입력해 주세요"
-        buttonLabel="학교 등록"
-      >
-        <CreateSchoolForm />
-      </CollapsibleCard>
     </div>
   );
 }
@@ -447,7 +448,7 @@ function StudentAssignmentCard({
 
       {/* 상세/편집 패널 */}
       {panelOpen ? (
-        <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+        <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-10">
           <form action={updateAction} className="ui-control">
             <input type="hidden" name="studentId" value={student.id} />
             <input type="hidden" name="schoolId" value={student.schoolId ?? ""} />
@@ -669,7 +670,7 @@ function StudentAssignmentRow({
       </UiTr>
       {panelOpen ? (
         <UiTr className="border-b border-slate-100 last:border-b-0">
-          <UiTd colSpan={4} className="bg-slate-50/70 px-3 py-4 sm:px-4">
+          <UiTd colSpan={4} className="bg-slate-50/70 p-10">
             <div className="space-y-4">
               <form action={updateAction} className="ui-control">
                 <input type="hidden" name="studentId" value={student.id} />

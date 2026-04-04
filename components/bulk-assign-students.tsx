@@ -22,16 +22,20 @@ export function BulkAssignStudents({ routeId, students, stops = [] }: Props) {
 
   const ids = useMemo(() => Object.entries(selected).filter(([, v]) => v).map(([k]) => k), [selected]);
 
+  if (students.length === 0) {
+    return (
+      <div className="ui-card ui-card-pad space-y-2">
+        <p className="text-lg font-semibold text-slate-800">일괄 배정</p>
+        <p className="text-center text-base text-slate-500 py-4">배정 가능한 학생이 없습니다.</p>
+      </div>
+    );
+  }
+
   return (
-    <form
-      action={(fd) => {
-        fd.append('routeId', routeId);
-        fd.append('studentIds', ids.join(','));
-        fd.append('pickupPoint', stop);
-        return (formAction as any)(fd);
-      }}
-      className="ui-card ui-card-pad space-y-2"
-    >
+    <form action={formAction} className="ui-card ui-card-pad space-y-2">
+      <input type="hidden" name="routeId" value={routeId} />
+      <input type="hidden" name="studentIds" value={ids.join(',')} />
+      <input type="hidden" name="pickupPoint" value={stop} />
       <div className="flex items-center justify-between">
         <p className="text-lg font-semibold text-slate-800">일괄 배정</p>
         <AssignBtn />
@@ -48,9 +52,6 @@ export function BulkAssignStudents({ routeId, students, stops = [] }: Props) {
             <span>{s.name}</span>
           </label>
         ))}
-        {students.length === 0 ? (
-          <div className="px-2 py-6 text-center text-base text-slate-700">표시할 학생이 없습니다.</div>
-        ) : null}
       </div>
       {state ? (
         <p className={`text-base ${state.status === 'success' ? 'text-green-600' : 'text-red-600'}`}>{state.message}</p>

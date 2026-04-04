@@ -87,12 +87,25 @@ export function KakaoMap({
     const map = new kakao.maps.Map(mapRef.current, {
       center: new kakao.maps.LatLng(centerLat, centerLng),
       level: 5,
+      draggable: true,
     });
     mapInstanceRef.current = map;
+
+    // Ensure map drag is always re-enabled on mouseup/touchend at document level
+    const restoreDrag = () => {
+      map.setDraggable(true);
+    };
+    document.addEventListener('mouseup', restoreDrag);
+    document.addEventListener('touchend', restoreDrag);
 
     kakao.maps.event.addListener(map, 'click', (e: any) => {
       onMapClickRef.current?.(e.latLng.getLat(), e.latLng.getLng());
     });
+
+    return () => {
+      document.removeEventListener('mouseup', restoreDrag);
+      document.removeEventListener('touchend', restoreDrag);
+    };
   }, [loaded]);
 
   // Redraw markers and polyline when stops change

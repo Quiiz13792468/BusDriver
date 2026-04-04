@@ -131,7 +131,7 @@ export default async function BoardPostPage({ params }: BoardPostPageProps) {
   const locked = !!(post as any).locked;
 
   return (
-    <div className="flex h-[calc(100dvh-8rem)] flex-col">
+    <div className="flex h-[calc(100dvh-52px-60px)] flex-col -mx-3 -my-2 sm:-mx-4 sm:-my-3">
       <PostReadMarker
         postId={post.id}
         viewerId={session.id}
@@ -174,7 +174,7 @@ export default async function BoardPostPage({ params }: BoardPostPageProps) {
 
       {/* 채팅 메시지 영역 */}
       <div className="flex-1 overflow-y-auto">
-        <div className="space-y-3 px-4 py-4 pb-6">
+        <div className="space-y-3 px-4 py-4">
           {messages.map((msg, idx) => {
             const msgDate = formatDate(msg.createdAt);
             const showDate = msgDate !== lastDate;

@@ -135,6 +135,15 @@ function AssignStudentForm({
   students: { id: string; name: string }[];
   stops: string[];
 }) {
+  if (students.length === 0) {
+    return (
+      <section className="ui-card ui-card-pad space-y-3">
+        <h2 className="text-lg font-semibold text-slate-900">학생 배정</h2>
+        <p className="ui-empty">배정 가능한 학생이 없습니다.</p>
+      </section>
+    );
+  }
+
   return (
     <section className="ui-card ui-card-pad space-y-3">
       <h2 className="text-lg font-semibold text-slate-900">학생 배정</h2>
