@@ -1,7 +1,7 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { CommentForm } from '@/app/(protected)/board/_components/comment-form';
-import { CommentItem } from '@/app/(protected)/board/_components/comment-item';
 import { requireSession } from '@/lib/auth/session';
 import { getBoardPostWithComments, incrementBoardPostViews } from '@/lib/data/board';
 import { lockBoardPostAction } from '@/app/(protected)/board/actions';
@@ -12,6 +12,51 @@ type BoardPostPageProps = {
     id: string;
   };
 };
+
+function formatTime(value: string) {
+  const d = new Date(value);
+  const h = d.getHours();
+  const m = d.getMinutes();
+  const ampm = h < 12 ? '오전' : '오후';
+  const hour = h % 12 === 0 ? 12 : h % 12;
+  const min = String(m).padStart(2, '0');
+  return `${ampm} ${hour}:${min}`;
+}
+
+function formatDate(value: string) {
+  const d = new Date(value);
+  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
+}
+
+type MessageBubbleProps = {
+  isMine: boolean;
+  authorName: string | null;
+  content: string;
+  createdAt: string;
+  isFirst?: boolean;
+};
+
+function MessageBubble({ isMine, authorName, content, createdAt, isFirst }: MessageBubbleProps) {
+  return (
+    <div className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'}`}>
+      <div className={`flex max-w-[80%] flex-col gap-1 ${isMine ? 'items-end' : 'items-start'}`}>
+        {!isMine && isFirst ? (
+          <span className="px-1 text-sm font-semibold text-slate-600">{authorName ?? '익명'}</span>
+        ) : null}
+        <div
+          className={`px-4 py-3 text-base leading-relaxed shadow-sm ${
+            isMine
+              ? 'rounded-2xl rounded-tr-sm bg-primary-600 text-white'
+              : 'rounded-2xl rounded-tl-sm bg-slate-100 text-slate-900'
+          }`}
+        >
+          {content}
+        </div>
+        <span className="px-1 text-xs text-slate-400">{formatTime(createdAt)}</span>
+      </div>
+    </div>
+  );
+}
 
 export default async function BoardPostPage({ params }: BoardPostPageProps) {
   const session = await requireSession();
@@ -28,76 +73,146 @@ export default async function BoardPostPage({ params }: BoardPostPageProps) {
 
   await incrementBoardPostViews(post.id);
 
-  const normalizeTimestamp = (value: Date | string) => (typeof value === 'string' ? value : value.toISOString());
+  const normalizeTimestamp = (value: Date | string) =>
+    typeof value === 'string' ? value : value.toISOString();
 
-  const comments = post.comments.map((comment) => ({
-    id: comment.id,
-    content: comment.content,
-    createdAt: normalizeTimestamp(comment.createdAt),
-    author: { name: comment.author.name },
-    replies: comment.replies.map((reply) => ({
-      id: reply.id,
-      content: reply.content,
-      createdAt: normalizeTimestamp(reply.createdAt),
-      author: { name: reply.author.name },
-      replies: []
-    }))
-  }));
+  // 모든 메시지를 시간 순으로 평탄화
+  type FlatMessage = {
+    id: string;
+    content: string;
+    createdAt: string;
+    authorId: string;
+    authorName: string | null;
+  };
+
+  const messages: FlatMessage[] = [];
+
+  // 원본 게시글을 첫 메시지로
+  messages.push({
+    id: `post-${post.id}`,
+    content: post.title !== post.content ? `${post.title}\n\n${post.content}` : post.content,
+    createdAt: normalizeTimestamp(post.createdAt),
+    authorId: post.authorId,
+    authorName: post.author.name,
+  });
+
+  // 댓글 및 대댓글을 시간순으로 평탄화
+  const allComments = post.comments.flatMap((comment) => {
+    const nodes: FlatMessage[] = [
+      {
+        id: comment.id,
+        content: comment.content,
+        createdAt: normalizeTimestamp(comment.createdAt),
+        authorId: comment.author ? (comment.author as any).id ?? comment.authorId ?? '' : '',
+        authorName: comment.author.name,
+      },
+      ...comment.replies.map((reply) => ({
+        id: reply.id,
+        content: reply.content,
+        createdAt: normalizeTimestamp(reply.createdAt),
+        authorId: reply.author ? (reply.author as any).id ?? (reply as any).authorId ?? '' : '',
+        authorName: reply.author.name,
+      })),
+    ];
+    return nodes;
+  });
+
+  messages.push(...allComments);
+  messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+  // 상대방 이름 (학부모 뷰에서는 관리자, 관리자 뷰에서는 학부모)
+  const otherPartyName = isAdmin
+    ? (post.author.name ?? '학부모')
+    : '관리자';
+
+  // 날짜 구분선 표시용
+  let lastDate = '';
+
+  const locked = !!(post as any).locked;
 
   return (
-    <div className="space-y-3">
+    <div className="flex h-[calc(100dvh-8rem)] flex-col">
       <PostReadMarker
         postId={post.id}
         viewerId={session.id}
         lastCommentAt={post.lastCommentAt ?? null}
         fallbackAt={post.updatedAt}
       />
-      <article className="ui-card ui-card-pad">
-        <header className="space-y-3">
-          <div className="flex flex-col gap-1 text-sm text-slate-700 sm:flex-row sm:items-center sm:gap-2">
-            <span>작성자 {post.author.name ?? '익명'}</span>
-            <span className="hidden sm:inline text-slate-300">|</span>
-            {/* 작성일 표시 생략 (타입 추론 간소화) */}
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">{post.title}</h1>
-            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">
-              {post.parentOnly ? '학부모 전용' : '전체 공개'}
-            </span>
-            {(post as any).locked ? (
-              <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700">
-                답변완료
-              </span>
-            ) : null}
-            {isAdmin && !(post as any).locked ? (
-              <form action={lockBoardPostAction.bind(null, post.id)}>
-                <button className="ui-btn-outline border-primary-200 px-3 py-1.5 text-sm text-primary-600 hover:border-primary-300 hover:bg-primary-50">
-                  답변완료 처리
-                </button>
-              </form>
-            ) : null}
-          </div>
-        </header>
-        <div className="mt-6 whitespace-pre-wrap text-base leading-relaxed text-slate-700">{post.content}</div>
-      </article>
 
-      <section className="ui-card ui-card-pad space-y-4">
-        <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">댓글</h2>
-          <p className="text-sm text-slate-700">문의에 대한 추가 질문을 남겨주세요. 잠금 처리 시 댓글은 불가합니다.</p>
-        </header>
+      {/* 헤더 */}
+      <header className="flex shrink-0 items-center gap-3 border-b border-slate-200 bg-white px-4 py-3">
+        <Link
+          href="/board"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-600 hover:bg-slate-100 active:bg-slate-200"
+          aria-label="뒤로 가기"
+        >
+          <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </Link>
 
-        {(post as any).locked ? null : <CommentForm postId={post.id} />}
-
-        <div className="space-y-4">
-          {comments.map((comment) => (
-            <CommentItem key={comment.id} comment={comment} postId={post.id} />
-          ))}
-          {comments.length === 0 ? (
-            <p className="ui-empty">등록된 댓글이 없습니다.</p>
+        <div className="flex flex-1 flex-col items-center">
+          <span className="text-base font-semibold text-slate-900">{otherPartyName}</span>
+          {locked ? (
+            <span className="text-xs font-medium text-emerald-600">답변완료</span>
           ) : null}
         </div>
-      </section>
+
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center">
+          {isAdmin && !locked ? (
+            <form action={lockBoardPostAction.bind(null, post.id)}>
+              <button
+                type="submit"
+                className="rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 active:bg-emerald-200"
+              >
+                완료
+              </button>
+            </form>
+          ) : null}
+        </div>
+      </header>
+
+      {/* 채팅 메시지 영역 */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="space-y-3 px-4 py-4 pb-6">
+          {messages.map((msg, idx) => {
+            const msgDate = formatDate(msg.createdAt);
+            const showDate = msgDate !== lastDate;
+            if (showDate) lastDate = msgDate;
+
+            const isMine = msg.authorId === session.id;
+            const prevMsg = messages[idx - 1];
+            const isFirst =
+              idx === 0 ||
+              !prevMsg ||
+              prevMsg.authorId !== msg.authorId;
+
+            return (
+              <div key={msg.id}>
+                {showDate ? (
+                  <div className="flex items-center gap-3 py-2">
+                    <div className="h-px flex-1 bg-slate-200" />
+                    <span className="text-xs font-medium text-slate-400">{msgDate}</span>
+                    <div className="h-px flex-1 bg-slate-200" />
+                  </div>
+                ) : null}
+                <MessageBubble
+                  isMine={isMine}
+                  authorName={msg.authorName}
+                  content={msg.content}
+                  createdAt={msg.createdAt}
+                  isFirst={isFirst}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 입력창 */}
+      <div className="shrink-0">
+        <CommentForm postId={post.id} locked={locked} />
+      </div>
     </div>
   );
 }
