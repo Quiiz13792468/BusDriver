@@ -1,8 +1,7 @@
-﻿import { requireSession } from '@/lib/auth/session';
+import { requireSession } from '@/lib/auth/session';
 import { getAllStudents } from '@/lib/data/student';
 import { getSchools } from '@/lib/data/school';
 import { CollapsibleCard } from '@/components/ui/collapsible-card';
-import { UiTable, UiTbody, UiTh, UiThead, UiTr, UiTd } from '@/components/ui/table';
 import { CreateStudentForm } from '@/app/(protected)/schools/_components/create-student-form';
 
 type StudentsPageProps = {
@@ -25,6 +24,9 @@ export default async function DashboardStudentsPage({ searchParams }: StudentsPa
       ? students.filter((student) => student.schoolId === null)
       : students.filter((student) => student.schoolId === selectedSchoolId);
 
+  const activeStudents = filtered.filter((s) => s.isActive);
+  const inactiveStudents = filtered.filter((s) => !s.isActive);
+
   return (
     <div className="space-y-3">
       <header className="ui-card ui-card-pad">
@@ -35,7 +37,7 @@ export default async function DashboardStudentsPage({ searchParams }: StudentsPa
           </div>
           <div className="flex items-center gap-2 text-sm text-slate-700">
             <span>총 학생 수</span>
-            <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">{students.length}</span>
+            <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">{activeStudents.length}명</span>
           </div>
         </div>
       </header>
@@ -43,7 +45,7 @@ export default async function DashboardStudentsPage({ searchParams }: StudentsPa
       <section className="ui-card ui-card-pad">
         <form className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between" method="get">
           <div className="flex items-center gap-2">
-            <label className="text-sm font-semibold text-slate-700" htmlFor="schoolId">
+            <label className="text-base font-semibold text-slate-700" htmlFor="schoolId">
               학교 필터
             </label>
             <select
@@ -61,10 +63,7 @@ export default async function DashboardStudentsPage({ searchParams }: StudentsPa
               ))}
             </select>
           </div>
-          <button
-            type="submit"
-            className="ui-btn px-4 py-2"
-          >
+          <button type="submit" className="ui-btn px-5 py-3 text-base">
             적용
           </button>
         </form>
@@ -74,43 +73,92 @@ export default async function DashboardStudentsPage({ searchParams }: StudentsPa
         <CreateStudentForm schools={schools.map((school) => ({ id: school.id, name: school.name }))} />
       </CollapsibleCard>
 
-      <section className="ui-card overflow-hidden">
-        <UiTable>
-          <UiThead>
-            <UiTr>
-              <UiTh className="text-left">학생</UiTh>
-              <UiTh className="text-left">학교</UiTh>
-              <UiTh className="text-left">연락처</UiTh>
-              <UiTh className="text-left">탑승 위치</UiTh>
-              <UiTh className="text-left">기본 요금</UiTh>
-            </UiTr>
-          </UiThead>
-          <UiTbody>
-            {filtered.map((student) => (
-              <UiTr key={student.id} className="border-b border-slate-100 last:border-b-0">
-                <UiTd className="text-slate-800">
-                  <div className="font-semibold">{student.name}</div>
-                  <div className="text-sm text-slate-700">보호자 {student.guardianName}</div>
-                </UiTd>
-                <UiTd className="text-slate-700">
+      {/* 재학생 카드 목록 */}
+      <section className="space-y-2">
+        {activeStudents.length === 0 && inactiveStudents.length === 0 ? (
+          <div className="ui-card ui-card-pad text-center text-base text-slate-700">
+            선택한 조건에 해당하는 학생이 없습니다.
+          </div>
+        ) : null}
+
+        {activeStudents.map((student) => (
+          <div
+            key={student.id}
+            className="ui-card ui-card-pad flex flex-col gap-2"
+          >
+            {/* 이름 + 상태 뱃지 */}
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-lg font-bold text-slate-900">{student.name}</span>
+              <span className="shrink-0 rounded-full bg-teal-100 px-3 py-1 text-sm font-semibold text-teal-700">
+                재학중
+              </span>
+            </div>
+
+            {/* 세부 정보 그리드 */}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-base">
+              <div className="flex flex-col">
+                <span className="text-sm text-slate-500">학교</span>
+                <span className="font-medium text-slate-800">
                   {student.schoolId ? schoolMap.get(student.schoolId) ?? '학교 정보 없음' : '미배정'}
-                </UiTd>
-                <UiTd className="text-slate-700">{student.phone ?? '-'}</UiTd>
-                <UiTd className="text-slate-700">{student.pickupPoint ?? '-'}</UiTd>
-                <UiTd className="text-slate-700">
-                  {student.feeAmount ? `${student.feeAmount.toLocaleString()}원` : '-'}
-                </UiTd>
-              </UiTr>
-            ))}
-            {filtered.length === 0 ? (
-              <UiTr>
-                <UiTd colSpan={5} className="text-center text-base text-slate-700">
-                  선택한 조건에 해당하는 학생이 없습니다.
-                </UiTd>
-              </UiTr>
-            ) : null}
-          </UiTbody>
-        </UiTable>
+                </span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm text-slate-500">보호자</span>
+                <span className="font-medium text-slate-800">{student.guardianName}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm text-slate-500">연락처</span>
+                <span className="font-medium text-slate-800">{student.phone ?? '-'}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm text-slate-500">탑승 위치</span>
+                <span className="font-medium text-slate-800">{student.pickupPoint ?? '-'}</span>
+              </div>
+              {student.feeAmount ? (
+                <div className="col-span-2 flex flex-col">
+                  <span className="text-sm text-slate-500">기본 요금</span>
+                  <span className="font-semibold text-primary-700">{student.feeAmount.toLocaleString()}원</span>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        ))}
+
+        {/* 이용 정지 학생 (접힌 섹션) */}
+        {inactiveStudents.length > 0 ? (
+          <details className="ui-card overflow-hidden">
+            <summary className="flex cursor-pointer select-none items-center justify-between ui-card-pad text-base font-semibold text-slate-600">
+              <span>이용 정지 학생</span>
+              <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-sm text-slate-500">
+                {inactiveStudents.length}명
+              </span>
+            </summary>
+            <div className="divide-y divide-slate-100 border-t border-slate-100">
+              {inactiveStudents.map((student) => (
+                <div key={student.id} className="flex flex-col gap-1.5 ui-card-pad opacity-60">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-lg font-bold text-slate-700">{student.name}</span>
+                    <span className="shrink-0 rounded-full bg-slate-200 px-3 py-1 text-sm font-semibold text-slate-500">
+                      정지
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-base">
+                    <div className="flex flex-col">
+                      <span className="text-sm text-slate-400">학교</span>
+                      <span className="font-medium text-slate-600">
+                        {student.schoolId ? schoolMap.get(student.schoolId) ?? '학교 정보 없음' : '미배정'}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-slate-400">연락처</span>
+                      <span className="font-medium text-slate-600">{student.phone ?? '-'}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </details>
+        ) : null}
       </section>
     </div>
   );
