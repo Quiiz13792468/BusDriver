@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
-import { createBrowserClient } from '@/lib/supabase/client';
 
 type HeaderUserMenuProps = {
   role?: string;
@@ -15,8 +14,7 @@ export function HeaderUserMenu({ role, name, email }: HeaderUserMenuProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const handleSignOut = async () => {
-    const supabase = createBrowserClient();
-    await supabase.auth.signOut();
+    await fetch('/api/auth/signout', { method: 'POST' });
     window.location.href = '/login?loggedOut=1';
   };
 
