@@ -15,16 +15,16 @@ const config: Config = {
       colors: {
         // Modern, high-contrast palette tuned for readability
         primary: {
-          50: '#ecf5f2',
-          100: '#d5ece6',
-          200: '#a8d7cc',
-          300: '#76c1b1',
-          400: '#3ea68f',
-          500: '#12806e',
-          600: '#0f6d5d',
-          700: '#0d564a',
-          800: '#0b443b',
-          900: '#0a3530'
+          50: '#f0fdfa',
+          100: '#ccfbf1',
+          200: '#99f6e4',
+          300: '#5eead4',
+          400: '#2dd4bf',
+          500: '#14b8a6',
+          600: '#0d9488',
+          700: '#0f766e',
+          800: '#115e59',
+          900: '#134e4a'
         },
         accent: {
           50: '#fff4ec',

@@ -248,16 +248,16 @@ details[open] .ui-collapse-panel {
 
 
   .swal2-actions .swal2-confirm {
-    background: #0f6d5d !important;
+    background: #0d9488 !important;
     color: #ffffff !important;
-    border: 1px solid #0f6d5d !important;
+    border: 1px solid #0d9488 !important;
     box-shadow: none !important;
   }
 
   .swal2-actions .swal2-confirm:hover,
   .swal2-actions .swal2-confirm:focus {
-    background: #12806e !important;
-    border-color: #12806e !important;
+    background: #0f766e !important;
+    border-color: #0f766e !important;
   }
 
   .swal2-actions .swal2-cancel {
@@ -269,14 +269,14 @@ details[open] .ui-collapse-panel {
 
   .swal2-actions .swal2-cancel:hover,
   .swal2-actions .swal2-cancel:focus {
-    background: #ecf5f2 !important;
-    color: #0d564a !important;
-    border-color: #a8d7cc !important;
+    background: #f0fdfa !important;
+    color: #115e59 !important;
+    border-color: #99f6e4 !important;
   }
 
   .swal2-icon.swal2-success {
-    border-color: #a8d7cc !important;
-    color: #0f6d5d !important;
+    border-color: #99f6e4 !important;
+    color: #0d9488 !important;
   }
 
   .swal2-icon.swal2-warning {

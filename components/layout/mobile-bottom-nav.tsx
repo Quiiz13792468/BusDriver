@@ -17,15 +17,12 @@ type NavItem = {
   matchPrefix?: string;
 };
 
-const ADMIN_LEFT: NavItem[] = [
-  { href: '/dashboard', label: '대시', icon: DashboardIcon },
+const ADMIN_TABS: NavItem[] = [
+  { href: '/dashboard', label: '대시',  icon: DashboardIcon },
   { href: '/schools',   label: '학교',  icon: SchoolIcon },
-];
-
-const ADMIN_RIGHT: NavItem[] = [
-  { href: '/routes',   label: '노선',  icon: RouteIcon },
-  { href: '/payments', label: '입금',  icon: WalletIcon, matchPrefix: '/payments' },
-  { href: '/board',    label: '게시판', icon: BoardIcon },
+  { href: '/routes',    label: '노선',  icon: RouteIcon },
+  { href: '/payments',  label: '입금',  icon: WalletIcon, matchPrefix: '/payments' },
+  { href: '/board',     label: '게시판', icon: BoardIcon },
 ];
 
 const PARENT_TABS: NavItem[] = [
@@ -42,16 +39,24 @@ function NavTab({ item, active }: { item: NavItem; active: boolean }) {
     <Link
       href={item.href}
       onClick={() => { if (!active) show('잠시만 기다려 주세요.'); }}
-      className={clsx(
-        'relative flex flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-xs font-semibold transition-colors',
-        active ? 'text-primary-600' : 'text-slate-400 hover:text-slate-600'
-      )}
+      className="relative flex flex-1 flex-col items-center justify-center gap-0.5 py-1"
+      aria-current={active ? 'page' : undefined}
     >
-      <Icon className={clsx('h-5 w-5', active ? 'text-primary-600' : 'text-slate-400')} />
-      <span>{item.label}</span>
-      {active && (
-        <span className="absolute bottom-0 h-0.5 w-8 rounded-full bg-primary-500" aria-hidden />
-      )}
+      {/* active 상태: pill 배경 */}
+      <span
+        className={clsx(
+          'flex h-8 w-14 items-center justify-center rounded-full transition-colors',
+          active ? 'bg-primary-600' : 'bg-transparent'
+        )}
+      >
+        <Icon className={clsx('h-6 w-6', active ? 'text-white' : 'text-slate-400')} />
+      </span>
+      <span className={clsx(
+        'text-[11px] font-semibold leading-none',
+        active ? 'text-primary-600' : 'text-slate-400'
+      )}>
+        {item.label}
+      </span>
     </Link>
   );
 }
@@ -74,23 +79,14 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
     return pathname === item.href || pathname.startsWith(`${item.href}/`);
   }
 
-  if (role !== 'ADMIN') {
-    return (
-      <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-14 items-stretch border-t border-slate-200 bg-white/95 backdrop-blur-sm md:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-        {PARENT_TABS.map((item) => (
-          <NavTab key={item.href} item={item} active={isActive(item)} />
-        ))}
-      </nav>
-    );
-  }
+  const tabs = role === 'ADMIN' ? ADMIN_TABS : PARENT_TABS;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-14 items-stretch overflow-hidden border-t border-slate-200 bg-white/95 backdrop-blur-sm md:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      {ADMIN_LEFT.map((item) => (
-        <NavTab key={item.href} item={item} active={isActive(item)} />
-      ))}
-
-      {ADMIN_RIGHT.map((item) => (
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-40 flex items-stretch border-t border-slate-200 bg-white/97 backdrop-blur-sm md:hidden"
+      style={{ height: 'calc(64px + env(safe-area-inset-bottom, 0px))', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+    >
+      {tabs.map((item) => (
         <NavTab key={item.href} item={item} active={isActive(item)} />
       ))}
     </nav>

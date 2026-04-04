@@ -48,17 +48,21 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
       <div className="min-h-screen">
 
         {/* ── 모바일 상단 헤더 ── */}
-        <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-sm md:hidden">
-          <div className="flex h-[52px] items-center justify-between px-3">
+        <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/97 backdrop-blur-sm md:hidden">
+          <div className="flex h-14 items-center justify-between px-4">
+            {/* 좌: 앱 브랜드 */}
             {role === 'ADMIN' ? (
               <>
                 <button
                   type="button"
                   onClick={() => setPaymentOpen(true)}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white transition active:opacity-70"
+                  className="flex items-center gap-2 active:opacity-70"
                   aria-label="입금 등록"
                 >
-                  <BusIcon className="h-6 w-6 text-primary-600" />
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600">
+                    <BusIcon className="h-5 w-5 text-white" />
+                  </span>
+                  <span className="text-base font-bold text-slate-900">셔틀콕!</span>
                 </button>
                 {paymentOpen && (
                   <Suspense fallback={null}>
@@ -69,17 +73,20 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
             ) : (
               <Link
                 href="/dashboard"
-                className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white transition active:opacity-70"
+                className="flex items-center gap-2 active:opacity-70"
                 aria-label="대시보드로 이동"
               >
-                <BusIcon className="h-6 w-6 text-primary-600" />
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600">
+                  <BusIcon className="h-5 w-5 text-white" />
+                </span>
+                <span className="text-base font-bold text-slate-900">셔틀콕!</span>
               </Link>
             )}
 
-            {/* 우측: 알림 벨 + 유저 메뉴 */}
-            <div className="flex items-center gap-1">
-              <HeaderUserMenu role={role} name={user.name} email={user.email} />
+            {/* 우: 알림 벨 + 유저 메뉴 */}
+            <div className="flex items-center gap-2">
               <MobileAlertBell count={alertCount} href={alertHref} />
+              <HeaderUserMenu role={role} name={user.name} email={user.email} />
             </div>
           </div>
         </header>
@@ -116,7 +123,7 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
         </div>
 
         {/* ── 모바일 본문 ── */}
-        <main className="mx-auto max-w-6xl px-3 py-2 pb-[60px] sm:px-4 sm:py-3 md:hidden">
+        <main className="mx-auto max-w-6xl px-3 py-2 pb-[72px] sm:px-4 sm:py-3 md:hidden">
           {children}
         </main>
 

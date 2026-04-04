@@ -131,7 +131,7 @@ export default async function BoardPostPage({ params }: BoardPostPageProps) {
   const locked = !!(post as any).locked;
 
   return (
-    <div className="flex h-[calc(100dvh-52px-60px)] flex-col -mx-3 -my-2 sm:-mx-4 sm:-my-3">
+    <div className="flex h-[calc(100dvh-56px-64px)] flex-col -mx-3 -my-2 sm:-mx-4 sm:-my-3">
       <PostReadMarker
         postId={post.id}
         viewerId={session.id}
