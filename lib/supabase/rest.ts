@@ -74,6 +74,46 @@ export async function restCount(
   return isNaN(total) ? 0 : total;
 }
 
+export async function restSelectPaginated<T>(
+  table: string,
+  query: Record<string, string | number | null | undefined>,
+  page: number,
+  pageSize: number,
+  opts?: { order?: string; next?: { revalidate?: number | false; tags?: string[] } }
+): Promise<{ data: T[]; total: number; page: number; pageSize: number; totalPages: number }> {
+  const offset = (page - 1) * pageSize;
+  const params = new URLSearchParams();
+  params.set('select', '*');
+  for (const [k, v] of Object.entries(query)) {
+    if (v === undefined) continue;
+    if (v === null) {
+      params.set(k, 'is.null');
+    } else {
+      params.set(k, `eq.${v}`);
+    }
+  }
+  if (opts?.order) params.set('order', opts.order);
+  params.set('limit', String(pageSize));
+  params.set('offset', String(offset));
+  const url = baseUrl(`/rest/v1/${table}?${params.toString()}`);
+  const res = await fetch(url, {
+    headers: {
+      apikey: SERVICE_ROLE,
+      Authorization: `Bearer ${SERVICE_ROLE}`,
+      'Content-Type': 'application/json',
+      Prefer: 'count=exact'
+    },
+    ...(opts?.next ? { next: opts.next } : {})
+  });
+  if (!res.ok) throw new Error(`Supabase paginated select ${table} failed: ${res.status} ${res.statusText}`);
+  const range = res.headers.get('content-range') ?? '';
+  const total = parseInt(range.split('/')[1] ?? '0', 10);
+  const safeTotal = isNaN(total) ? 0 : total;
+  const totalPages = Math.max(1, Math.ceil(safeTotal / pageSize));
+  const data = (await res.json()) as T[];
+  return { data, total: safeTotal, page, pageSize, totalPages };
+}
+
 export async function restSelectIn<T>(
   table: string,
   field: string,

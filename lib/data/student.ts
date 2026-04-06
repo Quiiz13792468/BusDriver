@@ -70,7 +70,11 @@ export async function getAllStudents(): Promise<StudentRecord[]> {
 export async function getUnassignedStudents(): Promise<StudentRecord[]> {
   ensureSupabase();
   const rows = await restSelect<any>('students', { school_id: null });
-  return rows.map(mapRowToStudent).sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+  // inactive/이용종료 학생은 미배정 목록에서 제외
+  return rows
+    .map(mapRowToStudent)
+    .filter((s) => s.isActive)
+    .sort((a, b) => a.name.localeCompare(b.name, 'ko'));
 }
 
 export async function getStudentDetail(id: string) {

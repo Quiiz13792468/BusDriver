@@ -47,7 +47,7 @@ function MessageBubble({ isMine, authorName, content, createdAt, isFirst }: Mess
           className={`px-4 py-3 text-base leading-relaxed shadow-sm ${
             isMine
               ? 'rounded-2xl rounded-tr-sm bg-primary-600 text-white'
-              : 'rounded-2xl rounded-tl-sm bg-slate-100 text-slate-900'
+              : 'rounded-2xl rounded-tl-sm border border-slate-200 bg-white text-slate-900'
           }`}
         >
           {content}
@@ -151,11 +151,16 @@ export default async function BoardPostPage({ params }: BoardPostPageProps) {
           </svg>
         </Link>
 
-        <div className="flex flex-1 flex-col items-center">
-          <span className="text-base font-semibold text-slate-900">{otherPartyName}</span>
-          {locked ? (
-            <span className="text-xs font-medium text-emerald-600">답변완료</span>
-          ) : null}
+        <div className="flex flex-1 items-center justify-center gap-2">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-200 text-sm font-semibold text-slate-600">
+            {(otherPartyName ?? '?').slice(0, 1)}
+          </span>
+          <div className="flex flex-col items-start">
+            <span className="text-base font-semibold text-slate-900">{otherPartyName}</span>
+            {locked ? (
+              <span className="text-xs font-medium text-emerald-600">답변완료</span>
+            ) : null}
+          </div>
         </div>
 
         <div className="flex h-10 w-10 shrink-0 items-center justify-center">
@@ -173,7 +178,7 @@ export default async function BoardPostPage({ params }: BoardPostPageProps) {
       </header>
 
       {/* 채팅 메시지 영역 */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto bg-slate-50">
         <div className="space-y-3 px-4 py-4">
           {messages.map((msg, idx) => {
             const msgDate = formatDate(msg.createdAt);

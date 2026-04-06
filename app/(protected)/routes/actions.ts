@@ -90,6 +90,9 @@ export async function assignStudentsBulkToRouteAction(
 
 export async function reorderRouteStops(routeId: string, stops: Array<{ id: string; position: number }>) {
   await requireSession('ADMIN');
+  if (!routeId || !routeId.trim()) {
+    throw new Error('routeId is required');
+  }
   // route 소속 검증 후 병렬 업데이트
   await Promise.all(
     stops.map((stop) =>
@@ -101,6 +104,9 @@ export async function reorderRouteStops(routeId: string, stops: Array<{ id: stri
 
 export async function addRouteStop(routeId: string, data: { name: string; lat: number; lng: number; position: number; description?: string }) {
   await requireSession('ADMIN');
+  if (!routeId || !routeId.trim()) {
+    throw new Error('routeId is required');
+  }
   const id = crypto.randomUUID();
   await restInsert('route_stops', [{
     id,
@@ -117,12 +123,24 @@ export async function addRouteStop(routeId: string, data: { name: string; lat: n
 
 export async function deleteRouteStop(routeId: string, stopId: string) {
   await requireSession('ADMIN');
+  if (!routeId || !routeId.trim()) {
+    throw new Error('routeId is required');
+  }
+  if (!stopId || !stopId.trim()) {
+    throw new Error('stopId is required');
+  }
   await restDelete('route_stops', { id: stopId });
   revalidatePath(`/routes/${routeId}`);
 }
 
 export async function updateRouteStop(stopId: string, routeId: string, data: { name?: string; lat?: number; lng?: number; description?: string }) {
   await requireSession('ADMIN');
+  if (!stopId || !stopId.trim()) {
+    throw new Error('stopId is required');
+  }
+  if (!routeId || !routeId.trim()) {
+    throw new Error('routeId is required');
+  }
   await restPatch('route_stops', { id: stopId }, data);
   revalidatePath(`/routes/${routeId}`);
 }

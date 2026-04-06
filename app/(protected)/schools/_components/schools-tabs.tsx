@@ -147,11 +147,22 @@ function StudentTab({ schools, students }: { schools: SchoolRecord[]; students: 
   const [showUnassignedOnly, setShowUnassignedOnly] = useState(searchParams?.get("unassigned") === "1");
   const [selectedSchoolId, setSelectedSchoolId] = useState("");
   const [searchText, setSearchText] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // 검색어 300ms 디바운스 — 입력 즉시 반영, 필터링만 지연
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchText);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchText]);
 
   const filteredStudents = useMemo(() => {
-    const term = searchText.trim().toLowerCase();
+    const term = debouncedSearch.trim().toLowerCase();
     return students
       .filter((student) => {
+        // inactive 학생 기본 제외 (이용종료 포함)
+        if (!student.isActive) return false;
         if (showUnassignedOnly && student.schoolId) return false;
         if (selectedSchoolId === "__unassigned__" && student.schoolId) return false;
         if (selectedSchoolId && selectedSchoolId !== "__unassigned__" && student.schoolId !== selectedSchoolId) return false;
@@ -166,7 +177,7 @@ function StudentTab({ schools, students }: { schools: SchoolRecord[]; students: 
         if (aUnassigned !== bUnassigned) return aUnassigned ? -1 : 1;
         return b.name.localeCompare(a.name, "ko");
       });
-  }, [students, showUnassignedOnly, selectedSchoolId, searchText]);
+  }, [students, showUnassignedOnly, selectedSchoolId, debouncedSearch]);
 
   useEffect(() => {
     setShowUnassignedOnly(searchParams?.get("unassigned") === "1");
@@ -448,7 +459,7 @@ function StudentAssignmentCard({
 
       {/* 상세/편집 패널 */}
       {panelOpen ? (
-        <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-10">
+        <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-[10px]">
           <form action={updateAction} className="ui-control">
             <input type="hidden" name="studentId" value={student.id} />
             <input type="hidden" name="schoolId" value={student.schoolId ?? ""} />
@@ -670,7 +681,7 @@ function StudentAssignmentRow({
       </UiTr>
       {panelOpen ? (
         <UiTr className="border-b border-slate-100 last:border-b-0">
-          <UiTd colSpan={4} className="bg-slate-50/70 p-10">
+          <UiTd colSpan={4} className="bg-slate-50/70 p-[10px]">
             <div className="space-y-4">
               <form action={updateAction} className="ui-control">
                 <input type="hidden" name="studentId" value={student.id} />

@@ -139,9 +139,10 @@ export function KakaoMap({
       const polyline = new kakao.maps.Polyline({
         path,
         strokeWeight: 6,
-        strokeColor: '#0d9488',
+        strokeColor: '#0f6d5d',
         strokeOpacity: 0.9,
         strokeStyle: 'solid',
+        endArrow: true,
       });
       polyline.setMap(map);
       polylineRef.current = polyline;
@@ -151,7 +152,7 @@ export function KakaoMap({
     stopsWithCoords.forEach((stop, idx) => {
       const position = new kakao.maps.LatLng(stop.lat, stop.lng);
       const isHighlighted = highlightStopId != null && stop.id === highlightStopId;
-      const bg = isHighlighted ? '#F59E0B' : '#0d9488';
+      const bg = isHighlighted ? '#F59E0B' : '#0f6d5d';
       const size = isHighlighted ? '32px' : '26px';
       const num = stop.position + 1;
 

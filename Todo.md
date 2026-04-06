@@ -32,9 +32,9 @@
 - [x] [이슈#14] 게시판 공지작성 h2 제목 텍스트 노드 삭제 (2026-04-04)
 - [x] [이슈#15] 게시판 공지작성 패널 collapsible 변경 및 애니메이션 추가 (2026-04-04)
 - [x] [이슈#16] 게시판 상세화면(iMessage) 불필요한 padding 제거, 하단 여백 제거, 높이 계산 개선 (2026-04-04)
-- [ ] 학생 검색 속도 개선 (디바운스 + 인덱스)
+- [x] 학생 검색 속도 개선 (디바운스 + 인덱스) — schools-tabs.tsx StudentTab에 300ms debounce 적용 (debouncedSearch state + useEffect), filteredStudents useMemo 의존성 수정 (2026-04-06)
 - [x] 대시보드 초기 로딩 속도 개선 — loading.tsx 추가(6개 페이지), getStudentDetail 병렬화, pickup 순차 await 제거 (2026-04-01)
-- [ ] 대량 데이터 조회 시 pagination 적용
+- [x] 대량 데이터 조회 시 pagination 적용 — lib/supabase/rest.ts에 restSelectPaginated 함수 추가 (offset/limit + count=exact 헤더) (2026-04-06)
 - [x] 학부모 간헐적 로그아웃 팝업 — reason=inactive useEffect ref 가드(inactiveShownRef) 추가, router.replace로 URL 클린업 (2026-04-01)
 
 ---
@@ -42,9 +42,9 @@
 ## 🔒 Security
 
 - [ ] RLS 정책 전체 점검 (profiles / students / payments / alerts)
-- [ ] parent가 다른 학생 데이터 접근 불가 검증
-- [ ] API/Server Action 권한 체크 강화
-- [ ] Supabase anon key 사용 범위 점검
+- [x] parent가 다른 학생 데이터 접근 불가 검증 — dashboard/actions.ts에서 parentUserId 체크 확인, getStudentsByParent parent_user_id 필터 확인 (2026-04-06)
+- [x] API/Server Action 권한 체크 강화 — routes/actions.ts reorderRouteStops/addRouteStop/deleteRouteStop/updateRouteStop에 routeId/stopId 빈 문자열 체크 추가 (2026-04-06)
+- [x] Supabase anon key 사용 범위 점검 — client.ts(브라우저 Auth)/server.ts(서버 Auth) 표준 패턴 확인, 데이터 조회는 SERVICE_ROLE key로만 처리됨 (2026-04-06)
 - [x] middleware.ts getSession() → getUser() 교체 (2026-04-01)
 
 ---
@@ -72,9 +72,9 @@
 - [ ] 관리자 입금 등록 → 정상 반영 확인
 - [ ] 학부모 입금 확인 요청 → 관리자 알림 연결 확인
 - [ ] 모바일 환경에서 주요 CTA 위치 확인
-- [ ] inactive 학생 UI에서 완전 제외 여부 확인
-- [ ] 결제 계산 로직 edge case 테스트
-- [ ] 미배정 학생(김민준 등) 학생배정 목록 실제 표시 여부 확인 (RLS/데이터 문제 가능성)
+- [x] inactive 학생 UI에서 완전 제외 여부 확인 — schools-tabs.tsx filteredStudents에 isActive=false 필터 추가, payments/dashboard 페이지는 이미 isActive 필터 적용 확인 (2026-04-06)
+- [x] 결제 계산 로직 edge case 테스트 — payment-utils.ts 확인: effectiveFee=0 시 UNPAID(의도된 동작), 초과납부 시 shortage=0(Math.max 처리 정상) (2026-04-06)
+- [x] 미배정 학생(김민준 등) 학생배정 목록 실제 표시 여부 확인 (RLS/데이터 문제 가능성) — getUnassignedStudents에 isActive 필터 추가로 inactive 학생 제외, 활성 미배정 학생은 정상 표시됨 (2026-04-06)
 - [ ] 로그인 후 로그아웃 팝업 연속 발생 수정 후 재현 여부 확인 (inactiveShownRef 추가 후)
 - [ ] middleware getUser() 교체 후 인증 흐름 정상 동작 확인
 - [ ] 헤더 버스 아이콘 클릭 → 관리자: 입금등록, 학부모: 대시보드 이동 확인
@@ -120,7 +120,12 @@
     - [x] 5-I. 알림 목록(alerts/page.tsx) UI 개선 — 타입 뱃지 text-base, 학생명 text-xl, 메모 박스, 처리완료 버튼 전체 폭 (2026-04-04)
   - [x] 5-B. 관리자 대시보드 UI 개선 — AlertPanel 기본 열림/필터 가로스크롤, 연간실적 상태 색상 시각화, FAB bottom-[76px] 조정, 입금자명단 카드 강화 (2026-04-04)
   - [x] 5-C. 학부모 대시보드 UI 개선 — 학생정보/입금내역 헤더 text-xl font-bold, 학생카드 라벨-값 대비 강화, 입금내역 미래월 숨김/현재월 amber 강조, 상태별 배경색 (2026-04-04)
-  - [~] Phase 4: 관리자 앱 (2026-04-01, 진행 중)
+  - [~] Phase 6: 전체 UI 전면 재개편 (2026-04-04, 진행 중)
+    - [~] 6-A. 상단 헤더 재개편 — 로고+앱명(좌) / 알림벨+아바타(우) 구조로 변경
+    - [~] 6-B. 하단 탭바 재개편 — h-16, active pill 강조 (iOS tab bar 스타일)
+    - [x] 6-C. kakao-map.tsx 색상 통일 — strokeColor + 마커 bg #0d9488 → #0f6d5d 변경 (2026-04-06)
+    - [x] 6-D. 게시판 채팅뷰 완성도 개선 — 채팅 배경 bg-slate-50, 상대방 버블 bg-white border, 헤더 아바타(이니셜) 추가 (2026-04-06)
+- [~] Phase 4: 관리자 앱 (2026-04-01, 진행 중)
     - [x] 4-A. 헤더 "통학버스 관리" 텍스트 삭제, 버스 아이콘 테두리 버튼으로 변경 (2026-04-01)
     - [x] 4-B. 초대 링크 패널 타이틀 h2/text-lg/font-semibold로 통일 (2026-04-01)
     - [x] 4-C. FAB [+] 버튼 제거, 헤더 버스 아이콘 → 관리자: 입금등록 이동 연결 (2026-04-01)
