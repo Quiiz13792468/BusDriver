@@ -32,9 +32,87 @@ export function KakaoMap({
   const overlaysRef = useRef<any[]>([]);
   const dragCleanupRef = useRef<(() => void)[]>([]);
   const polylineRef = useRef<any>(null);
+  const arrowOverlaysRef = useRef<any[]>([]);
+  const polylineSrcRef = useRef<{ lat: number; lng: number }[] | null>(null);
   const boundsInitializedRef = useRef(false);
   const [loaded, setLoaded] = useState(false);
   const [authError, setAuthError] = useState(false);
+
+  // Haversine 거리 계산 (미터)
+  function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number) {
+    const R = 6371000;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) ** 2 +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  // 줌 레벨 → 화살표 간격 미터
+  function arrowIntervalMeters(zoomLevel: number) {
+    // 카카오맵 level: 숫자 클수록 축소 (1=가장 확대, 14=가장 축소)
+    // level 1~3: 50m, 4~5: 150m, 6~7: 400m, 8~9: 1200m, 10+: 4000m
+    if (zoomLevel <= 3) return 50;
+    if (zoomLevel <= 5) return 150;
+    if (zoomLevel <= 7) return 400;
+    if (zoomLevel <= 9) return 1200;
+    return 4000;
+  }
+
+  // 화살표만 재그리기
+  function redrawArrows(map: any, kakao: any, pts: any[]) {
+    // 기존 화살표 제거
+    arrowOverlaysRef.current.forEach((o) => o.setMap(null));
+    arrowOverlaysRef.current = [];
+
+    if (pts.length < 2) return;
+
+    const zoomLevel = map.getLevel();
+    const intervalM = arrowIntervalMeters(zoomLevel);
+
+    let accumulated = 0;
+    let nextArrowAt = intervalM / 2;
+
+    for (let i = 0; i < pts.length - 1; i++) {
+      const from = pts[i];
+      const to = pts[i + 1];
+
+      const segM = haversineMeters(
+        from.getLat(), from.getLng(),
+        to.getLat(), to.getLng()
+      );
+      if (segM < 1) continue;
+
+      // 방향각: 경위도 기반 (북=0, 시계방향)
+      const dLng = to.getLng() - from.getLng();
+      const dLat = to.getLat() - from.getLat();
+      const angleDeg = Math.atan2(dLng, dLat) * (180 / Math.PI);
+
+      while (nextArrowAt <= accumulated + segM) {
+        const t = (nextArrowAt - accumulated) / segM;
+        const lat = from.getLat() + dLat * t;
+        const lng = from.getLng() + dLng * t;
+
+        const svgArrow = `<div style="transform:rotate(${angleDeg}deg);width:16px;height:16px;pointer-events:none;display:flex;align-items:center;justify-content:center;">
+          <svg width="12" height="16" viewBox="0 0 12 16" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="6,0 12,16 6,11 0,16" fill="rgba(255,255,255,0.9)"/>
+          </svg>
+        </div>`;
+
+        const overlay = new kakao.maps.CustomOverlay({
+          position: new kakao.maps.LatLng(lat, lng),
+          content: svgArrow,
+          zIndex: 3,
+        });
+        overlay.setMap(map);
+        arrowOverlaysRef.current.push(overlay);
+
+        nextArrowAt += intervalM;
+      }
+
+      accumulated += segM;
+    }
+  }
 
   const hasKey = Boolean(process.env.NEXT_PUBLIC_KAKAO_MAP_KEY);
 
@@ -128,14 +206,16 @@ export function KakaoMap({
       polylineRef.current = null;
     }
 
+    // Remove existing arrow overlays
+    arrowOverlaysRef.current.forEach((o) => o.setMap(null));
+    arrowOverlaysRef.current = [];
+
     const stopsWithCoords = stops.filter((s) => s.lat != null && s.lng != null);
 
     // Draw polyline — routePath(도로 경로) 우선, 없으면 직선 fallback
     const polylineSrc = routePath && routePath.length > 1
       ? routePath
       : stopsWithCoords.length > 1 ? stopsWithCoords : null;
-
-    const arrowOverlays: any[] = [];
 
     if (polylineSrc && polylineSrc.length > 1) {
       const pts = polylineSrc.map((p) => new kakao.maps.LatLng(p.lat, p.lng));
@@ -149,60 +229,23 @@ export function KakaoMap({
         strokeStyle: 'solid',
       });
       mainLine.setMap(map);
-      arrowOverlays.push(mainLine);
+      polylineRef.current = mainLine;
 
-      // 방향 화살표: 경로 위에 회전된 삼각형 오버레이를 일정 간격으로 배치
-      const ARROW_INTERVAL_PX = 90;
-      const proj = map.getProjection();
+      // 경로 포인트 저장 (zoom_changed 시 재사용)
+      polylineSrcRef.current = polylineSrc;
 
-      let accumulated = 0;
-      let nextArrowAt = ARROW_INTERVAL_PX / 2; // 첫 화살표는 절반 간격 후
+      // 초기 화살표 그리기
+      redrawArrows(map, kakao, pts);
 
-      for (let i = 0; i < pts.length - 1; i++) {
-        const from = pts[i];
-        const to = pts[i + 1];
-
-        const fp = proj.containerPointFromCoords(from);
-        const tp = proj.containerPointFromCoords(to);
-        const dx = tp.x - fp.x;
-        const dy = tp.y - fp.y;
-        const segLen = Math.sqrt(dx * dx + dy * dy);
-        if (segLen < 1) continue;
-
-        // 이 세그먼트의 방향각 (라디안 → 도, 북=0 기준)
-        // 화면 좌표계: x=동, y=남 → 각도 보정 필요
-        const angleDeg = Math.atan2(dx, -dy) * (180 / Math.PI);
-
-        while (nextArrowAt <= accumulated + segLen) {
-          const t = (nextArrowAt - accumulated) / segLen;
-          const lat = from.getLat() + (to.getLat() - from.getLat()) * t;
-          const lng = from.getLng() + (to.getLng() - from.getLng()) * t;
-
-          // 회전된 삼각형 SVG 화살표
-          const svgArrow = `<div style="transform:rotate(${angleDeg}deg);width:14px;height:14px;display:flex;align-items:center;justify-content:center;pointer-events:none;">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <polygon points="7,1 13,13 7,10 1,13" fill="#ffffff" fill-opacity="0.95"/>
-            </svg>
-          </div>`;
-
-          const overlay = new kakao.maps.CustomOverlay({
-            position: new kakao.maps.LatLng(lat, lng),
-            content: svgArrow,
-            zIndex: 2,
-          });
-          overlay.setMap(map);
-          arrowOverlays.push(overlay);
-
-          nextArrowAt += ARROW_INTERVAL_PX;
-        }
-
-        accumulated += segLen;
-      }
-
-      // cleanup용 통합 ref
-      polylineRef.current = {
-        setMap: (m: any) => arrowOverlays.forEach((o) => o.setMap(m)),
-      };
+      // 줌 변경 시 화살표 재그리기
+      kakao.maps.event.addListener(map, 'zoom_changed', () => {
+        const src = polylineSrcRef.current;
+        if (!src) return;
+        const latLngs = src.map((p) => new kakao.maps.LatLng(p.lat, p.lng));
+        redrawArrows(map, kakao, latLngs);
+      });
+    } else {
+      polylineSrcRef.current = null;
     }
 
     // Draw numbered markers
