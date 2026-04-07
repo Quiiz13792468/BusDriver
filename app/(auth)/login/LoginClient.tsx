@@ -183,7 +183,7 @@ export default function LoginClient() {
       return;
     }
 
-    const redirectUrl = role === 'admin' ? '/admin' : '/dashboard';
+    const redirectUrl = '/dashboard';
 
     const supabase = createBrowserClient();
     const { data, error: signInError } = await supabase.auth.signInWithPassword({
@@ -218,6 +218,18 @@ export default function LoginClient() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     } catch {}
 
+    // 팝업과 라우팅을 동시에 시작하여 1.5초 내 대시보드 진입 보장
+    void import('sweetalert2').then(({ default: Swal }) =>
+      Swal.fire({
+        icon: 'success',
+        title: '로그인 성공',
+        text: '대시보드로 이동합니다.',
+        timer: 1500,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        allowOutsideClick: false,
+      })
+    );
     router.push(redirectUrl);
   }
 
