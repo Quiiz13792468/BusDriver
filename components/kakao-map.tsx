@@ -134,18 +134,85 @@ export function KakaoMap({
     const polylineSrc = routePath && routePath.length > 1
       ? routePath
       : stopsWithCoords.length > 1 ? stopsWithCoords : null;
-    if (polylineSrc) {
-      const path = polylineSrc.map((p) => new kakao.maps.LatLng(p.lat, p.lng));
-      const polyline = new kakao.maps.Polyline({
-        path,
-        strokeWeight: 6,
+
+    const drawnPolylines: any[] = [];
+
+    if (polylineSrc && polylineSrc.length > 1) {
+      const pts = polylineSrc.map((p) => new kakao.maps.LatLng(p.lat, p.lng));
+
+      // 전체 경로를 하나의 폴리라인으로 그림
+      const mainLine = new kakao.maps.Polyline({
+        path: pts,
+        strokeWeight: 5,
         strokeColor: '#0f6d5d',
-        strokeOpacity: 0.9,
+        strokeOpacity: 0.85,
         strokeStyle: 'solid',
-        endArrow: true,
       });
-      polyline.setMap(map);
-      polylineRef.current = polyline;
+      mainLine.setMap(map);
+      drawnPolylines.push(mainLine);
+
+      // 방향 화살표: 일정 간격마다 짧은 화살표 세그먼트 그리기
+      // 전체 길이를 계산하고 N개 구간으로 나눠 화살표 배치
+      const ARROW_INTERVAL_PX = 120; // 픽셀 간격
+      const proj = map.getProjection();
+
+      // 누적 거리 기반으로 화살표 위치 결정
+      let accumulated = 0;
+      let nextArrowAt = ARROW_INTERVAL_PX;
+
+      for (let i = 0; i < pts.length - 1; i++) {
+        const from = pts[i];
+        const to = pts[i + 1];
+
+        const fp = proj.containerPointFromCoords(from);
+        const tp = proj.containerPointFromCoords(to);
+        const dx = tp.x - fp.x;
+        const dy = tp.y - fp.y;
+        const segLen = Math.sqrt(dx * dx + dy * dy);
+
+        if (segLen === 0) continue;
+
+        let distInSeg = 0;
+        while (nextArrowAt <= accumulated + segLen) {
+          const t = (nextArrowAt - accumulated) / segLen;
+          const midLat = from.getLat() + (to.getLat() - from.getLat()) * t;
+          const midLng = from.getLng() + (to.getLng() - from.getLng()) * t;
+
+          // 화살표 방향: 현재 세그먼트 방향 유지
+          const arrowLen = 18; // px 기준
+          const ratio = arrowLen / segLen;
+          const startT = Math.max(0, t - ratio);
+          const endT = Math.min(1, t + ratio * 0.3);
+
+          const arrowFrom = new kakao.maps.LatLng(
+            from.getLat() + (to.getLat() - from.getLat()) * startT,
+            from.getLng() + (to.getLng() - from.getLng()) * startT
+          );
+          const arrowTo = new kakao.maps.LatLng(
+            from.getLat() + (to.getLat() - from.getLat()) * endT,
+            from.getLng() + (to.getLng() - from.getLng()) * endT
+          );
+
+          const arrow = new kakao.maps.Polyline({
+            path: [arrowFrom, arrowTo],
+            strokeWeight: 5,
+            strokeColor: '#ffffff',
+            strokeOpacity: 0.95,
+            strokeStyle: 'solid',
+            endArrow: true,
+          });
+          arrow.setMap(map);
+          drawnPolylines.push(arrow);
+
+          nextArrowAt += ARROW_INTERVAL_PX;
+          distInSeg = nextArrowAt - accumulated;
+        }
+
+        accumulated += segLen;
+      }
+
+      // 전체 폴리라인 ref에 저장 (cleanup용)
+      polylineRef.current = { setMap: (m: any) => drawnPolylines.forEach((pl) => pl.setMap(m)) };
     }
 
     // Draw numbered markers

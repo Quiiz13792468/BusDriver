@@ -30,10 +30,10 @@ export function RouteStopsEditor({
   pendingLat,
   pendingLng,
 }: RouteStopsEditorProps) {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [newName, setNewName] = useState('');
   const [editNames, setEditNames] = useState<Record<string, string>>({});
   const [editDescs, setEditDescs] = useState<Record<string, string>>({});
+  const [openMemo, setOpenMemo] = useState<Record<string, boolean>>({});
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [overIdx, setOverIdx] = useState<number | null>(null);
 
@@ -119,7 +119,6 @@ export function RouteStopsEditor({
         )}
         {sorted.map((stop, idx) => {
           const displayName = editNames[stop.id] !== undefined ? editNames[stop.id] : stop.name;
-          const isExpanded = expandedId === stop.id;
           const isDragging = dragIdx === idx;
           const isOver = overIdx === idx && dragIdx !== null && dragIdx !== idx;
 
@@ -153,14 +152,14 @@ export function RouteStopsEditor({
                   className="ui-input min-w-0 flex-1 text-base text-slate-900"
                 />
 
-                {/* Toggle description */}
+                {/* Memo toggle */}
                 <button
                   type="button"
-                  aria-label="메모 펼치기"
-                  onClick={() => setExpandedId((prev) => (prev === stop.id ? null : stop.id))}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-base text-slate-600 hover:bg-slate-50 sm:h-12 sm:w-12"
+                  aria-label="메모"
+                  onClick={() => setOpenMemo((prev) => ({ ...prev, [stop.id]: !prev[stop.id] }))}
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-base sm:h-12 sm:w-12 ${openMemo[stop.id] || stop.description ? 'border-amber-300 bg-amber-50 text-amber-600' : 'border-slate-200 text-slate-400 hover:bg-slate-50'}`}
                 >
-                  {isExpanded ? '▾' : '▸'}
+                  ▶
                 </button>
 
                 {/* Delete */}
@@ -174,8 +173,8 @@ export function RouteStopsEditor({
                 </button>
               </div>
 
-              {/* Collapsible description */}
-              {isExpanded && (
+              {/* Description input — 메모 버튼 클릭 시 또는 기존 메모 있을 때 표시 */}
+              {(openMemo[stop.id] || stop.description) && (
                 <div className="mt-2 pl-8">
                   <input
                     value={editDescs[stop.id] !== undefined ? editDescs[stop.id] : (stop.description ?? '')}
@@ -183,6 +182,7 @@ export function RouteStopsEditor({
                     onBlur={() => handleDescBlur(stop)}
                     placeholder="메모 (선택)"
                     className="ui-input w-full text-sm text-slate-600"
+                    autoFocus={openMemo[stop.id] && !stop.description}
                   />
                 </div>
               )}
