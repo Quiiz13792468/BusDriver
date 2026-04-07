@@ -135,30 +135,28 @@ export function KakaoMap({
       ? routePath
       : stopsWithCoords.length > 1 ? stopsWithCoords : null;
 
-    const drawnPolylines: any[] = [];
+    const arrowOverlays: any[] = [];
 
     if (polylineSrc && polylineSrc.length > 1) {
       const pts = polylineSrc.map((p) => new kakao.maps.LatLng(p.lat, p.lng));
 
-      // 전체 경로를 하나의 폴리라인으로 그림
+      // 전체 경로 폴리라인
       const mainLine = new kakao.maps.Polyline({
         path: pts,
-        strokeWeight: 5,
+        strokeWeight: 6,
         strokeColor: '#0f6d5d',
-        strokeOpacity: 0.85,
+        strokeOpacity: 0.9,
         strokeStyle: 'solid',
       });
       mainLine.setMap(map);
-      drawnPolylines.push(mainLine);
+      arrowOverlays.push(mainLine);
 
-      // 방향 화살표: 일정 간격마다 짧은 화살표 세그먼트 그리기
-      // 전체 길이를 계산하고 N개 구간으로 나눠 화살표 배치
-      const ARROW_INTERVAL_PX = 120; // 픽셀 간격
+      // 방향 화살표: 경로 위에 회전된 삼각형 오버레이를 일정 간격으로 배치
+      const ARROW_INTERVAL_PX = 90;
       const proj = map.getProjection();
 
-      // 누적 거리 기반으로 화살표 위치 결정
       let accumulated = 0;
-      let nextArrowAt = ARROW_INTERVAL_PX;
+      let nextArrowAt = ARROW_INTERVAL_PX / 2; // 첫 화살표는 절반 간격 후
 
       for (let i = 0; i < pts.length - 1; i++) {
         const from = pts[i];
@@ -169,50 +167,42 @@ export function KakaoMap({
         const dx = tp.x - fp.x;
         const dy = tp.y - fp.y;
         const segLen = Math.sqrt(dx * dx + dy * dy);
+        if (segLen < 1) continue;
 
-        if (segLen === 0) continue;
+        // 이 세그먼트의 방향각 (라디안 → 도, 북=0 기준)
+        // 화면 좌표계: x=동, y=남 → 각도 보정 필요
+        const angleDeg = Math.atan2(dx, -dy) * (180 / Math.PI);
 
-        let distInSeg = 0;
         while (nextArrowAt <= accumulated + segLen) {
           const t = (nextArrowAt - accumulated) / segLen;
-          const midLat = from.getLat() + (to.getLat() - from.getLat()) * t;
-          const midLng = from.getLng() + (to.getLng() - from.getLng()) * t;
+          const lat = from.getLat() + (to.getLat() - from.getLat()) * t;
+          const lng = from.getLng() + (to.getLng() - from.getLng()) * t;
 
-          // 화살표 방향: 현재 세그먼트 방향 유지
-          const arrowLen = 18; // px 기준
-          const ratio = arrowLen / segLen;
-          const startT = Math.max(0, t - ratio);
-          const endT = Math.min(1, t + ratio * 0.3);
+          // 회전된 삼각형 SVG 화살표
+          const svgArrow = `<div style="transform:rotate(${angleDeg}deg);width:14px;height:14px;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="7,1 13,13 7,10 1,13" fill="#ffffff" fill-opacity="0.95"/>
+            </svg>
+          </div>`;
 
-          const arrowFrom = new kakao.maps.LatLng(
-            from.getLat() + (to.getLat() - from.getLat()) * startT,
-            from.getLng() + (to.getLng() - from.getLng()) * startT
-          );
-          const arrowTo = new kakao.maps.LatLng(
-            from.getLat() + (to.getLat() - from.getLat()) * endT,
-            from.getLng() + (to.getLng() - from.getLng()) * endT
-          );
-
-          const arrow = new kakao.maps.Polyline({
-            path: [arrowFrom, arrowTo],
-            strokeWeight: 5,
-            strokeColor: '#ffffff',
-            strokeOpacity: 0.95,
-            strokeStyle: 'solid',
-            endArrow: true,
+          const overlay = new kakao.maps.CustomOverlay({
+            position: new kakao.maps.LatLng(lat, lng),
+            content: svgArrow,
+            zIndex: 2,
           });
-          arrow.setMap(map);
-          drawnPolylines.push(arrow);
+          overlay.setMap(map);
+          arrowOverlays.push(overlay);
 
           nextArrowAt += ARROW_INTERVAL_PX;
-          distInSeg = nextArrowAt - accumulated;
         }
 
         accumulated += segLen;
       }
 
-      // 전체 폴리라인 ref에 저장 (cleanup용)
-      polylineRef.current = { setMap: (m: any) => drawnPolylines.forEach((pl) => pl.setMap(m)) };
+      // cleanup용 통합 ref
+      polylineRef.current = {
+        setMap: (m: any) => arrowOverlays.forEach((o) => o.setMap(m)),
+      };
     }
 
     // Draw numbered markers
