@@ -151,82 +151,6 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
         </form>
       </section>
 
-      {/* 월별 요약 */}
-      <section className="space-y-2">
-          <CollapsibleSummary
-            title={`월별 입금 요약 ${selectedSchool ? `- ${selectedSchool.name}` : '(전체)'}`}
-            defaultOpen={selectedSchoolId === 'ALL'}
-          >
-            <div>
-              {/* 모바일 카드 */}
-              <div className="md:hidden space-y-2">
-                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
-                  const row = (yearlySummary as any)[m] as { paid: number; partial: number; missing: number; totalAmount: number; studentCount: number };
-                  const isActive = m === selectedMonth;
-                  return (
-                    <Link
-                      key={m}
-                      href={`/payments?schoolId=${selectedSchoolId}&year=${selectedYear}&month=${m}`}
-                      className={`block rounded-xl border p-3 transition ${isActive ? 'border-amber-300 bg-amber-50/60' : 'border-slate-200 bg-white'}`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-base font-bold text-slate-800">{m}월</span>
-                        <span className="text-sm text-slate-500">{row?.studentCount ?? 0}명</span>
-                      </div>
-                      <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5 text-sm">
-                        <span className="text-emerald-600">입금 {(row?.paid ?? 0).toLocaleString()}원</span>
-                        {(row?.partial ?? 0) > 0 && <span className="text-amber-600">부분 {(row?.partial ?? 0).toLocaleString()}원</span>}
-                        {(row?.missing ?? 0) > 0 && <span className="font-semibold text-rose-600">미입금 {(row?.missing ?? 0).toLocaleString()}원</span>}
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-              {/* 데스크톱 테이블 */}
-              <div className="ui-table-wrap hidden md:block">
-            <UiTable className="text-sm">
-            <UiThead>
-              <UiTr>
-                <UiTh>월</UiTh>
-                <UiTh>총 입금액</UiTh>
-                <UiTh>부분 입금</UiTh>
-                <UiTh>학생수</UiTh>
-                <UiTh>미입금</UiTh>
-                <UiTh>총 금액</UiTh>
-              </UiTr>
-            </UiThead>
-            <UiTbody>
-              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
-                const row = (yearlySummary as any)[m] as { paid: number; partial: number; missing: number; totalAmount: number; studentCount: number };
-                const isActive = m === selectedMonth;
-                return (
-                  <UiTr key={m} className={`border-b border-slate-100 last:border-b-0 ${isActive ? 'bg-amber-50/60' : ''}`}>
-                    <UiTd className="font-medium text-slate-700">
-                      <Link href={`/payments?schoolId=${selectedSchoolId}&year=${selectedYear}&month=${m}`} className="text-primary-600 hover:text-primary-700">{m}월</Link>
-                    </UiTd>
-                    <UiTd className="text-right text-emerald-600">{(row?.paid ?? 0).toLocaleString()}원</UiTd>
-                    <UiTd className="text-right text-amber-600">{(row?.partial ?? 0).toLocaleString()}원</UiTd>
-                    <UiTd className="text-center text-slate-700">{row?.studentCount ?? 0}</UiTd>
-                    <UiTd className="text-right text-rose-600">
-                      <Link href={`/payments?schoolId=${selectedSchoolId}&year=${selectedYear}&month=${m}`} className="underline decoration-rose-300 underline-offset-2 hover:text-rose-700">
-                        {(row?.missing ?? 0).toLocaleString()}원
-                      </Link>
-                    </UiTd>
-                    <UiTd className="text-right font-semibold text-slate-800">
-                      <Link href={`/payments?schoolId=${selectedSchoolId}&year=${selectedYear}&month=${m}`} className="text-slate-800 underline decoration-slate-300 underline-offset-2 hover:text-primary-700">
-                        {(row?.totalAmount ?? 0).toLocaleString()}원
-                      </Link>
-                    </UiTd>
-                  </UiTr>
-                );
-              })}
-            </UiTbody>
-            </UiTable>
-            </div>
-            </div>
-          </CollapsibleSummary>
-      </section>
-
       {/* 선택 월 입금 내역 */}
       <section className="ui-card ui-card-pad">
         <h2 className="mb-3 text-base font-semibold text-slate-900">{selectedYear}년 {selectedMonth}월 입금 내역</h2>
@@ -300,6 +224,82 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
             </UiTbody>
           </UiTable>
         </div>
+      </section>
+
+      {/* 월별 입금 요약 (전체) */}
+      <section className="space-y-2">
+          <CollapsibleSummary
+            title={`월별 입금 요약 ${selectedSchool ? `- ${selectedSchool.name}` : '(전체)'}`}
+            defaultOpen={selectedSchoolId === 'ALL'}
+          >
+            <div>
+              {/* 모바일 카드 */}
+              <div className="md:hidden space-y-2">
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
+                  const row = (yearlySummary as any)[m] as { paid: number; partial: number; missing: number; totalAmount: number; studentCount: number };
+                  const isActive = m === selectedMonth;
+                  return (
+                    <Link
+                      key={m}
+                      href={`/payments?schoolId=${selectedSchoolId}&year=${selectedYear}&month=${m}`}
+                      className={`block rounded-xl border p-3 transition ${isActive ? 'border-amber-300 bg-amber-50/60' : 'border-slate-200 bg-white'}`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-base font-bold text-slate-800">{m}월</span>
+                        <span className="text-sm text-slate-500">{row?.studentCount ?? 0}명</span>
+                      </div>
+                      <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5 text-sm">
+                        <span className="text-emerald-600">입금 {(row?.paid ?? 0).toLocaleString()}원</span>
+                        {(row?.partial ?? 0) > 0 && <span className="text-amber-600">부분 {(row?.partial ?? 0).toLocaleString()}원</span>}
+                        {(row?.missing ?? 0) > 0 && <span className="font-semibold text-rose-600">미입금 {(row?.missing ?? 0).toLocaleString()}원</span>}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+              {/* 데스크톱 테이블 */}
+              <div className="ui-table-wrap hidden md:block">
+            <UiTable className="text-sm">
+            <UiThead>
+              <UiTr>
+                <UiTh>월</UiTh>
+                <UiTh>총 입금액</UiTh>
+                <UiTh>부분 입금</UiTh>
+                <UiTh>학생수</UiTh>
+                <UiTh>미입금</UiTh>
+                <UiTh>총 금액</UiTh>
+              </UiTr>
+            </UiThead>
+            <UiTbody>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
+                const row = (yearlySummary as any)[m] as { paid: number; partial: number; missing: number; totalAmount: number; studentCount: number };
+                const isActive = m === selectedMonth;
+                return (
+                  <UiTr key={m} className={`border-b border-slate-100 last:border-b-0 ${isActive ? 'bg-amber-50/60' : ''}`}>
+                    <UiTd className="font-medium text-slate-700">
+                      <Link href={`/payments?schoolId=${selectedSchoolId}&year=${selectedYear}&month=${m}`} className="text-primary-600 hover:text-primary-700">{m}월</Link>
+                    </UiTd>
+                    <UiTd className="text-right text-emerald-600">{(row?.paid ?? 0).toLocaleString()}원</UiTd>
+                    <UiTd className="text-right text-amber-600">{(row?.partial ?? 0).toLocaleString()}원</UiTd>
+                    <UiTd className="text-center text-slate-700">{row?.studentCount ?? 0}</UiTd>
+                    <UiTd className="text-right text-rose-600">
+                      <Link href={`/payments?schoolId=${selectedSchoolId}&year=${selectedYear}&month=${m}`} className="underline decoration-rose-300 underline-offset-2 hover:text-rose-700">
+                        {(row?.missing ?? 0).toLocaleString()}원
+                      </Link>
+                    </UiTd>
+                    <UiTd className="text-right font-semibold text-slate-800">
+                      <Link href={`/payments?schoolId=${selectedSchoolId}&year=${selectedYear}&month=${m}`} className="text-slate-800 underline decoration-slate-300 underline-offset-2 hover:text-primary-700">
+                        {(row?.totalAmount ?? 0).toLocaleString()}원
+                      </Link>
+                    </UiTd>
+                  </UiTr>
+                );
+              })}
+            </UiTbody>
+            </UiTable>
+            </div>
+            </div>
+          </CollapsibleSummary>
       </section>
     </div>
   );

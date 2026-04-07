@@ -164,7 +164,7 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
           {rows.length === 0 ? (
             <p className="ui-empty">이번 달 입금 기록이 없습니다.</p>
           ) : rows.map((r, idx) => (
-            <div key={idx} className={`rounded-xl border p-4 ${r.status === '입금완료' ? 'border-emerald-200 bg-emerald-50/40' : 'border-rose-200 bg-rose-50/30'}`}>
+            <div key={idx} className={`rounded-xl border p-[10px] ${r.status === '입금완료' ? 'border-emerald-200 bg-emerald-50/40' : 'border-rose-200 bg-rose-50/30'}`}>
               <div className="flex items-start justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-lg font-bold text-slate-900">{r.student}</span>
@@ -242,9 +242,9 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
             return (
               <div
                 key={stat.month}
-                className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 ${isEmpty ? 'border-slate-100 bg-slate-50/50' : isComplete ? 'border-emerald-200 bg-emerald-50/40' : 'border-rose-200 bg-rose-50/40'}`}
+                className={`flex items-center gap-[5px] rounded-xl border p-[10px] ${isEmpty ? 'border-slate-100 bg-slate-50/50' : isComplete ? 'border-emerald-200 bg-emerald-50/40' : 'border-rose-200 bg-rose-50/40'}`}
               >
-                <span className={`w-8 shrink-0 text-base font-bold ${isEmpty ? 'text-slate-400' : 'text-slate-800'}`}>{stat.month}월</span>
+                <span className={`w-9 shrink-0 text-base font-bold ${isEmpty ? 'text-slate-400' : 'text-slate-800'}`}>{stat.month}월</span>
                 <div className="flex flex-1 items-center justify-end gap-x-3 gap-y-0.5 flex-wrap">
                   {total > 0 ? (
                     <span className="text-base text-emerald-700">{total.toLocaleString()}원</span>

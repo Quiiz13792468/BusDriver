@@ -62,7 +62,7 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
                   <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600">
                     <BusIcon className="h-5 w-5 text-white" />
                   </span>
-                  <span className="text-base font-bold text-slate-900">셔틀콕!</span>
+                  <span className="text-lg font-bold tracking-tight text-slate-800">셔틀콕</span>
                 </button>
                 {paymentOpen && (
                   <Suspense fallback={null}>
@@ -79,7 +79,7 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600">
                   <BusIcon className="h-5 w-5 text-white" />
                 </span>
-                <span className="text-base font-bold text-slate-900">셔틀콕!</span>
+                <span className="text-lg font-bold tracking-tight text-slate-800">셔틀콕</span>
               </Link>
             )}
 
@@ -123,7 +123,7 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
         </div>
 
         {/* ── 모바일 본문 ── */}
-        <main className="mx-auto max-w-6xl px-3 py-2 pb-[72px] sm:px-4 sm:py-3 md:hidden">
+        <main className="mx-auto max-w-6xl px-3 py-2 pb-24 sm:px-4 sm:py-3 md:hidden">
           {children}
         </main>
 

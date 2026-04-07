@@ -30,7 +30,7 @@ export function ProtectedNav({ role, orientation = 'horizontal', collapsed = fal
             { href: '/dashboard', label: '대시보드', icon: DashboardIcon },
             { href: '/schools', label: '학교/학생 관리', icon: SchoolIcon },
             { href: '/routes', label: '노선 관리', icon: RouteIcon },
-            { href: '/payments', label: '입금 현황', icon: WalletIcon },
+            { href: '/payments', label: '매출', icon: WalletIcon },
             { href: '/board', label: '문의 요청', icon: BoardIcon }
           ]
         : [
