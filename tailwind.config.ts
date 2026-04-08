@@ -37,6 +37,18 @@ const config: Config = {
           700: '#b83e19',
           800: '#8f2f13',
           900: '#6a220d'
+        },
+        sp: {
+          bg:      '#f5f5f7',
+          surface: '#ffffff',
+          raised:  '#f0f0f2',
+          high:    '#e8e8ea',
+          border:  'rgba(0,0,0,0.08)',
+          line:    'rgba(0,0,0,0.14)',
+          text:    '#1d1d1f',
+          muted:   'rgba(0,0,0,0.56)',
+          faint:   'rgba(0,0,0,0.36)',
+          green:   '#0d9488',
         }
       }
     }

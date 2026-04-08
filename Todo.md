@@ -125,6 +125,13 @@
     - [~] 6-B. 하단 탭바 재개편 — h-16, active pill 강조 (iOS tab bar 스타일)
     - [x] 6-C. kakao-map.tsx 색상 통일 — strokeColor + 마커 bg #0d9488 → #0f6d5d 변경 (2026-04-06)
     - [x] 6-D. 게시판 채팅뷰 완성도 개선 — 채팅 배경 bg-slate-50, 상대방 버블 bg-white border, 헤더 아바타(이니셜) 추가 (2026-04-06)
+  - [x] Phase 7: Apple Design 기반 디자인 시스템 전면 재구축 (2026-04-09, 완료)
+    - [x] 7-A. globals.css — Apple 철학 기반 CSS 변수 전면 재작성, 다크모드 → 라이트모드, sp-green → teal 전환, rounded-full override 제거, CSS var 레이아웃 토큰 추가, pb-nav-safe 유틸리티 추가
+    - [x] 7-B. protected-shell.tsx — 모바일 main pb-24 → pb-nav-safe 교체, 헤더 rgba(255,255,255,0.85) + backdrop-blur 글라스 스타일
+    - [x] 7-C. mobile-bottom-nav.tsx — 배경 rgba(255,255,255,0.90), active pill bg-teal-500/10로 교체
+    - [x] 7-D. board/[id]/page.tsx — fixed inset-0 + paddingTop var(--header-h) 구조로 재작성, 네거티브 마진 제거, overflow-x-hidden 적용, 입력창 하단 safe-area 반영
+    - [x] 7-E. docs/DESIGN.md — Apple 레퍼런스 기반으로 완전 재구성
+    - [x] 7-F. tailwind.config.ts sp.* 토큰 — raised:#f0f0f2, high:#e8e8ea, border:rgba(0,0,0,0.08) 정확한 값으로 교체
 - [~] Phase 4: 관리자 앱 (2026-04-01, 진행 중)
     - [x] 4-A. 헤더 "통학버스 관리" 텍스트 삭제, 버스 아이콘 테두리 버튼으로 변경 (2026-04-01)
     - [x] 4-B. 초대 링크 패널 타이틀 h2/text-lg/font-semibold로 통일 (2026-04-01)

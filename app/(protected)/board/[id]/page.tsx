@@ -131,7 +131,10 @@ export default async function BoardPostPage({ params }: BoardPostPageProps) {
   const locked = !!(post as any).locked;
 
   return (
-    <div className="flex h-[calc(100dvh-56px-64px)] flex-col -mx-3 -mt-2 -mb-24 sm:-mx-4 sm:-mt-3 sm:-mb-24 md:h-auto md:mb-0 md:mt-0">
+    <div
+      className="fixed inset-0 flex flex-col overflow-hidden md:static md:flex md:flex-col"
+      style={{ paddingTop: 'var(--header-h)' }}
+    >
       <PostReadMarker
         postId={post.id}
         viewerId={session.id}
@@ -139,7 +142,7 @@ export default async function BoardPostPage({ params }: BoardPostPageProps) {
         fallbackAt={post.updatedAt}
       />
 
-      {/* 헤더 */}
+      {/* 채팅 헤더 */}
       <header className="flex shrink-0 items-center gap-3 border-b border-sp-border bg-sp-surface px-4 py-3">
         <Link
           href="/board"
@@ -178,7 +181,7 @@ export default async function BoardPostPage({ params }: BoardPostPageProps) {
       </header>
 
       {/* 채팅 메시지 영역 */}
-      <div className="flex-1 overflow-y-auto bg-sp-bg">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden bg-sp-bg">
         <div className="space-y-3 px-4 py-4">
           {messages.map((msg, idx) => {
             const msgDate = formatDate(msg.createdAt);
@@ -215,7 +218,10 @@ export default async function BoardPostPage({ params }: BoardPostPageProps) {
       </div>
 
       {/* 입력창 */}
-      <div className="shrink-0">
+      <div
+        className="shrink-0"
+        style={{ paddingBottom: 'calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px))' }}
+      >
         <CommentForm postId={post.id} locked={locked} />
       </div>
     </div>

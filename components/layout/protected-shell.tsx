@@ -48,7 +48,7 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
       <div className="min-h-screen">
 
         {/* ── 모바일 상단 헤더 ── */}
-        <header className="sticky top-0 z-40 border-b border-sp-border bg-sp-surface/95 backdrop-blur-sm md:hidden">
+        <header className="sticky top-0 z-40 border-b border-sp-border backdrop-blur-sm md:hidden" style={{ backgroundColor: 'rgba(255,255,255,0.85)', height: 'var(--header-h)' }}>
           <div className="flex h-14 items-center justify-between px-4">
             {/* 좌: 앱 브랜드 */}
             {role === 'ADMIN' ? (
@@ -122,7 +122,7 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
         </div>
 
         {/* ── 모바일 본문 ── */}
-        <main className="mx-auto max-w-6xl px-3 py-2 pb-24 sm:px-4 sm:py-3 md:hidden">
+        <main className="mx-auto max-w-6xl px-3 py-2 pb-nav-safe sm:px-4 sm:py-3 md:hidden">
           {children}
         </main>
 

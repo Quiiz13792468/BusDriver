@@ -4,32 +4,42 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   --font-body: "Apple SD Gothic Neo", "Malgun Gothic", "Nanum Gothic", system-ui, -apple-system, "Segoe UI", sans-serif;
 
-  /* Spotify Dark Palette */
-  --page-bg: #121212;
-  --surface: #181818;
-  --surface-raised: #1f1f1f;
-  --surface-high: #252525;
-  --border: #282828;
-  --border-line: #404040;
-  --ink: #ffffff;
-  --muted: #b3b3b3;
-  --faint: #6a6a6a;
-  --sp-green: #1ed760;
+  /* Apple Light Palette */
+  --page-bg: #f5f5f7;
+  --surface: #ffffff;
+  --surface-raised: #f0f0f2;
+  --surface-high: #e8e8ea;
+  --border: rgba(0,0,0,0.08);
+  --border-line: rgba(0,0,0,0.14);
+  --ink: #1d1d1f;
+  --muted: rgba(0,0,0,0.56);
+  --faint: rgba(0,0,0,0.36);
 
-  /* Accent (teal) kept for brand continuity */
-  --ring: #0d9488;
+  /* Brand accent (teal) */
+  --accent: #0d9488;
+  --accent-dark: #0f766e;
+  --accent-light: #ccfbf1;
 
-  --shadow-strong: rgba(0,0,0,0.5) 0px 8px 24px;
-  --shadow-mid: rgba(0,0,0,0.3) 0px 8px 8px;
-  --radius-card: 12px;
+  /* Shadows */
+  --shadow-card: rgba(0,0,0,0.08) 0px 2px 16px 0px;
+  --shadow-nav: rgba(0,0,0,0.06) 0px 1px 0px;
+
+  /* Radii */
+  --radius-card: 16px;
   --radius-control: 500px;
-  --radius-soft: 8px;
+  --radius-soft: 10px;
+
+  /* Layout tokens */
   --control-height: 48px;
-  --space-card-pad: clamp(12px, 1.4vw, 16px);
-  --space-card-compact: clamp(8px, 1vw, 12px);
+  --header-h: 56px;
+  --bottom-nav-h: 64px;
+
+  /* Spacing */
+  --space-card-pad: clamp(14px, 1.6vw, 20px);
+  --space-card-compact: clamp(10px, 1.2vw, 14px);
 }
 
 
@@ -116,13 +126,17 @@ details[open] .ui-collapse-panel {
   display: none;
 }
 
+/* Safe area padding for bottom nav */
+.pb-nav-safe {
+  padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px));
+}
+
 @layer components {
-  /* ── Spotify Dark Cards ── */
+  /* ── Apple Light Cards ── */
   .ui-card {
     border-radius: var(--radius-card);
     background: var(--surface);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-mid);
+    box-shadow: var(--shadow-card);
   }
 
   .ui-card-pad {
@@ -166,13 +180,13 @@ details[open] .ui-collapse-panel {
     padding: 10px 14px;
     font-size: 1rem;
     color: var(--ink);
-    box-shadow: inset 0 1px 0 rgba(0,0,0,0.3);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
     outline: none;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s, box-shadow 0.15s;
   }
   .ui-input:focus {
-    border-color: var(--sp-green);
-    box-shadow: inset 0 1px 0 rgba(0,0,0,0.3), 0 0 0 2px rgba(30,215,96,0.18);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(13,148,136,0.15);
   }
   .ui-input::placeholder { color: var(--faint); }
 
@@ -186,56 +200,57 @@ details[open] .ui-collapse-panel {
     font-size: 1rem;
     color: var(--ink);
     outline: none;
+    transition: border-color 0.15s;
   }
-  .ui-select:focus { border-color: var(--sp-green); }
+  .ui-select:focus { border-color: var(--accent); }
 
-  /* Primary pill button — Spotify Green */
+  /* Primary pill button — teal */
   .ui-btn {
     min-height: var(--control-height);
-    border-radius: 500px;
+    border-radius: var(--radius-control);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: var(--sp-green);
+    background: var(--accent);
     padding: 0.5rem 1.5rem;
     font-size: 0.875rem;
     font-weight: 700;
-    color: #000000;
+    color: #ffffff;
     transition: background 0.15s, transform 0.1s;
     cursor: pointer;
     border: none;
   }
-  .ui-btn:hover { background: #1fdf64; transform: scale(1.02); }
+  .ui-btn:hover { background: var(--accent-dark); transform: scale(1.02); }
   .ui-btn:active { transform: scale(0.98); }
   .ui-btn:disabled { background: var(--surface-high); color: var(--faint); cursor: not-allowed; transform: none; }
 
-  /* Outline pill button — dark */
+  /* Outline pill button — teal border */
   .ui-btn-outline {
     min-height: var(--control-height);
-    border-radius: 500px;
+    border-radius: var(--radius-control);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--border-line);
+    border: 1.5px solid var(--accent);
     background: transparent;
     padding: 0.5rem 1.25rem;
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--ink);
+    color: var(--accent);
     transition: border-color 0.15s, background 0.15s;
     cursor: pointer;
   }
-  .ui-btn-outline:hover { border-color: var(--ink); background: rgba(255,255,255,0.06); }
+  .ui-btn-outline:hover { background: rgba(13,148,136,0.06); }
   .ui-btn-outline:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* Accent (teal) pill button */
+  /* Accent (teal) pill button — same as primary */
   .ui-btn-accent {
     min-height: var(--control-height);
-    border-radius: 500px;
+    border-radius: var(--radius-control);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: #0d9488;
+    background: var(--accent);
     padding: 0.5rem 1.5rem;
     font-size: 0.875rem;
     font-weight: 700;
@@ -244,7 +259,7 @@ details[open] .ui-collapse-panel {
     cursor: pointer;
     border: none;
   }
-  .ui-btn-accent:hover { background: #0f766e; }
+  .ui-btn-accent:hover { background: var(--accent-dark); }
   .ui-btn-accent:disabled { background: var(--surface-high); color: var(--faint); cursor: not-allowed; }
 
   .ui-table {
@@ -306,9 +321,9 @@ details[open] .ui-collapse-panel {
     padding-top: 0.75rem;
   }
 
-  /* ── SweetAlert2 Dark Override ── */
+  /* ── SweetAlert2 Light Override ── */
   .swal2-container.swal2-backdrop-show {
-    background: rgba(0,0,0,0.7) !important;
+    background: rgba(0,0,0,0.4) !important;
     backdrop-filter: blur(4px);
   }
 
@@ -316,7 +331,7 @@ details[open] .ui-collapse-panel {
     border-radius: var(--radius-card) !important;
     border: 1px solid var(--border-line) !important;
     background: var(--surface) !important;
-    box-shadow: var(--shadow-strong) !important;
+    box-shadow: var(--shadow-card) !important;
     padding: var(--space-card-pad) !important;
   }
 
@@ -342,7 +357,7 @@ details[open] .ui-collapse-panel {
 
   .swal2-actions .swal2-styled {
     min-height: var(--control-height) !important;
-    border-radius: 500px !important;
+    border-radius: var(--radius-control) !important;
     font-size: 0.9rem !important;
     font-weight: 700 !important;
     padding: 0.55rem 1.4rem !important;
@@ -350,14 +365,14 @@ details[open] .ui-collapse-panel {
   }
 
   .swal2-actions .swal2-confirm {
-    background: var(--sp-green) !important;
-    color: #000000 !important;
+    background: var(--accent) !important;
+    color: #ffffff !important;
     border: none !important;
     box-shadow: none !important;
   }
 
   .swal2-actions .swal2-confirm:hover {
-    background: #1fdf64 !important;
+    background: var(--accent-dark) !important;
   }
 
   .swal2-actions .swal2-cancel {
@@ -369,12 +384,11 @@ details[open] .ui-collapse-panel {
 
   .swal2-actions .swal2-cancel:hover {
     background: var(--surface-high) !important;
-    border-color: var(--ink) !important;
   }
 
   .swal2-icon.swal2-success {
-    border-color: var(--sp-green) !important;
-    color: var(--sp-green) !important;
+    border-color: var(--accent) !important;
+    color: var(--accent) !important;
   }
 
   .swal2-icon.swal2-warning {
@@ -394,7 +408,7 @@ details[open] .ui-collapse-panel {
   }
 
   ::selection {
-    background: rgba(30, 215, 96, 0.25);
+    background: rgba(13, 148, 136, 0.2);
   }
 
   a {
@@ -409,7 +423,7 @@ details[open] .ui-collapse-panel {
   }
 
   :focus-visible {
-    outline: 2px solid var(--sp-green);
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
 }
@@ -441,9 +455,4 @@ button, a, [role="button"] {
 /* Safe area for bottom nav (iPhone home indicator) */
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-/* Override rounded-full to use 10px radius instead of 50% */
-.rounded-full {
-  border-radius: 10px !important;
 }

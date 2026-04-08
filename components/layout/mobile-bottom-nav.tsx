@@ -46,7 +46,7 @@ function NavTab({ item, active }: { item: NavItem; active: boolean }) {
       <span
         className={clsx(
           'flex h-8 w-14 items-center justify-center rounded-full transition-colors',
-          active ? 'bg-sp-green/20' : 'bg-transparent'
+          active ? 'bg-teal-500/10' : 'bg-transparent'
         )}
       >
         <Icon className={clsx('h-6 w-6', active ? 'text-sp-green' : 'text-sp-faint')} />
@@ -83,8 +83,8 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 flex items-stretch border-t border-sp-border bg-sp-surface/95 backdrop-blur-sm md:hidden"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      className="fixed bottom-0 left-0 right-0 z-40 flex items-stretch border-t border-sp-border backdrop-blur-sm md:hidden"
+      style={{ backgroundColor: 'rgba(255,255,255,0.90)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       {tabs.map((item) => (
         <NavTab key={item.href} item={item} active={isActive(item)} />
