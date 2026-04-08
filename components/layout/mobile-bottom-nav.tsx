@@ -18,15 +18,15 @@ type NavItem = {
 };
 
 const ADMIN_TABS: NavItem[] = [
-  { href: '/dashboard', label: '대시',  icon: DashboardIcon },
+  { href: '/dashboard', label: '메인',  icon: DashboardIcon },
   { href: '/schools',   label: '학교',  icon: SchoolIcon },
   { href: '/routes',    label: '노선',  icon: RouteIcon },
-  { href: '/payments',  label: '입금',  icon: WalletIcon, matchPrefix: '/payments' },
+  { href: '/payments',  label: '매출',  icon: WalletIcon, matchPrefix: '/payments' },
   { href: '/board',     label: '게시판', icon: BoardIcon },
 ];
 
 const PARENT_TABS: NavItem[] = [
-  { href: '/dashboard',         label: '대시보드', icon: DashboardIcon },
+  { href: '/dashboard',         label: '메인', icon: DashboardIcon },
   { href: '/dashboard/route',   label: '노선확인', icon: RouteIcon },
   { href: '/dashboard/pickup',  label: '노선변경', icon: MapIcon },
   { href: '/board',             label: '게시판',   icon: BoardIcon },
@@ -39,21 +39,21 @@ function NavTab({ item, active }: { item: NavItem; active: boolean }) {
     <Link
       href={item.href}
       onClick={() => { if (!active) show('잠시만 기다려 주세요.'); }}
-      className="relative flex flex-1 flex-col items-center justify-center gap-0.5 py-1"
+      className="relative flex h-16 flex-1 flex-col items-center justify-center gap-0.5"
       aria-current={active ? 'page' : undefined}
     >
       {/* active 상태: pill 배경 */}
       <span
         className={clsx(
           'flex h-8 w-14 items-center justify-center rounded-full transition-colors',
-          active ? 'bg-primary-600' : 'bg-transparent'
+          active ? 'bg-sp-green/20' : 'bg-transparent'
         )}
       >
-        <Icon className={clsx('h-6 w-6', active ? 'text-white' : 'text-slate-400')} />
+        <Icon className={clsx('h-6 w-6', active ? 'text-sp-green' : 'text-sp-faint')} />
       </span>
       <span className={clsx(
         'text-[11px] font-semibold leading-none',
-        active ? 'text-primary-600' : 'text-slate-400'
+        active ? 'text-sp-green' : 'text-sp-faint'
       )}>
         {item.label}
       </span>
@@ -83,8 +83,8 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 flex items-stretch border-t border-slate-200 bg-white/97 backdrop-blur-sm md:hidden"
-      style={{ height: 'calc(64px + env(safe-area-inset-bottom, 0px))', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      className="fixed bottom-0 left-0 right-0 z-40 flex items-stretch border-t border-sp-border bg-sp-surface/95 backdrop-blur-sm md:hidden"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       {tabs.map((item) => (
         <NavTab key={item.href} item={item} active={isActive(item)} />

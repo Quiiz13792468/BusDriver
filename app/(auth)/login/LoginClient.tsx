@@ -236,15 +236,15 @@ export default function LoginClient() {
   return (
     <div className="relative flex h-[100dvh] items-center justify-center overflow-hidden px-4 py-4">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-[-4rem] top-10 h-44 w-44 rounded-full bg-primary-100/60 blur-3xl" />
-        <div className="absolute right-[-3rem] top-16 h-56 w-56 rounded-full bg-accent-100/70 blur-3xl" />
-        <div className="absolute bottom-[-6rem] left-1/3 h-64 w-64 rounded-full bg-primary-200/50 blur-[90px]" />
+        <div className="absolute left-[-4rem] top-10 h-44 w-44 rounded-full bg-primary-600/10 blur-3xl" />
+        <div className="absolute right-[-3rem] top-16 h-56 w-56 rounded-full bg-sp-green/5 blur-3xl" />
+        <div className="absolute bottom-[-6rem] left-1/3 h-64 w-64 rounded-full bg-primary-600/8 blur-[90px]" />
       </div>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, ease: 'easeOut' }}
-        className="relative w-full max-w-sm ui-card p-4 text-slate-900 shadow-2xl"
+        className="relative w-full max-w-sm ui-card p-4 shadow-2xl"
       >
         <div className="flex items-center gap-2.5">
           <span className="rounded-xl bg-primary-600 p-2">
@@ -252,7 +252,7 @@ export default function LoginClient() {
           </span>
           <div>
             <h1 className="text-lg font-bold leading-tight">셔틀콕!</h1>
-            <p className="text-base text-slate-500 leading-tight">통학버스 관리 서비스</p>
+            <p className="text-base text-sp-muted leading-tight">통학버스 관리 서비스</p>
           </div>
         </div>
 
@@ -265,10 +265,10 @@ export default function LoginClient() {
                 type="button"
                 onClick={() => setRole(key)}
                 className={clsx(
-                  'rounded-xl border px-3 py-3.5 text-center text-base font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-200',
+                  'rounded-xl border px-3 py-3.5 text-center text-base font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600',
                   selected
                     ? 'border-primary-600 bg-primary-600 text-white shadow-sm'
-                    : 'border-slate-200 bg-white text-slate-600 hover:border-primary-300 hover:bg-primary-50'
+                    : 'border-sp-line bg-sp-raised text-sp-muted hover:border-primary-600 hover:text-sp-text'
                 )}
               >
                 {info.label}
@@ -277,13 +277,13 @@ export default function LoginClient() {
           })}
         </div>
 
-        <p className="mt-2 min-h-[1.25rem] text-base text-slate-500 leading-snug">
+        <p className="mt-2 min-h-[1.25rem] text-base text-sp-muted leading-snug">
           {ROLE_MAP[role].description}
         </p>
 
         <form className="mt-2 space-y-2.5" onSubmit={handleSubmit}>
           <div>
-            <label className="text-base font-semibold text-slate-700" htmlFor="email">이메일</label>
+            <label className="text-base font-semibold text-sp-muted" htmlFor="email">이메일</label>
             <input
               id="email"
               type="email"
@@ -297,7 +297,7 @@ export default function LoginClient() {
           </div>
 
           <div>
-            <label className="text-base font-semibold text-slate-700" htmlFor="password">비밀번호</label>
+            <label className="text-base font-semibold text-sp-muted" htmlFor="password">비밀번호</label>
             <input
               id="password"
               type="password"
@@ -311,14 +311,14 @@ export default function LoginClient() {
           </div>
 
           {error ? (
-            <div className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+            <div className="rounded-xl border border-rose-800 bg-rose-900/30 px-3 py-2 text-sm text-rose-400">
               {error}
             </div>
           ) : null}
 
           <button
             type="submit"
-            className="w-full ui-btn font-semibold disabled:bg-slate-200 disabled:text-slate-400 disabled:hover:bg-slate-200"
+            className="w-full ui-btn font-semibold"
             disabled={loading}
           >
             {loading ? '로그인 중...' : '로그인'}
@@ -329,7 +329,7 @@ export default function LoginClient() {
           <button
             type="button"
             onClick={() => { setSignupError(null); setSignupOpen(true); }}
-            className="min-h-[44px] px-2 text-base text-slate-500 underline-offset-2 hover:text-primary-600 hover:underline"
+            className="min-h-[44px] px-2 text-base text-sp-muted underline-offset-2 hover:text-sp-text hover:underline"
           >
             회원가입 요청
           </button>
@@ -338,14 +338,14 @@ export default function LoginClient() {
       </motion.div>
 
       {signupOpen ? (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm px-4">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
           <div className="w-full max-w-sm ui-card p-4 shadow-2xl">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-slate-900">회원가입 요청</h2>
+              <h2 className="font-semibold text-sp-text">회원가입 요청</h2>
               <button
                 type="button"
                 onClick={() => { setSignupOpen(false); resetSignupForm(); }}
-                className="min-h-[44px] px-3 text-base text-slate-400 hover:text-slate-700"
+                className="min-h-[44px] px-3 text-base text-sp-faint hover:text-sp-text"
               >
                 닫기
               </button>
@@ -361,7 +361,7 @@ export default function LoginClient() {
                     onClick={() => setSignupRole(key)}
                     className={clsx(
                       'rounded-xl border px-3 py-3 text-center text-base font-semibold transition',
-                      selected ? 'border-primary-300 bg-primary-50 text-primary-800' : 'border-slate-200 bg-white text-slate-700'
+                      selected ? 'border-primary-600 bg-primary-600/20 text-primary-300' : 'border-sp-line bg-sp-raised text-sp-muted'
                     )}
                   >
                     {info.label}
@@ -371,9 +371,9 @@ export default function LoginClient() {
             </div>
 
             {signupRole === 'parent' ? (
-              <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-center">
-                <p className="text-base font-semibold text-emerald-800">학부모 가입은 초대 링크로만 가능합니다</p>
-                <p className="mt-1.5 text-base text-emerald-700 leading-snug">담당 버스 기사님께<br />초대 링크를 요청해 주세요.</p>
+              <div className="mt-3 rounded-xl border border-emerald-700 bg-emerald-900/20 px-4 py-4 text-center">
+                <p className="text-base font-semibold text-emerald-400">학부모 가입은 초대 링크로만 가능합니다</p>
+                <p className="mt-1.5 text-base text-emerald-500 leading-snug">담당 버스 기사님께<br />초대 링크를 요청해 주세요.</p>
               </div>
             ) : (
               <div className="mt-3 grid gap-2">
@@ -402,7 +402,7 @@ export default function LoginClient() {
             )}
 
             {signupError ? (
-              <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+              <div className="mt-3 rounded-xl border border-rose-800 bg-rose-900/30 px-3 py-2 text-sm text-rose-400">
                 {signupError}
               </div>
             ) : null}
@@ -411,7 +411,7 @@ export default function LoginClient() {
               <button
                 type="button"
                 onClick={() => { setSignupOpen(false); resetSignupForm(); }}
-                className="ui-btn-outline px-4 py-3 text-base text-slate-700"
+                className="ui-btn-outline px-4 py-3 text-base"
               >
                 취소
               </button>
@@ -420,8 +420,8 @@ export default function LoginClient() {
                   type="button"
                   onClick={handleSignupSubmit}
                   className={clsx(
-                    'ui-btn px-4 py-3 text-base font-semibold',
-                    signingUp ? 'bg-slate-200 text-slate-500 hover:bg-slate-200' : 'bg-primary-600 text-white'
+                    'ui-btn-accent px-4 py-3 text-base font-semibold',
+                    signingUp ? 'opacity-50 cursor-not-allowed' : ''
                   )}
                   disabled={signingUp}
                 >

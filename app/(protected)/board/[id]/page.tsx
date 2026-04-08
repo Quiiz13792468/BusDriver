@@ -41,18 +41,18 @@ function MessageBubble({ isMine, authorName, content, createdAt, isFirst }: Mess
     <div className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'}`}>
       <div className={`flex max-w-[80%] flex-col gap-1 ${isMine ? 'items-end' : 'items-start'}`}>
         {!isMine && isFirst ? (
-          <span className="px-1 text-sm font-semibold text-slate-600">{authorName ?? '익명'}</span>
+          <span className="px-1 text-sm font-semibold text-sp-muted">{authorName ?? '익명'}</span>
         ) : null}
         <div
           className={`px-4 py-3 text-base leading-relaxed shadow-sm ${
             isMine
               ? 'rounded-2xl rounded-tr-sm bg-primary-600 text-white'
-              : 'rounded-2xl rounded-tl-sm border border-slate-200 bg-white text-slate-900'
+              : 'rounded-2xl rounded-tl-sm border border-sp-border bg-sp-raised text-sp-text'
           }`}
         >
           {content}
         </div>
-        <span className="px-1 text-xs text-slate-400">{formatTime(createdAt)}</span>
+        <span className="px-1 text-xs text-sp-faint">{formatTime(createdAt)}</span>
       </div>
     </div>
   );
@@ -140,10 +140,10 @@ export default async function BoardPostPage({ params }: BoardPostPageProps) {
       />
 
       {/* 헤더 */}
-      <header className="flex shrink-0 items-center gap-3 border-b border-slate-200 bg-white px-4 py-3">
+      <header className="flex shrink-0 items-center gap-3 border-b border-sp-border bg-sp-surface px-4 py-3">
         <Link
           href="/board"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-600 hover:bg-slate-100 active:bg-slate-200"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sp-muted hover:bg-sp-raised active:bg-sp-high"
           aria-label="뒤로 가기"
         >
           <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -152,13 +152,13 @@ export default async function BoardPostPage({ params }: BoardPostPageProps) {
         </Link>
 
         <div className="flex flex-1 items-center justify-center gap-2">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-200 text-sm font-semibold text-slate-600">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sp-raised text-sm font-semibold text-sp-muted">
             {(otherPartyName ?? '?').slice(0, 1)}
           </span>
           <div className="flex flex-col items-start">
-            <span className="text-base font-semibold text-slate-900">{otherPartyName}</span>
+            <span className="text-base font-semibold text-sp-text">{otherPartyName}</span>
             {locked ? (
-              <span className="text-xs font-medium text-emerald-600">답변완료</span>
+              <span className="text-xs font-medium text-emerald-400">답변완료</span>
             ) : null}
           </div>
         </div>
@@ -168,7 +168,7 @@ export default async function BoardPostPage({ params }: BoardPostPageProps) {
             <form action={lockBoardPostAction.bind(null, post.id)}>
               <button
                 type="submit"
-                className="rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 active:bg-emerald-200"
+                className="rounded-full bg-emerald-900/20 px-3 py-1.5 text-sm font-semibold text-emerald-400 hover:bg-emerald-900/30 active:bg-emerald-900/40"
               >
                 완료
               </button>
@@ -178,7 +178,7 @@ export default async function BoardPostPage({ params }: BoardPostPageProps) {
       </header>
 
       {/* 채팅 메시지 영역 */}
-      <div className="flex-1 overflow-y-auto bg-slate-50">
+      <div className="flex-1 overflow-y-auto bg-sp-bg">
         <div className="space-y-3 px-4 py-4">
           {messages.map((msg, idx) => {
             const msgDate = formatDate(msg.createdAt);
@@ -196,9 +196,9 @@ export default async function BoardPostPage({ params }: BoardPostPageProps) {
               <div key={msg.id}>
                 {showDate ? (
                   <div className="flex items-center gap-3 py-2">
-                    <div className="h-px flex-1 bg-slate-200" />
-                    <span className="text-xs font-medium text-slate-400">{msgDate}</span>
-                    <div className="h-px flex-1 bg-slate-200" />
+                    <div className="h-px flex-1 bg-sp-border" />
+                    <span className="text-xs font-medium text-sp-faint">{msgDate}</span>
+                    <div className="h-px flex-1 bg-sp-border" />
                   </div>
                 ) : null}
                 <MessageBubble

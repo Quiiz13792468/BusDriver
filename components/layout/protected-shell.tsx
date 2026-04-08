@@ -48,7 +48,7 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
       <div className="min-h-screen">
 
         {/* ── 모바일 상단 헤더 ── */}
-        <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/97 backdrop-blur-sm md:hidden">
+        <header className="sticky top-0 z-40 border-b border-sp-border bg-sp-surface/95 backdrop-blur-sm md:hidden">
           <div className="flex h-14 items-center justify-between px-4">
             {/* 좌: 앱 브랜드 */}
             {role === 'ADMIN' ? (
@@ -78,7 +78,7 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600">
                   <BusIcon className="h-5 w-5 text-white" />
                 </span>
-                <span className="text-lg font-bold tracking-tight text-slate-800">셔틀콕</span>
+                <span className="text-lg font-bold tracking-tight text-sp-text">셔틀콕</span>
               </Link>
             )}
 
@@ -98,7 +98,7 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
           <aside className={clsx('sticky top-6 h-fit ui-card ui-card-compact', collapsed && 'p-3')}>
             <div className="mb-2 flex items-center justify-between">
               {!collapsed ? (
-                <div className="px-1 text-base font-semibold text-slate-700">
+                <div className="px-1 text-base font-semibold text-sp-muted">
                   {`${user.name ?? '사용자'}님`}
                 </div>
               ) : (

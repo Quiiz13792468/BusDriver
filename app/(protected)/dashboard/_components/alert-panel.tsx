@@ -34,10 +34,10 @@ const ALERT_LABEL: Record<AlertType, string> = {
 };
 
 const ALERT_COLOR: Record<AlertType, string> = {
-  ALL: 'bg-slate-100 text-slate-700',
-  PAYMENT: 'bg-emerald-100 text-emerald-700',
-  INQUIRY: 'bg-blue-100 text-blue-700',
-  ROUTE_CHANGE: 'bg-amber-100 text-amber-700'
+  ALL: 'bg-sp-raised text-sp-muted',
+  PAYMENT: 'bg-emerald-900/30 text-emerald-400',
+  INQUIRY: 'bg-blue-900/30 text-blue-400',
+  ROUTE_CHANGE: 'bg-amber-900/30 text-amber-400'
 };
 
 const FILTERS: AlertType[] = ['ALL', 'PAYMENT', 'INQUIRY', 'ROUTE_CHANGE'];
@@ -58,24 +58,34 @@ export function AlertPanel({ alerts, typeParam, year, month, schoolMap, studentM
           onClick={() => setOpen((prev) => !prev)}
           aria-expanded={open}
           aria-controls="alert-panel"
-          className="ui-btn-outline flex items-center gap-2 border-slate-200 shadow-sm hover:border-amber-300 hover:bg-amber-50/60"
+          className="ui-btn-outline flex items-center gap-2 border-sp-line shadow-sm hover:border-sp-green hover:bg-sp-raised"
         >
           알림 리스트
-          <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-sm font-semibold text-amber-700">
+          <span className="rounded-full border border-sp-green/40 bg-sp-green/10 px-2.5 py-0.5 text-sm font-semibold text-sp-green">
             {filteredAlerts.length}
           </span>
-          <span className={`text-xs text-slate-600 transition ${open ? 'rotate-180' : 'rotate-0'}`}>▼</span>
+          <span className={`text-xs text-sp-muted transition ${open ? 'rotate-180' : 'rotate-0'}`}>▼</span>
         </button>
-        <div className="flex w-full gap-2 overflow-x-auto pb-1 no-scrollbar sm:w-auto sm:flex-wrap sm:overflow-x-visible sm:pb-0">
-          {FILTERS.map((t) => (
+        <div className="flex w-full flex-col gap-1.5">
+          <div>
             <Link
-              key={t}
-              href={`/dashboard?atype=${t}&year=${year}&month=${month}`}
-              className={`ui-btn-outline shrink-0 px-3 py-2 text-sm ${typeParam === t ? 'border-amber-300 bg-amber-50 text-amber-700' : 'border-slate-200 text-slate-700 hover:border-amber-200 hover:bg-amber-50/60 hover:text-amber-700'}`}
+              href={`/dashboard?atype=ALL&year=${year}&month=${month}`}
+              className={`ui-btn-outline px-3 py-2 text-sm ${typeParam === 'ALL' ? 'border-sp-green bg-sp-green/15 text-sp-green' : 'border-sp-line text-sp-muted hover:border-sp-green hover:bg-sp-raised hover:text-sp-green'}`}
             >
-              {t === 'ALL' ? '전체' : ALERT_LABEL[t]}
+              전체
             </Link>
-          ))}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {(['PAYMENT', 'INQUIRY', 'ROUTE_CHANGE'] as AlertType[]).map((t) => (
+              <Link
+                key={t}
+                href={`/dashboard?atype=${t}&year=${year}&month=${month}`}
+                className={`ui-btn-outline shrink-0 px-3 py-2 text-sm ${typeParam === t ? 'border-sp-green bg-sp-green/15 text-sp-green' : 'border-sp-line text-sp-muted hover:border-sp-green hover:bg-sp-raised hover:text-sp-green'}`}
+              >
+                {ALERT_LABEL[t]}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -86,23 +96,23 @@ export function AlertPanel({ alerts, typeParam, year, month, schoolMap, studentM
         <div className="overflow-hidden">
           <div className="space-y-2">
             {filteredAlerts.slice(0, 8).map((a) => (
-              <div key={a.id} className="rounded-xl border border-slate-200 p-3">
+              <div key={a.id} className="rounded-xl border border-sp-border p-3">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
                     <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${ALERT_COLOR[a.type]}`}>
                       {ALERT_LABEL[a.type]}
                     </span>
-                    <span className="font-semibold text-slate-900 text-sm">{studentMap[a.studentId] ?? '-'}</span>
-                    <span className="text-sm text-slate-500 truncate">{schoolMap[a.schoolId] ?? '-'}</span>
+                    <span className="font-semibold text-sp-text text-sm">{studentMap[a.studentId] ?? '-'}</span>
+                    <span className="text-sm text-sp-faint truncate">{schoolMap[a.schoolId] ?? '-'}</span>
                   </div>
-                  <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500">
+                  <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-sp-faint">
                     <span>{a.year}년 {a.month}월</span>
                     <span>{new Date(a.createdAt).toLocaleString()}</span>
                   </div>
-                  {a.memo && <p className="mt-1 text-sm text-slate-600 truncate">{a.memo}</p>}
+                  {a.memo && <p className="mt-1 text-sm text-sp-muted truncate">{a.memo}</p>}
                 </div>
                 <form action={resolveAlertAction.bind(null, a.id)} className="mt-2">
-                  <button className="w-full ui-btn-outline border-emerald-200 px-3 py-1.5 text-xs text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 whitespace-nowrap">
+                  <button className="w-full ui-btn-outline border-emerald-700 px-3 py-1.5 text-xs text-emerald-400 hover:border-emerald-500 hover:bg-emerald-900/30 whitespace-nowrap">
                     확인
                   </button>
                 </form>

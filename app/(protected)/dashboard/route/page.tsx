@@ -3,6 +3,7 @@ import { requireSession } from '@/lib/auth/session';
 import { getStudentsByParent } from '@/lib/data/student';
 import { getRouteById } from '@/lib/data/route';
 import { getSchools } from '@/lib/data/school';
+import { getRoutePath } from '@/lib/kakao-directions';
 import { KakaoMap } from '@/components/kakao-map';
 import { PageHeader } from '@/components/layout/page-header';
 
@@ -17,7 +18,15 @@ export default async function ParentRoutePage() {
   const studentRoutes = await Promise.all(
     students.map(async (student) => {
       const route = student.routeId ? await getRouteById(student.routeId) : null;
-      return { student, route };
+      const stopsWithCoords = route
+        ? route.stopRecords
+            .filter((s) => s.lat != null && s.lng != null)
+            .map((s) => ({ lat: s.lat!, lng: s.lng! }))
+        : [];
+      const routePath = stopsWithCoords.length >= 2
+        ? await getRoutePath(stopsWithCoords)
+        : [];
+      return { student, route, routePath };
     })
   );
 
@@ -29,38 +38,38 @@ export default async function ParentRoutePage() {
       />
 
       {studentRoutes.length === 0 && (
-        <div className="ui-card ui-card-pad py-10 text-center text-lg text-slate-500">
+        <div className="ui-card ui-card-pad py-10 text-center text-lg text-sp-muted">
           등록된 학생이 없습니다.
         </div>
       )}
 
-      {studentRoutes.map(({ student, route }) => (
+      {studentRoutes.map(({ student, route, routePath }) => (
         <section key={student.id} className="ui-card ui-card-pad space-y-4">
           {/* 학생 정보 헤더 */}
-          <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 pb-3">
-            <h2 className="text-xl font-bold text-slate-900">{student.name}</h2>
-            <span className="rounded-full bg-primary-100 px-3 py-0.5 text-base font-semibold text-primary-700">
+          <div className="flex flex-wrap items-center gap-2 border-b border-sp-border pb-3">
+            <h2 className="text-xl font-bold text-sp-text">{student.name}</h2>
+            <span className="rounded-full bg-primary-900/30 px-3 py-0.5 text-base font-semibold text-primary-400">
               {student.schoolId ? schoolMap.get(student.schoolId) ?? '학교 정보 없음' : '학교 미배정'}
             </span>
             {student.pickupPoint && (
-              <span className="rounded-full bg-amber-100 px-3 py-0.5 text-base font-semibold text-amber-800">
+              <span className="rounded-full bg-amber-900/20 px-3 py-0.5 text-base font-semibold text-amber-400">
                 탑승지점: {student.pickupPoint}
               </span>
             )}
           </div>
 
           {!route ? (
-            <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-lg text-slate-500">
+            <div className="rounded-2xl border border-dashed border-sp-border bg-sp-raised px-4 py-8 text-center text-lg text-sp-muted">
               노선이 배정되지 않았습니다.<br />
-              <span className="mt-1 block text-base text-slate-400">담당 기사님께 문의해주세요.</span>
+              <span className="mt-1 block text-base text-sp-faint">담당 기사님께 문의해주세요.</span>
             </div>
           ) : (
             <>
               {/* 노선 정보 배너 */}
-              <div className="flex items-center justify-between rounded-xl border border-teal-100 bg-teal-50 px-4 py-3">
+              <div className="flex items-center justify-between rounded-xl border border-primary-900 bg-primary-900/20 px-4 py-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-teal-800">{route.name}</span>
-                  <span className="rounded-full bg-teal-100 px-2.5 py-0.5 text-sm font-semibold text-teal-700">
+                  <span className="text-lg font-bold text-primary-300">{route.name}</span>
+                  <span className="rounded-full bg-primary-900/30 px-2.5 py-0.5 text-sm font-semibold text-primary-400">
                     정차 {route.stops.length}개
                   </span>
                 </div>
@@ -71,6 +80,7 @@ export default async function ParentRoutePage() {
                 stops={route.stopRecords
                   .filter((s) => s.lat != null && s.lng != null)
                   .map((s) => ({ id: s.id, name: s.name, lat: s.lat!, lng: s.lng!, position: s.position }))}
+                routePath={routePath.length > 0 ? routePath : undefined}
                 readonly
                 highlightStopId={route.stopRecords.find((s) => s.name === student.pickupPoint)?.id}
               />
@@ -78,7 +88,7 @@ export default async function ParentRoutePage() {
               {/* 정류장 목록 */}
               {route.stops.length > 0 && (
                 <div>
-                  <h3 className="mb-2 text-base font-semibold text-slate-600">정류장 순서</h3>
+                  <h3 className="mb-2 text-base font-semibold text-sp-muted">정류장 순서</h3>
                   <ul className="space-y-2">
                     {route.stops.map((stopName, idx) => {
                       const isMyStop = stopName === student.pickupPoint;
@@ -88,14 +98,14 @@ export default async function ParentRoutePage() {
                           className={[
                             'flex items-center gap-3 rounded-xl px-4 py-3',
                             isMyStop
-                              ? 'border-2 border-amber-300 bg-amber-50 font-semibold text-amber-900'
-                              : 'border border-slate-100 bg-white text-slate-700',
+                              ? 'border-2 border-amber-600 bg-amber-900/20 font-semibold text-amber-300'
+                              : 'border border-sp-border bg-sp-raised text-sp-muted',
                           ].join(' ')}
                         >
                           <span
                             className={[
                               'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold',
-                              isMyStop ? 'bg-amber-400 text-white' : 'bg-slate-100 text-slate-500',
+                              isMyStop ? 'bg-amber-500 text-white' : 'bg-sp-raised text-sp-faint',
                             ].join(' ')}
                           >
                             {idx + 1}

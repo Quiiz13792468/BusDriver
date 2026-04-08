@@ -33,7 +33,7 @@ export function SchoolsTabs({ schools, students }: SchoolsTabsProps) {
   return (
     <div>
 
-      <div className="grid grid-cols-2 gap-2 border-b border-slate-200 sm:flex sm:flex-wrap">
+      <div className="grid grid-cols-2 gap-2 border-b border-sp-border sm:flex sm:flex-wrap">
         <TabButton active={activeTab === "schools"} onClick={() => setActiveTab("schools")}>
           학교관리
         </TabButton>
@@ -60,8 +60,8 @@ function TabButton({ active, children, onClick }: { active: boolean; children: R
       onClick={onClick}
       className={`w-full rounded-t-2xl border px-4 py-2 text-base font-semibold transition sm:w-auto ${
         active
-          ? "border-slate-200 border-b-transparent bg-white text-slate-900 shadow-sm"
-          : "border-slate-200 bg-slate-50/25 text-slate-700 hover:bg-white hover:text-slate-900"
+          ? "border-sp-border border-b-transparent bg-sp-surface text-sp-text shadow-sm"
+          : "border-sp-line bg-sp-raised/25 text-sp-muted hover:bg-sp-raised hover:text-sp-text"
       }`}
       aria-selected={active}
       role="tab"
@@ -85,7 +85,7 @@ function SchoolTab({ schools }: { schools: SchoolRecord[] }) {
       </CollapsibleCard>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-slate-900">등록된 학교</h2>
+        <h2 className="text-lg font-semibold text-sp-text">등록된 학교</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           {schools.map((school) => (
             <div
@@ -94,10 +94,10 @@ function SchoolTab({ schools }: { schools: SchoolRecord[] }) {
             >
               <div className="flex items-start justify-between gap-2">
                 <Link href={`/schools/${school.id}`} className="group min-w-0 flex-1">
-                  <p className="text-lg font-semibold text-slate-900 group-hover:text-primary-600">{school.name}</p>
-                  <p className="mt-1 text-base text-slate-700">기본 금액 {school.defaultMonthlyFee.toLocaleString()}원</p>
-                  {school.address ? <p className="mt-1 text-sm text-slate-500">주소: {school.address}</p> : null}
-                  {school.note ? <p className="mt-1 text-sm text-slate-500">{school.note}</p> : null}
+                  <p className="text-lg font-semibold text-sp-text group-hover:text-primary-400">{school.name}</p>
+                  <p className="mt-1 text-base text-sp-muted">기본 금액 {school.defaultMonthlyFee.toLocaleString()}원</p>
+                  {school.address ? <p className="mt-1 text-sm text-sp-faint">주소: {school.address}</p> : null}
+                  {school.note ? <p className="mt-1 text-sm text-sp-faint">{school.note}</p> : null}
                 </Link>
                 <div className="flex shrink-0 items-center gap-1.5">
                   <button
@@ -112,7 +112,7 @@ function SchoolTab({ schools }: { schools: SchoolRecord[] }) {
               </div>
 
               {editSchoolId === school.id ? (
-                <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-[5px]">
+                <div className="mt-4 rounded-2xl border border-sp-border bg-sp-raised p-[5px]">
                   <UpdateSchoolForm
                     schoolId={school.id}
                     initial={{
@@ -204,14 +204,14 @@ function StudentTab({ schools, students }: { schools: SchoolRecord[]; students: 
       <section className="ui-card ui-card-pad space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">등록된 학생</h2>
-            <p className="text-base text-slate-700">학생 정보를 확인하고 학교 배정을 관리합니다.</p>
+            <h2 className="text-lg font-semibold text-sp-text">등록된 학생</h2>
+            <p className="text-base text-sp-muted">학생 정보를 확인하고 학교 배정을 관리합니다.</p>
           </div>
-          <div className="flex flex-wrap items-center gap-3 text-sm text-slate-700">
+          <div className="flex flex-wrap items-center gap-3 text-sm text-sp-muted">
             <span>전체</span>
-            <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold">{students.length}</span>
+            <span className="rounded-full bg-sp-raised px-3 py-1 font-semibold">{students.length}</span>
             <span>미배정</span>
-            <span className="rounded-full bg-amber-100 px-3 py-1 font-semibold text-amber-700">{unassignedCount}</span>
+            <span className="rounded-full bg-amber-900/30 px-3 py-1 font-semibold text-amber-400">{unassignedCount}</span>
             <label className="ui-btn-outline ml-2 inline-flex items-center gap-2 px-3 py-1 text-sm">
               <input
                 type="checkbox"
@@ -226,7 +226,7 @@ function StudentTab({ schools, students }: { schools: SchoolRecord[]; students: 
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1">
-            <label className="text-sm font-semibold text-slate-700" htmlFor="schoolFilter">
+            <label className="text-sm font-semibold text-sp-muted" htmlFor="schoolFilter">
               학교 선택
             </label>
             <select
@@ -245,7 +245,7 @@ function StudentTab({ schools, students }: { schools: SchoolRecord[]; students: 
             </select>
           </div>
           <div className="flex-1">
-            <label className="text-sm font-semibold text-slate-700" htmlFor="studentSearch">
+            <label className="text-sm font-semibold text-sp-muted" htmlFor="studentSearch">
               학생/보호자 이름 검색
             </label>
             <input
@@ -272,7 +272,7 @@ function StudentAssignmentTable({ schools, students }: { schools: SchoolRecord[]
   if (students.length === 0) {
     return (
       <section className="ui-card ui-card-pad">
-        <p className="text-center text-base text-slate-700">등록된 학생이 없습니다.</p>
+        <p className="text-center text-base text-sp-muted">등록된 학생이 없습니다.</p>
       </section>
     );
   }
@@ -405,16 +405,16 @@ function StudentAssignmentCard({
       {/* 학생 정보 헤더 */}
       <div className="flex items-start justify-between gap-2">
         <div>
-          <div className="flex flex-wrap items-center gap-2 font-semibold text-slate-900">
+          <div className="flex flex-wrap items-center gap-2 font-semibold text-sp-text">
             <span className="text-base">{student.name}</span>
             {suspensionStatus ? (
               <span className={clsx('rounded-full px-2.5 py-1 text-xs font-semibold',
-                suspensionStatus === '이용종료' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700')}>
+                suspensionStatus === '이용종료' ? 'bg-rose-900/30 text-rose-400' : 'bg-amber-900/30 text-amber-400')}>
                 {suspensionStatus}
               </span>
             ) : null}
           </div>
-          <div className="text-sm text-slate-500">보호자 {student.guardianName}</div>
+          <div className="text-sm text-sp-faint">보호자 {student.guardianName}</div>
         </div>
         <button
           type="button"
@@ -426,8 +426,8 @@ function StudentAssignmentCard({
       </div>
 
       {/* 현재 학교 */}
-      <div className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700">
-        <span className="font-semibold text-slate-500">현재 학교</span>
+      <div className="rounded-lg bg-sp-raised px-3 py-2 text-sm text-sp-muted">
+        <span className="font-semibold text-sp-faint">현재 학교</span>
         <span className="ml-2">{currentSchoolId ? schoolMap.get(currentSchoolId) ?? "학교 정보 없음" : "미배정"}</span>
       </div>
 
@@ -450,7 +450,7 @@ function StudentAssignmentCard({
               className="ui-btn-outline flex-1 py-2 text-sm">취소</button>
           ) : (
             <button type="button" onClick={handleUnassign} disabled={pending}
-              className="ui-btn-outline flex-1 border-rose-200 py-2 text-sm text-rose-600 hover:border-rose-300 hover:bg-rose-50">
+              className="ui-btn-outline flex-1 border-rose-800 py-2 text-sm text-rose-400 hover:border-rose-600 hover:bg-rose-900/20">
               배정 해제
             </button>
           )}
@@ -459,12 +459,12 @@ function StudentAssignmentCard({
 
       {/* 상세/편집 패널 */}
       {panelOpen ? (
-        <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-[10px]">
+        <div className="rounded-2xl border border-sp-border bg-sp-raised p-[10px]">
           <form action={updateAction} className="ui-control">
             <input type="hidden" name="studentId" value={student.id} />
             <input type="hidden" name="schoolId" value={student.schoolId ?? ""} />
             <input type="hidden" name="routeId" value={student.routeId ?? ""} />
-            <div className="mb-2 text-sm font-semibold text-slate-600">학생 정보</div>
+            <div className="mb-2 text-sm font-semibold text-sp-muted">학생 정보</div>
             <div className="grid gap-3 sm:grid-cols-2">
               <FormInput label="학생 이름" name="name" defaultValue={student.name} required readOnly={!editMode} />
               <FormInput label="보호자 이름" name="guardianName" defaultValue={student.guardianName} required readOnly={!editMode} />
@@ -596,27 +596,27 @@ function StudentAssignmentRow({
 
   return (
     <>
-      <UiTr className="border-b border-slate-100">
-        <UiTd className="text-slate-800">
+      <UiTr className="border-b border-sp-border">
+        <UiTd className="text-sp-text">
           <div className="flex flex-wrap items-center gap-2 font-semibold">
             <span>{student.name}</span>
             {suspensionStatus ? (
               <span
                 className={clsx(
                   'rounded-full px-2.5 py-1 text-xs font-semibold',
-                  suspensionStatus === '이용종료' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
+                  suspensionStatus === '이용종료' ? 'bg-rose-900/30 text-rose-400' : 'bg-amber-900/30 text-amber-400'
                 )}
               >
                 {suspensionStatus}
               </span>
             ) : null}
           </div>
-          <div className="text-sm text-slate-700">보호자 {student.guardianName}</div>
+          <div className="text-sm text-sp-faint">보호자 {student.guardianName}</div>
         </UiTd>
-        <UiTd className="text-slate-700">
+        <UiTd className="text-sp-muted">
           {currentSchoolId ? schoolMap.get(currentSchoolId) ?? "학교 정보 없음" : "미배정"}
         </UiTd>
-        <UiTd className="text-slate-700">
+        <UiTd className="text-sp-muted">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             {editing ? (
               <select
@@ -659,7 +659,7 @@ function StudentAssignmentRow({
                   type="button"
                   onClick={handleUnassign}
                   disabled={pending}
-                  className="ui-btn-outline border-rose-200 px-4 py-2 text-sm text-rose-600 hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700"
+                  className="ui-btn-outline border-rose-800 px-4 py-2 text-sm text-rose-400 hover:border-rose-600 hover:bg-rose-900/20 hover:text-rose-300"
                 >
                   배정 해제
                 </button>
@@ -667,7 +667,7 @@ function StudentAssignmentRow({
             </div>
           </div>
         </UiTd>
-        <UiTd className="text-slate-700">
+        <UiTd className="text-sp-muted">
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
@@ -680,15 +680,15 @@ function StudentAssignmentRow({
         </UiTd>
       </UiTr>
       {panelOpen ? (
-        <UiTr className="border-b border-slate-100 last:border-b-0">
-          <UiTd colSpan={4} className="bg-slate-50/70 p-[10px]">
+        <UiTr className="border-b border-sp-border last:border-b-0">
+          <UiTd colSpan={4} className="bg-sp-raised p-[10px]">
             <div className="space-y-4">
               <form action={updateAction} className="ui-control">
                 <input type="hidden" name="studentId" value={student.id} />
                 <input type="hidden" name="schoolId" value={student.schoolId ?? ""} />
                 <input type="hidden" name="routeId" value={student.routeId ?? ""} />
 
-                <div className="mb-2 text-sm font-semibold text-slate-600">학생 정보</div>
+                <div className="mb-2 text-sm font-semibold text-sp-muted">학생 정보</div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <FormInput label="학생 이름" name="name" defaultValue={student.name} required readOnly={!editMode} />
                   <FormInput label="보호자 이름" name="guardianName" defaultValue={student.guardianName} required readOnly={!editMode} />
@@ -772,7 +772,7 @@ function FormInput({
   readOnly?: boolean;
 }) {
   return (
-    <label className="flex flex-col text-sm font-semibold text-slate-700">
+    <label className="flex flex-col text-sm font-semibold text-sp-muted">
       {label}
       <input
         name={name}
@@ -781,7 +781,7 @@ function FormInput({
         defaultValue={defaultValue}
         required={required}
         readOnly={readOnly}
-        className={`ui-input mt-1 font-normal ${readOnly ? "bg-slate-50 text-slate-600" : ""}`}
+        className={`ui-input mt-1 font-normal ${readOnly ? "bg-sp-raised/50 text-sp-faint" : ""}`}
       />
     </label>
   );
@@ -801,14 +801,14 @@ function FormTextarea({
   readOnly?: boolean;
 }) {
   return (
-    <label className="flex flex-col text-sm font-semibold text-slate-700">
+    <label className="flex flex-col text-sm font-semibold text-sp-muted">
       {label}
       <textarea
         name={name}
         defaultValue={defaultValue}
         rows={rows}
         readOnly={readOnly}
-        className={`ui-input mt-1 font-normal ${readOnly ? "bg-slate-50 text-slate-600" : ""}`}
+        className={`ui-input mt-1 font-normal ${readOnly ? "bg-sp-raised/50 text-sp-faint" : ""}`}
       />
     </label>
   );
