@@ -17,7 +17,7 @@ async function waitForContent(page: any) {
 // 관리자 로그인 헬퍼
 async function loginAsAdmin(page: any) {
   await page.goto('/login');
-  await page.waitForLoadState('networkidle');
+  await waitForContent(page);
   await page.locator('button').filter({ hasText: '관리자' }).first().click();
   await page.waitForTimeout(200);
   await page.locator('input[type="email"], input[name="email"]').fill('admin@test.com');
@@ -30,7 +30,7 @@ async function loginAsAdmin(page: any) {
 // 학부모 로그인 헬퍼
 async function loginAsParent(page: any) {
   await page.goto('/login');
-  await page.waitForLoadState('networkidle');
+  await waitForContent(page);
   await page.locator('button').filter({ hasText: '학부모' }).first().click();
   await page.waitForTimeout(200);
   await page.locator('input[type="email"], input[name="email"]').fill('parent1@test.com');
@@ -44,13 +44,13 @@ test.describe.serial('UI 스크린샷 캡처', () => {
   // ── 로그인 화면 ──────────────────────────────
   test('로그인 화면 - 기본 상태', async ({ page }) => {
     await page.goto('/login');
-    await page.waitForLoadState('networkidle');
+    await waitForContent(page);
     await page.screenshot({ path: 'e2e/screenshots/01_login_default.png', fullPage: true });
   });
 
   test('로그인 화면 - 관리자 선택', async ({ page }) => {
     await page.goto('/login');
-    await page.waitForLoadState('networkidle');
+    await waitForContent(page);
     await page.locator('button').filter({ hasText: '관리자' }).first().click();
     await page.waitForTimeout(300);
     await page.screenshot({ path: 'e2e/screenshots/02_login_admin_selected.png', fullPage: true });
@@ -58,7 +58,7 @@ test.describe.serial('UI 스크린샷 캡처', () => {
 
   test('로그인 화면 - 학부모 선택', async ({ page }) => {
     await page.goto('/login');
-    await page.waitForLoadState('networkidle');
+    await waitForContent(page);
     await page.locator('button').filter({ hasText: '학부모' }).first().click();
     await page.waitForTimeout(300);
     await page.screenshot({ path: 'e2e/screenshots/03_login_parent_selected.png', fullPage: true });
@@ -66,7 +66,7 @@ test.describe.serial('UI 스크린샷 캡처', () => {
 
   test('로그인 화면 - 회원가입 모달', async ({ page }) => {
     await page.goto('/login');
-    await page.waitForLoadState('networkidle');
+    await waitForContent(page);
     const signupBtn = page.locator('button').filter({ hasText: /회원가입/ }).first();
     if (await signupBtn.isVisible()) {
       await signupBtn.click();
@@ -174,18 +174,18 @@ test.describe.serial('UI 스크린샷 캡처', () => {
     await page.screenshot({ path: 'e2e/screenshots/15_parent_board_chat.png', fullPage: true });
   });
 
-  test('관리자 - 노선 관리', async ({ page }) => {
-    await loginAsAdmin(page);
+  test('학부모 - 노선 확인', async ({ page }) => {
+    await loginAsParent(page);
     await page.goto('/dashboard/route');
     await waitForContent(page);
-    await page.screenshot({ path: 'e2e/screenshots/16_admin_route.png', fullPage: true });
+    await page.screenshot({ path: 'e2e/screenshots/16_parent_route.png', fullPage: true });
   });
 
-  test('관리자 - 탑승지점', async ({ page }) => {
-    await loginAsAdmin(page);
+  test('학부모 - 탑승지점 변경', async ({ page }) => {
+    await loginAsParent(page);
     await page.goto('/dashboard/pickup');
     await waitForContent(page);
-    await page.screenshot({ path: 'e2e/screenshots/17_admin_pickup.png', fullPage: true });
+    await page.screenshot({ path: 'e2e/screenshots/17_parent_pickup.png', fullPage: true });
   });
 
   test('관리자 - 알림 목록', async ({ page }) => {

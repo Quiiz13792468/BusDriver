@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import clsx from 'clsx';
 
 type HeaderUserMenuProps = {
   role?: string;
@@ -38,25 +37,20 @@ export function HeaderUserMenu({ role, name, email }: HeaderUserMenuProps) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-10 items-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 active:scale-95"
+        className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-600 text-sm font-bold text-white shadow-sm transition hover:bg-primary-700 active:scale-95"
         aria-expanded={open}
         aria-haspopup="menu"
+        aria-label={`${displayName} 메뉴`}
       >
-        <span className="max-w-[7rem] truncate">{displayName}</span>
-        <svg
-          className={clsx('h-3.5 w-3.5 text-slate-400 transition-transform', open && 'rotate-180')}
-          viewBox="0 0 24 24" fill="none"
-        >
-          <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        {initial}
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-52 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-2xl shadow-slate-200/60">
+        <div className="absolute right-0 z-50 mt-2 w-52 overflow-hidden rounded-2xl border border-sp-border bg-sp-surface shadow-2xl">
           {/* 사용자 정보 */}
-          <div className="border-b border-slate-100 px-4 py-3">
-            <p className="text-sm font-semibold text-slate-900 truncate">{displayName}</p>
-            {email && <p className="text-xs text-slate-500 truncate">{email}</p>}
+          <div className="border-b border-sp-border px-4 py-3">
+            <p className="text-sm font-semibold text-sp-text truncate">{displayName}</p>
+            {email && <p className="text-xs text-sp-muted truncate">{email}</p>}
             <span className="mt-1 inline-block rounded-full bg-primary-50 px-2 py-0.5 text-xs font-medium text-primary-700">
               {roleLabel}
             </span>
