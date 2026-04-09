@@ -32,8 +32,8 @@ export default async function DashboardStudentsPage({ searchParams }: StudentsPa
       <header className="ui-card ui-card-pad">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">학생 목록</h1>
-            <p className="text-base text-slate-700">운영 중인 모든 노선의 학생 정보를 한눈에 확인하세요.</p>
+            <h2 className="mb-1 text-xl font-bold text-sp-text">학생 목록</h2>
+            <p className="text-base text-sp-muted">운영 중인 모든 노선의 학생 정보를 한눈에 확인하세요.</p>
           </div>
           <div className="flex items-center gap-2 text-sm text-slate-700">
             <span>총 학생 수</span>

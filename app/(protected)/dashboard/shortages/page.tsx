@@ -86,8 +86,8 @@ export default async function ShortagePage({ searchParams }: Props) {
       <header className="ui-card ui-card-pad">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900">부족 인원 관리</h1>
-            <p className="text-base text-slate-700">{year}년 {month}월 부족 인원을 확인하고 입금 확인 요청을 보낼 수 있습니다.</p>
+            <h2 className="mb-1 text-xl font-bold text-sp-text">부족 인원 관리</h2>
+            <p className="text-base text-sp-muted">{year}년 {month}월 부족 인원을 확인하고 입금 확인 요청을 보낼 수 있습니다.</p>
           </div>
           <Link href="/dashboard" className="ui-btn-outline px-3 py-1.5 text-sm hover:border-amber-300 hover:bg-amber-50/60">
             대시보드로

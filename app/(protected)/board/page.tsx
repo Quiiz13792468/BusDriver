@@ -152,7 +152,6 @@ export default async function BoardPage() {
     <div className="space-y-4 pb-10">
       {/* 내 문의 목록 */}
       <section>
-        <h2 className="mb-1 text-xl font-bold text-sp-text">내 문의</h2>
         {posts.length === 0 ? (
           <p className="py-8 text-center text-base text-slate-500">등록한 문의가 없습니다.</p>
         ) : (
