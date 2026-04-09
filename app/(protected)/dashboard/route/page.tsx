@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { requireSession } from '@/lib/auth/session';
 import { getStudentsByParent } from '@/lib/data/student';
 import { getRouteById } from '@/lib/data/route';
@@ -125,11 +124,6 @@ export default async function ParentRoutePage() {
         </section>
       ))}
 
-      <div className="pb-4 text-center">
-        <Link href="/dashboard" className="text-base text-primary-600 hover:underline">
-          ← 대시보드로 돌아가기
-        </Link>
-      </div>
     </div>
   );
 }
