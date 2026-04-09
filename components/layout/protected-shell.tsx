@@ -49,7 +49,7 @@ export function ProtectedShell({ user, role, alertCount = 0, children }: Protect
 
         {/* ── 모바일 상단 헤더 ── */}
         <header className="sticky top-0 z-40 border-b border-sp-border backdrop-blur-sm md:hidden" style={{ backgroundColor: 'rgba(255,255,255,0.85)', height: 'var(--header-h)' }}>
-          <div className="flex h-14 items-center justify-between px-4">
+          <div className="flex h-full items-center justify-between px-4">
             {/* 좌: 앱 브랜드 */}
             {role === 'ADMIN' ? (
               <>

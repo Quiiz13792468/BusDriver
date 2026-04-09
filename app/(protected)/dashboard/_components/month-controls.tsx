@@ -143,7 +143,7 @@ export function MonthControls({
             <option key={mm} value={mm}>{mm}월</option>
           ))}
         </select>
-        <button className="ui-btn-outline whitespace-nowrap border-amber-300 bg-amber-50 px-3 py-1.5 text-amber-700">조회</button>
+        <button className="ui-btn whitespace-nowrap px-3 py-1.5">조회</button>
       </form>
       {/* 2행: 이전월, 다음월 버튼 */}
       <div className="flex items-center gap-1">

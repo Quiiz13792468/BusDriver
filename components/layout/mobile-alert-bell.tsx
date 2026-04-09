@@ -30,16 +30,12 @@ export function MobileAlertBell({ count, href }: MobileAlertBellProps) {
         />
       </svg>
 
-      {/* Badge - 항상 표시, 1 이상이면 빨간색 bold */}
-      <span
-        className={`absolute -right-0.5 -top-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] leading-none ${
-          hasAlert
-            ? 'bg-rose-500 font-bold text-white'
-            : 'bg-slate-200 font-normal text-slate-500'
-        }`}
-      >
-        {displayLabel}
-      </span>
+      {/* Badge - 알림이 있을 때만 표시 */}
+      {hasAlert && (
+        <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold leading-none text-white">
+          {displayLabel}
+        </span>
+      )}
     </Link>
   );
 }

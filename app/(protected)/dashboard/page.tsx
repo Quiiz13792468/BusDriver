@@ -405,7 +405,7 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
                 <option key={yy} value={yy}>{yy}년</option>
               ))}
             </select>
-            <button className="ui-btn-outline border-amber-600 bg-amber-900/20 py-1.5 text-base text-amber-400">조회</button>
+            <button className="ui-btn py-1.5 text-base">조회</button>
           </form>
         </div>
 
