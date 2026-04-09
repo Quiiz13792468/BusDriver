@@ -56,11 +56,11 @@ export async function middleware(request: NextRequest) {
         return logoutResponse;
       }
     }
-    // Update last active timestamp
+    // Update last active timestamp (30분 후 자동 만료 — 세션 간 오탐 방지)
     response.cookies.set(LAST_ACTIVE_COOKIE, String(now), {
       httpOnly: true,
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24, // 24 hours
+      maxAge: 60 * 30, // 30 minutes
       secure: process.env.NODE_ENV === 'production'
     });
   }
@@ -68,7 +68,9 @@ export async function middleware(request: NextRequest) {
   // Redirect unauthenticated users to login
   if (!user) {
     const loginUrl = new URL('/login', request.url);
-    return NextResponse.redirect(loginUrl);
+    const redirectResponse = NextResponse.redirect(loginUrl);
+    redirectResponse.cookies.delete(LAST_ACTIVE_COOKIE);
+    return redirectResponse;
   }
 
   const role = user.app_metadata?.role as string | undefined;
