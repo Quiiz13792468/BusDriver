@@ -64,7 +64,7 @@ export default async function RouteDetailPage({ params }: PageProps) {
 
       {/* 노선 빌더 (지도 + 정차 지점 편집) */}
       <section className="ui-card ui-card-pad space-y-3">
-        <h2 className="text-lg font-semibold text-slate-900">노선 지도 및 정차 지점 편집</h2>
+        <h2 className="text-xl mb-1 font-bold text-sp-text">노선 지도 및 정차 지점 편집</h2>
         <RouteBuilder
           routeId={route.id}
           initialStops={builderStops}
@@ -94,7 +94,7 @@ export default async function RouteDetailPage({ params }: PageProps) {
 
       {/* 정류장별 탑승 학생 (accordion) */}
       <section className="ui-card ui-card-pad space-y-3">
-        <h2 className="text-lg font-semibold text-slate-900">정류장별 탑승 학생</h2>
+        <h2 className="text-xl mb-1 font-bold text-sp-text">정류장별 탑승 학생</h2>
         <RouteStopAccordion groups={stopGroups} />
         {noStopStudents.length > 0 && (
           <div className="mt-2 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3">
@@ -138,7 +138,7 @@ function AssignStudentForm({
   if (students.length === 0) {
     return (
       <section className="ui-card ui-card-pad space-y-3">
-        <h2 className="text-lg font-semibold text-slate-900">학생 배정</h2>
+        <h2 className="text-xl mb-1 font-bold text-sp-text">학생 배정</h2>
         <p className="ui-empty">배정 가능한 학생이 없습니다.</p>
       </section>
     );
@@ -146,7 +146,7 @@ function AssignStudentForm({
 
   return (
     <section className="ui-card ui-card-pad space-y-3">
-      <h2 className="text-lg font-semibold text-slate-900">학생 배정</h2>
+      <h2 className="text-xl mb-1 font-bold text-sp-text">학생 배정</h2>
       <form
         action={async (fd) => {
           'use server';

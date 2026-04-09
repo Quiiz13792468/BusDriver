@@ -153,7 +153,7 @@ export function CreatePostForm({
   return (
     <form action={formAction} className="ui-card ui-card-pad space-y-4">
       <div>
-        <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+        <h2 className="mb-1 text-xl font-bold text-sp-text">{title}</h2>
         <p className="text-sm text-slate-700">{description}</p>
       </div>
 

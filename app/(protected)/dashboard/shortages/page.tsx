@@ -97,7 +97,7 @@ export default async function ShortagePage({ searchParams }: Props) {
 
       <section className="ui-card ui-card-pad space-y-2">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">조회 조건</h2>
+          <h2 className="text-xl mb-1 font-bold text-sp-text">조회 조건</h2>
           <MonthControls
             year={year}
             month={month}

@@ -25,7 +25,7 @@ export function CreateStudentForm({ schoolId, defaultFee, schools }: CreateStude
   return (
     <form ref={formRef} action={formAction} className="ui-card ui-card-pad space-y-4">
       <div>
-        <h2 className="text-base font-semibold text-slate-900 sm:text-lg">학생 등록</h2>
+        <h2 className="mb-1 text-xl font-bold text-sp-text">학생 등록</h2>
         <p className="text-sm text-slate-700">
           {schoolId ? '선택한 학교에 새 학생 정보를 입력합니다.' : '학생을 먼저 등록하고 학교는 나중에 배정할 수 있습니다.'}
         </p>

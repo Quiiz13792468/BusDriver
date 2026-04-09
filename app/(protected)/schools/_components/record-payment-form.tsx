@@ -104,7 +104,7 @@ export function RecordPaymentForm({ schoolId, students, onSuccess }: RecordPayme
     <form action={formAction} className="ui-card ui-card-pad space-y-4">
       <input type="hidden" name="schoolId" value={schoolId} />
       <div>
-        <h2 className="text-base font-semibold text-slate-900 sm:text-lg">입금 기록 추가</h2>
+        <h2 className="mb-1 text-xl font-bold text-sp-text">입금 기록 추가</h2>
         <p className="text-sm text-slate-700">학생의 입금 내역을 추가하고 상태를 업데이트하세요.</p>
       </div>
 

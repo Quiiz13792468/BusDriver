@@ -153,7 +153,7 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
 
       {/* 선택 월 입금 내역 */}
       <section className="ui-card ui-card-pad">
-        <h2 className="mb-3 text-base font-semibold text-slate-900">{selectedYear}년 {selectedMonth}월 입금 내역</h2>
+        <h2 className="mb-1 text-xl font-bold text-sp-text">{selectedYear}년 {selectedMonth}월 입금 내역</h2>
         <div className="ui-table-wrap">
           <UiTable>
             <UiThead className="sticky top-0 z-10">
@@ -187,7 +187,7 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
 
       {/* 학생별 합계 (상태/부족금액 포함) */}
       <section className="ui-card ui-card-pad">
-        <h2 className="mb-3 text-base font-semibold text-slate-900">학생별 합계 ({selectedYear}년 {selectedMonth}월)</h2>
+        <h2 className="mb-1 text-xl font-bold text-sp-text">학생별 합계 ({selectedYear}년 {selectedMonth}월)</h2>
         <div className="ui-table-wrap">
           <UiTable>
             <UiThead className="sticky top-0 z-10">

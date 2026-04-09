@@ -19,7 +19,7 @@ export function AssignStudentForm({ schoolId, students }: AssignStudentFormProps
     <form action={formAction} className="ui-card ui-card-pad space-y-4">
       <input type="hidden" name="schoolId" value={schoolId} />
       <div>
-        <h2 className="text-base font-semibold text-slate-900 sm:text-lg">학생 배정</h2>
+        <h2 className="mb-1 text-xl font-bold text-sp-text">학생 배정</h2>
         <p className="text-sm text-slate-700">등록된 학생을 선택해 해당 학교에 배정합니다.</p>
       </div>
 

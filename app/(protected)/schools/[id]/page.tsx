@@ -132,7 +132,7 @@ export default async function SchoolDetailPage({ params }: SchoolDetailPageProps
       </div>
 
       <section className="ui-card ui-card-pad space-y-3">
-        <h2 className="text-lg font-semibold text-slate-900">학생 정보</h2>
+        <h2 className="text-xl mb-1 font-bold text-sp-text">학생 정보</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {students.map((student) => (
             <StudentCard key={student.id} student={student} schoolId={school.id} routes={routes} />
@@ -146,7 +146,7 @@ export default async function SchoolDetailPage({ params }: SchoolDetailPageProps
       </section>
 
       <section className="ui-card ui-card-pad space-y-3">
-        <h2 className="text-lg font-semibold text-slate-900">월별 입금 요약</h2>
+        <h2 className="text-xl mb-1 font-bold text-sp-text">월별 입금 요약</h2>
         <div className="ui-table-wrap">
           <UiTable>
             <UiThead className="sticky top-0 z-10">

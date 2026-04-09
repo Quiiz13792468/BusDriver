@@ -68,7 +68,7 @@ export function RecordPaymentModal({ schools, students }: RecordPaymentModalProp
           <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
             <div>
               <p className="text-sm font-semibold text-slate-500">입금 기록 추가</p>
-              <h2 className="text-xl font-semibold text-slate-900">학교 선택 후 입력</h2>
+              <h2 className="mb-1 text-xl font-bold text-sp-text">학교 선택 후 입력</h2>
             </div>
             <button
               type="button"

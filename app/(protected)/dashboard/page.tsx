@@ -148,7 +148,7 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
 
       {/* 이번 달 입금자 명단 */}
       <section className="ui-card ui-card-pad space-y-2">
-        <h2 className="text-xl font-bold text-sp-text">입금자 명단</h2>
+        <h2 className="mb-1 text-xl font-bold text-sp-text">입금자 명단</h2>
         <MonthControls
           year={y}
           month={m}
@@ -230,7 +230,7 @@ async function AdminDashboard({ name, searchParams }: { name: string; searchPara
 
       {/* 연간 실적 */}
       <section className="ui-card ui-card-pad space-y-2">
-        <h2 className="text-xl font-bold text-sp-text">{y}년 실적</h2>
+        <h2 className="mb-1 text-xl font-bold text-sp-text">{y}년 실적</h2>
 
         {/* 모바일: 컴팩트 목록 */}
         <div className="space-y-1.5 md:hidden">
@@ -345,7 +345,7 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
   return (
     <div className="space-y-3">
       <section className="ui-card ui-card-pad">
-        <h2 className="mb-3 text-xl font-bold text-sp-text">학생 정보</h2>
+        <h2 className="mb-1 text-xl font-bold text-sp-text">학생 정보</h2>
         {students.length === 0 ? (
           <p className="ui-empty">등록된 학생이 없습니다.</p>
         ) : (
@@ -398,7 +398,7 @@ async function ParentDashboard({ name, userId, searchParams }: { name: string; u
 
       <section className="ui-card ui-card-pad space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-xl font-bold text-sp-text">입금 내역</h2>
+          <h2 className="mb-1 text-xl font-bold text-sp-text">입금 내역</h2>
           <form method="get" className="flex items-center gap-2">
             <select id="year" name="year" defaultValue={String(year)} className="ui-select w-auto py-1.5">
               {yearOptions.map((yy) => (

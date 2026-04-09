@@ -12,7 +12,7 @@ export function CreateSchoolForm() {
   return (
     <form action={formAction} className="ui-card ui-card-pad space-y-4">
       <div>
-        <h2 className="text-base font-semibold text-slate-900 sm:text-lg">학교 등록</h2>
+        <h2 className="mb-1 text-xl font-bold text-sp-text">학교 등록</h2>
         <p className="text-sm text-slate-700">운영할 학교 정보를 입력하고 기본 요금을 설정하세요.</p>
       </div>
 

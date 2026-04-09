@@ -85,7 +85,7 @@ function SchoolTab({ schools }: { schools: SchoolRecord[] }) {
       </CollapsibleCard>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-sp-text">등록된 학교</h2>
+        <h2 className="mb-1 text-xl font-bold text-sp-text">등록된 학교</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           {schools.map((school) => (
             <div
@@ -204,7 +204,7 @@ function StudentTab({ schools, students }: { schools: SchoolRecord[]; students: 
       <section className="ui-card ui-card-pad space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold text-sp-text">등록된 학생</h2>
+            <h2 className="mb-1 text-xl font-bold text-sp-text">등록된 학생</h2>
             <p className="text-base text-sp-muted">학생 정보를 확인하고 학교 배정을 관리합니다.</p>
           </div>
           <div className="flex flex-wrap items-center gap-3 text-sm text-sp-muted">

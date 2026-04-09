@@ -34,7 +34,7 @@ export function UpdateSchoolForm({ schoolId, initial, onSuccess }: UpdateSchoolF
       <input type="hidden" name="schoolId" value={schoolId} />
 
       <div>
-        <h2 className="text-base font-semibold text-slate-900 sm:text-lg">학교 정보 수정</h2>
+        <h2 className="mb-1 text-xl font-bold text-sp-text">학교 정보 수정</h2>
         <p className="text-sm text-slate-700">학교명, 요금, 주소를 최신 정보로 업데이트하세요.</p>
       </div>
 

@@ -97,7 +97,7 @@ export default async function BoardPage() {
     return (
       <div className="space-y-4 pb-10">
         <section>
-          <h2 className="mb-3 text-xl font-bold text-slate-900">문의 목록</h2>
+          <h2 className="mb-1 text-xl font-bold text-sp-text">문의 목록</h2>
           <div className="space-y-2">
             {posts.map((post) => (
               <ConversationCard
@@ -152,7 +152,7 @@ export default async function BoardPage() {
     <div className="space-y-4 pb-10">
       {/* 내 문의 목록 */}
       <section>
-        <h2 className="mb-3 text-xl font-bold text-slate-900">내 문의</h2>
+        <h2 className="mb-1 text-xl font-bold text-sp-text">내 문의</h2>
         {posts.length === 0 ? (
           <p className="py-8 text-center text-base text-slate-500">등록한 문의가 없습니다.</p>
         ) : (
