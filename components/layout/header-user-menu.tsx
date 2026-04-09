@@ -37,7 +37,8 @@ export function HeaderUserMenu({ role, name, email }: HeaderUserMenuProps) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-10 items-center gap-1.5 rounded-full bg-primary-600 px-3 text-sm font-bold text-white shadow-sm transition hover:bg-primary-700 active:scale-95"
+        className="flex items-center gap-1.5 rounded-full bg-primary-600 px-3 text-sm font-bold text-white shadow-sm transition hover:bg-primary-700 active:scale-95"
+        style={{ height: '45px' }}
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label={`${displayName} 메뉴`}
