@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const loginSchema = z.object({
   email: z.string().email('올바른 이메일을 입력해주세요.'),
   password: z.string().min(6, '6자 이상 비밀번호를 입력해주세요.'),
-  role: z.enum(['ADMIN', 'PARENT'], {
+  role: z.enum(['ADMIN', 'PARENT', 'DRIVER'], {
     errorMap: () => ({ message: '역할을 선택해주세요.' })
   })
 });

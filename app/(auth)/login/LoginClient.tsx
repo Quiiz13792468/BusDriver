@@ -22,6 +22,11 @@ const ROLE_MAP = {
     label: '학부모',
     value: 'PARENT' as const,
     description: '자녀 탑승지점 변경과 입금 현황을 확인하세요.'
+  },
+  driver: {
+    label: '버스기사',
+    value: 'DRIVER' as const,
+    description: '배정된 노선과 학생 정보를 확인하세요.'
   }
 } as const;
 

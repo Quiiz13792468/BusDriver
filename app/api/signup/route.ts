@@ -51,15 +51,18 @@ export async function POST(req: Request) {
 
         // 자녀 일괄 등록
         const studentList: { name: string; phone?: string }[] = Array.isArray(students) ? students : [];
-        for (const s of studentList) {
-          if (!s.name?.trim()) continue;
-          await createStudent({
-            name: s.name.trim(),
-            guardianName: name.trim(),
-            parentUserId: user.id,
-            phone: s.phone?.trim() || null,
-          });
-        }
+        await Promise.all(
+          studentList
+            .filter((s) => s.name?.trim())
+            .map((s) =>
+              createStudent({
+                name: s.name.trim(),
+                guardianName: name.trim(),
+                parentUserId: user.id,
+                phone: s.phone?.trim() || null,
+              })
+            )
+        );
       }
 
       await markTokenUsed(inviteToken, user.id);

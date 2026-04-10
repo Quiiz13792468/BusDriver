@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import clsx from 'clsx';
@@ -8,7 +8,7 @@ import { BusIcon } from '@/components/layout/icons';
 
 type TokenState = 'loading' | 'valid' | 'invalid';
 type TargetRole = 'PARENT' | 'DRIVER';
-type StudentInput = { name: string; phone: string };
+type StudentInput = { id: number; name: string; phone: string };
 
 export function SignupClient() {
   const router = useRouter();
@@ -29,7 +29,8 @@ export function SignupClient() {
   const [submitting, setSubmitting] = useState(false);
 
   // 학생 목록 (학부모 전용)
-  const [students, setStudents] = useState<StudentInput[]>([{ name: '', phone: '' }]);
+  const nextIdRef = useRef(1);
+  const [students, setStudents] = useState<StudentInput[]>([{ id: 0, name: '', phone: '' }]);
 
   // 토큰 유효성 확인
   useEffect(() => {
@@ -49,7 +50,8 @@ export function SignupClient() {
   }, [token]);
 
   function addStudent() {
-    setStudents((prev) => [...prev, { name: '', phone: '' }]);
+    const id = nextIdRef.current++;
+    setStudents((prev) => [...prev, { id, name: '', phone: '' }]);
   }
 
   function removeStudent(idx: number) {
@@ -255,7 +257,7 @@ export function SignupClient() {
               </div>
 
               {students.map((student, idx) => (
-                <div key={idx} className="space-y-2 rounded-xl border border-primary-100 bg-white p-3">
+                <div key={student.id} className="space-y-2 rounded-xl border border-primary-100 bg-white p-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-primary-700">자녀 {idx + 1}</span>
                     {students.length > 1 && (
