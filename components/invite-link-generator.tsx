@@ -3,7 +3,15 @@
 import { useState } from 'react';
 import clsx from 'clsx';
 
+type TargetRole = 'PARENT' | 'DRIVER';
+
+const ROLE_OPTIONS: { value: TargetRole; label: string; desc: string }[] = [
+  { value: 'PARENT', label: '학부모', desc: '자녀 정보 포함 가입' },
+  { value: 'DRIVER', label: '버스기사', desc: '기사 계정 생성' },
+];
+
 export function InviteLinkGenerator() {
+  const [targetRole, setTargetRole] = useState<TargetRole>('PARENT');
   const [expiresInHours, setExpiresInHours] = useState(24);
   const [generatedLink, setGeneratedLink] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,7 +28,7 @@ export function InviteLinkGenerator() {
       const res = await fetch('/api/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ expiresInHours }),
+        body: JSON.stringify({ expiresInHours, targetRole }),
       });
       const data = await res.json();
       if (!data.ok) { setError(data.error ?? '오류가 발생했습니다.'); return; }
@@ -42,15 +50,38 @@ export function InviteLinkGenerator() {
   }
 
   return (
-    <div className="ui-card ui-card-pad space-y-4">
+    <div className="ui-card ui-card-pad space-y-5">
       <div>
-        <h2 className="text-lg font-semibold text-slate-900">학부모 초대 링크 생성</h2>
-        <p className="mt-0.5 text-sm text-slate-500">1회용 링크로만 가입 가능합니다. 링크를 카카오톡/문자로 전송하세요.</p>
+        <h2 className="mb-1 text-xl font-bold text-sp-text">초대 링크 생성</h2>
+        <p className="text-sm text-sp-muted">1회용 링크로만 가입 가능합니다. 링크를 카카오톡/문자로 전송하세요.</p>
+      </div>
+
+      {/* 역할 선택 */}
+      <div className="space-y-2">
+        <span className="text-sm font-semibold text-sp-text">초대 대상</span>
+        <div className="grid grid-cols-2 gap-2">
+          {ROLE_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => { setTargetRole(opt.value); setGeneratedLink(''); }}
+              className={clsx(
+                'flex flex-col items-center gap-1 rounded-2xl border-2 px-4 py-3 text-sm font-semibold transition',
+                targetRole === opt.value
+                  ? 'border-primary-500 bg-primary-50 text-primary-700'
+                  : 'border-sp-border bg-sp-surface text-sp-muted hover:border-primary-200'
+              )}
+            >
+              <span className="text-base font-bold">{opt.label}</span>
+              <span className="text-xs font-normal">{opt.desc}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* 유효기간 선택 */}
       <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-slate-700">유효 기간</span>
+        <span className="text-sm font-semibold text-sp-text">유효 기간</span>
         {([
           { label: '24시간', value: 24 },
           { label: '7일', value: 168 },
@@ -62,8 +93,8 @@ export function InviteLinkGenerator() {
             className={clsx(
               'rounded-full border px-4 py-1.5 text-sm font-medium transition',
               expiresInHours === opt.value
-                ? 'border-primary-300 bg-primary-50 text-primary-700'
-                : 'border-slate-200 bg-white text-slate-600 hover:border-primary-200'
+                ? 'border-primary-400 bg-primary-50 text-primary-700'
+                : 'border-sp-border bg-sp-surface text-sp-muted hover:border-primary-200'
             )}
           >
             {opt.label}
@@ -76,11 +107,11 @@ export function InviteLinkGenerator() {
         onClick={handleGenerate}
         disabled={loading}
         className={clsx(
-          'w-full rounded-2xl py-3 text-sm font-semibold transition',
-          loading ? 'bg-slate-200 text-slate-500' : 'bg-primary-600 text-white hover:bg-primary-500 active:scale-[.98]'
+          'w-full rounded-2xl py-3 text-base font-semibold transition',
+          loading ? 'bg-sp-high text-sp-muted' : 'bg-primary-600 text-white hover:bg-primary-500 active:scale-[.98]'
         )}
       >
-        {loading ? '링크 생성 중...' : '초대 링크 생성'}
+        {loading ? '링크 생성 중...' : `${targetRole === 'PARENT' ? '학부모' : '버스기사'} 초대 링크 생성`}
       </button>
 
       {error && (
@@ -88,16 +119,21 @@ export function InviteLinkGenerator() {
       )}
 
       {generatedLink && (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 space-y-3">
-          <p className="text-xs font-semibold text-emerald-800">생성된 초대 링크</p>
+        <div className="space-y-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
+              {targetRole === 'PARENT' ? '학부모용' : '버스기사용'}
+            </span>
+            <p className="text-xs font-semibold text-emerald-800">초대 링크 생성 완료</p>
+          </div>
           <div className="rounded-xl border border-emerald-200 bg-white px-3 py-2">
-            <p className="break-all text-xs text-slate-700">{generatedLink}</p>
+            <p className="break-all text-xs text-sp-muted">{generatedLink}</p>
           </div>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={handleCopy}
-              className="flex-1 rounded-xl border border-emerald-300 bg-white py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 active:scale-[.98]"
+              className="flex-1 rounded-xl border border-emerald-300 bg-white py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 active:scale-[.98]"
             >
               {copied ? '✅ 복사됨!' : '링크 복사'}
             </button>
@@ -105,7 +141,7 @@ export function InviteLinkGenerator() {
               <button
                 type="button"
                 onClick={() => navigator.share?.({ title: '통학버스 가입 초대', url: generatedLink })}
-                className="flex-1 rounded-xl bg-primary-600 py-2 text-sm font-semibold text-white transition hover:bg-primary-500 active:scale-[.98]"
+                className="flex-1 rounded-xl bg-primary-600 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-500 active:scale-[.98]"
               >
                 공유하기
               </button>

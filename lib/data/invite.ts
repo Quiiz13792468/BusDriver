@@ -8,6 +8,7 @@ export type InviteTokenRecord = {
   token: string;
   adminId: string;
   adminName: string | null;
+  targetRole: 'PARENT' | 'DRIVER';
   used: boolean;
   usedBy: string | null;
   usedAt: string | null;
@@ -20,7 +21,11 @@ function ensureSupabase() {
 }
 
 /** 관리자가 초대 토큰을 생성합니다 */
-export async function createInviteToken(adminId: string, expiresInHours: number = 24): Promise<InviteTokenRecord> {
+export async function createInviteToken(
+  adminId: string,
+  expiresInHours: number = 24,
+  targetRole: 'PARENT' | 'DRIVER' = 'PARENT',
+): Promise<InviteTokenRecord> {
   ensureSupabase();
   const id = crypto.randomUUID();
   const token = crypto.randomBytes(24).toString('hex'); // 48자 랜덤 토큰
@@ -31,6 +36,7 @@ export async function createInviteToken(adminId: string, expiresInHours: number 
     id,
     token,
     admin_id: adminId,
+    target_role: targetRole,
     used: false,
     used_by: null,
     used_at: null,
@@ -76,6 +82,7 @@ function mapRow(r: any): InviteTokenRecord {
     token: r.token,
     adminId: r.admin_id,
     adminName: r.admin_name ?? null,
+    targetRole: (r.target_role ?? 'PARENT') as 'PARENT' | 'DRIVER',
     used: r.used,
     usedBy: r.used_by ?? null,
     usedAt: r.used_at ?? null,

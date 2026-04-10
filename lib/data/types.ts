@@ -1,4 +1,4 @@
-﻿export type Role = 'ADMIN' | 'PARENT';
+﻿export type Role = 'ADMIN' | 'PARENT' | 'DRIVER';
 
 export type UserRecord = {
   id: string;
