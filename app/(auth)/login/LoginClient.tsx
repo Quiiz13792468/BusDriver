@@ -14,19 +14,14 @@ const STORAGE_KEY = 'bus-login-preferences';
 
 const ROLE_MAP = {
   admin: {
-    label: '관리자',
+    label: '버스기사',
     value: 'ADMIN' as const,
-    description: '학생·노선·입금 현황을 한번에 관리합니다.'
+    description: '노선과 학생 정보를 관리하세요.'
   },
   parent: {
     label: '학부모',
     value: 'PARENT' as const,
     description: '자녀 탑승지점 변경과 입금 현황을 확인하세요.'
-  },
-  driver: {
-    label: '버스기사',
-    value: 'DRIVER' as const,
-    description: '배정된 노선과 학생 정보를 확인하세요.'
   }
 } as const;
 

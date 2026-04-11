@@ -105,12 +105,12 @@ export function RecordPaymentForm({ schoolId, students, onSuccess }: RecordPayme
       <input type="hidden" name="schoolId" value={schoolId} />
       <div>
         <h2 className="mb-1 text-xl font-bold text-sp-text">입금 기록 추가</h2>
-        <p className="text-sm text-slate-700">학생의 입금 내역을 추가하고 상태를 업데이트하세요.</p>
+        <p className="text-sm text-sp-muted">학생의 입금 내역을 추가하고 상태를 업데이트하세요.</p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
         <div className="grid gap-1.5">
-          <label className="text-sm font-semibold text-slate-700" htmlFor="student-search">
+          <label className="text-sm font-semibold text-sp-text" htmlFor="student-search">
             학생 검색
           </label>
           <input
@@ -124,7 +124,7 @@ export function RecordPaymentForm({ schoolId, students, onSuccess }: RecordPayme
         </div>
 
         <div className="grid gap-1.5">
-          <label className="text-sm font-semibold text-slate-700" htmlFor="studentId">
+          <label className="text-sm font-semibold text-sp-text" htmlFor="studentId">
             학생 선택
           </label>
           <select
@@ -179,7 +179,7 @@ export function RecordPaymentForm({ schoolId, students, onSuccess }: RecordPayme
           onChange={(event) => setAmount(Number(event.target.value))}
         />
         <div className="grid gap-1.5">
-          <label className="text-sm font-semibold text-slate-700" htmlFor="status">
+          <label className="text-sm font-semibold text-sp-text" htmlFor="status">
             입금 상태
           </label>
           <select
@@ -232,7 +232,7 @@ function InputField({
 }: InputFieldProps) {
   return (
     <div className="grid gap-1.5">
-      <label className="text-sm font-semibold text-slate-700" htmlFor={id}>
+      <label className="text-sm font-semibold text-sp-text" htmlFor={id}>
         {label}
       </label>
       <input
@@ -264,7 +264,7 @@ type DateFieldProps = {
 function DateField({ label, id, name, value, onChange, onOpenPicker, inputRef }: DateFieldProps) {
   return (
     <div className="grid gap-1.5">
-      <label className="text-sm font-semibold text-slate-700" htmlFor={id}>
+      <label className="text-sm font-semibold text-sp-text" htmlFor={id}>
         {label}
       </label>
       <div className="relative">

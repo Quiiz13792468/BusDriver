@@ -67,7 +67,7 @@ export function RecordPaymentModal({ schools, students }: RecordPaymentModalProp
         <div className="w-full max-w-2xl ui-card overflow-hidden shadow-2xl">
           <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
             <div>
-              <p className="text-sm font-semibold text-slate-500">입금 기록 추가</p>
+              <p className="text-sm font-semibold text-sp-muted">입금 기록 추가</p>
               <h2 className="mb-1 text-xl font-bold text-sp-text">학교 선택 후 입력</h2>
             </div>
             <button
@@ -81,7 +81,7 @@ export function RecordPaymentModal({ schools, students }: RecordPaymentModalProp
           <div className="max-h-[70vh] overflow-y-auto">
           <div className="space-y-4 p-5 pb-8">
             <div className="grid gap-1.5">
-              <label className="text-sm font-semibold text-slate-700" htmlFor="payment-school">
+              <label className="text-sm font-semibold text-sp-text" htmlFor="payment-school">
                 학교 선택
               </label>
               <select
