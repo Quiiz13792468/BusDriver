@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1775999684873,
-  "projectRoot": "e:\\Work\\Source\\Github\\BusDriver",
+  "lastScanned": 1776217108295,
+  "projectRoot": "/mnt/e/Work/Source/Github/BusDriver",
   "techStack": {
     "languages": [
       {
@@ -24,23 +24,18 @@
     "frameworks": [
       {
         "name": "next",
-        "version": "14.2.3",
+        "version": "16.2.3",
         "category": "fullstack"
       },
       {
         "name": "react",
-        "version": "18.2.0",
+        "version": "19.2.4",
         "category": "frontend"
       },
       {
         "name": "react-dom",
-        "version": "18.2.0",
+        "version": "19.2.4",
         "category": "frontend"
-      },
-      {
-        "name": "@playwright/test",
-        "version": "1.59.1",
-        "category": "testing"
       }
     ],
     "packageManager": "npm",
@@ -55,31 +50,21 @@
       "dev": "next dev",
       "build": "next build",
       "start": "next start",
-      "lint": "next lint",
-      "seed:supabase": "tsx scripts/seed-supabase.ts",
-      "import:supabase": "tsx scripts/import-supabase.ts",
-      "test:e2e": "playwright test",
-      "test:e2e:ui": "playwright test --ui",
-      "test:e2e:report": "playwright show-report"
+      "lint": "eslint"
     }
   },
   "conventions": {
     "namingStyle": "camelCase",
-    "importStyle": null,
+    "importStyle": "ES modules",
     "testPattern": null,
-    "fileOrganization": null
+    "fileOrganization": "type-based"
   },
   "structure": {
     "isMonorepo": false,
     "workspaces": [],
     "mainDirectories": [
-      "app",
-      "components",
-      "docs",
-      "lib",
-      "pages",
       "public",
-      "scripts"
+      "src"
     ],
     "gitBranches": {
       "defaultBranch": "main",
@@ -88,235 +73,301 @@
   },
   "customNotes": [],
   "directoryMap": {
-    "app": {
-      "path": "app",
-      "purpose": "Application code",
-      "fileCount": 4,
-      "lastAccessed": 1775999684815,
-      "keyFiles": [
-        "globals.css",
-        "layout.tsx",
-        "manifest.ts",
-        "page.tsx"
-      ]
-    },
-    "components": {
-      "path": "components",
-      "purpose": "UI components",
-      "fileCount": 27,
-      "lastAccessed": 1775999684816,
-      "keyFiles": [
-        "bulk-assign-students.tsx",
-        "change-pickup-button.tsx",
-        "dashboard-auto-refresh.tsx",
-        "inactivity-tracker.tsx",
-        "invite-link-generator.tsx"
-      ]
-    },
-    "docs": {
-      "path": "docs",
-      "purpose": "Documentation",
-      "fileCount": 5,
-      "lastAccessed": 1775999684826,
-      "keyFiles": [
-        "DESIGN.md",
-        "supabase_migration.md",
-        "supabase_table.txt"
-      ]
-    },
-    "e2e": {
-      "path": "e2e",
-      "purpose": null,
-      "fileCount": 2,
-      "lastAccessed": 1775999684828,
-      "keyFiles": [
-        "login.spec.ts",
-        "screenshots.spec.ts"
-      ]
-    },
-    "lib": {
-      "path": "lib",
-      "purpose": "Library code",
-      "fileCount": 3,
-      "lastAccessed": 1775999684828,
-      "keyFiles": [
-        "kakao-directions.ts",
-        "utils.ts",
-        "validation.ts"
-      ]
-    },
-    "migrations": {
-      "path": "migrations",
-      "purpose": "Database migrations",
-      "fileCount": 12,
-      "lastAccessed": 1775999684829,
-      "keyFiles": [
-        "2025_11_01_add_parent_profile_fields.sql",
-        "2025_11_02_add_admin_user_id_to_schools.sql",
-        "2025_11_03_students_school_optional.sql",
-        "2026_02_12_add_auth_login_audit.sql",
-        "2026_03_02_add_board_notifications.sql"
-      ]
-    },
-    "pages": {
-      "path": "pages",
-      "purpose": "Page components",
-      "fileCount": 1,
-      "lastAccessed": 1775999684829,
-      "keyFiles": [
-        "_document.tsx"
-      ]
-    },
     "public": {
       "path": "public",
       "purpose": "Public files",
-      "fileCount": 1,
-      "lastAccessed": 1775999684830,
-      "keyFiles": [
-        "sw.js"
-      ]
-    },
-    "scripts": {
-      "path": "scripts",
-      "purpose": "Build/utility scripts",
       "fileCount": 5,
-      "lastAccessed": 1775999684830,
+      "lastAccessed": 1776217108250,
       "keyFiles": [
-        "import-supabase.ts",
-        "migrate-role-to-app-metadata.ts",
-        "migrate-users-to-supabase-auth.ts",
-        "seed-supabase.ts",
-        "seed.ts"
+        "file.svg",
+        "globe.svg",
+        "next.svg",
+        "vercel.svg",
+        "window.svg"
       ]
     },
-    "test-results": {
-      "path": "test-results",
-      "purpose": null,
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
       "fileCount": 1,
-      "lastAccessed": 1775999684830,
-      "keyFiles": []
-    },
-    "types": {
-      "path": "types",
-      "purpose": "Type definitions",
-      "fileCount": 2,
-      "lastAccessed": 1775999684831,
+      "lastAccessed": 1776217108256,
       "keyFiles": [
-        "next-auth.d.ts",
-        "supabase.ts"
+        "middleware.ts"
       ]
     },
-    "app\\api": {
-      "path": "app\\api",
-      "purpose": "API routes",
+    "src/app": {
+      "path": "src/app",
+      "purpose": "Application code",
+      "fileCount": 4,
+      "lastAccessed": 1776217108266,
+      "keyFiles": [
+        "favicon.ico",
+        "globals.css",
+        "layout.tsx"
+      ]
+    },
+    "src/components": {
+      "path": "src/components",
+      "purpose": "UI components",
       "fileCount": 0,
-      "lastAccessed": 1775999684832,
+      "lastAccessed": 1776217108270,
       "keyFiles": []
     },
-    "lib\\data": {
-      "path": "lib\\data",
-      "purpose": "Data files",
-      "fileCount": 11,
-      "lastAccessed": 1775999684834,
-      "keyFiles": [
-        "alert.ts",
-        "board-notifications.ts",
-        "board.ts"
-      ]
-    },
-    "public\\assets": {
-      "path": "public\\assets",
-      "purpose": "Static assets",
+    "src/lib": {
+      "path": "src/lib",
+      "purpose": "Library code",
       "fileCount": 1,
-      "lastAccessed": 1775999684838,
+      "lastAccessed": 1776217108274,
       "keyFiles": [
-        "schoolbus_loading.gif"
+        "utils.ts"
       ]
     }
   },
   "hotPaths": [
     {
-      "path": "",
-      "accessCount": 4,
-      "lastAccessed": 1776004764095,
-      "type": "directory"
-    },
-    {
-      "path": "migrations\\new_project_schema.sql",
-      "accessCount": 3,
-      "lastAccessed": 1776004755875,
+      "path": "src/app/page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776217568716,
       "type": "file"
     },
     {
-      "path": "package.json",
+      "path": "src/app/layout.tsx",
       "accessCount": 2,
-      "lastAccessed": 1776004537033,
+      "lastAccessed": 1776233107690,
       "type": "file"
     },
     {
-      "path": "migrations\\supabase_schema.sql",
+      "path": "src/app/globals.css",
       "accessCount": 2,
-      "lastAccessed": 1776004545570,
+      "lastAccessed": 1776233124095,
       "type": "file"
     },
     {
-      "path": "lib\\data\\payment-utils.ts",
+      "path": "src/lib/actions/auth.ts",
       "accessCount": 2,
-      "lastAccessed": 1776004755108,
+      "lastAccessed": 1776233194004,
       "type": "file"
     },
     {
-      "path": "migrations\\2026_04_11_add_target_role_to_invite_tokens.sql",
+      "path": "src/proxy.ts",
       "accessCount": 2,
-      "lastAccessed": 1776004755928,
+      "lastAccessed": 1776233226651,
       "type": "file"
     },
     {
       "path": "Todo.md",
       "accessCount": 2,
-      "lastAccessed": 1776004765097,
+      "lastAccessed": 1776233286585,
       "type": "file"
     },
     {
-      "path": "migrations\\supabase_policies.sql",
+      "path": "AGENTS.md",
       "accessCount": 1,
-      "lastAccessed": 1776004546306,
+      "lastAccessed": 1776217181204,
       "type": "file"
     },
     {
-      "path": "middleware.ts",
+      "path": "supabase/migrations/20260413000000_init_busdriver_v2.sql",
       "accessCount": 1,
-      "lastAccessed": 1776004546788,
+      "lastAccessed": 1776217472921,
       "type": "file"
     },
     {
-      "path": "migrations\\2026_03_02_add_invite_tokens.sql",
+      "path": "src/types/database.ts",
       "accessCount": 1,
-      "lastAccessed": 1776004547475,
+      "lastAccessed": 1776217524047,
       "type": "file"
     },
     {
-      "path": "lib\\data\\payment.ts",
+      "path": "src/app/api/auth/callback/route.ts",
       "accessCount": 1,
-      "lastAccessed": 1776004556075,
+      "lastAccessed": 1776217525918,
       "type": "file"
     },
     {
-      "path": "lib\\data\\invite.ts",
+      "path": "src/app/(auth)/layout.tsx",
       "accessCount": 1,
-      "lastAccessed": 1776004756234,
+      "lastAccessed": 1776217548583,
       "type": "file"
     },
     {
-      "path": "app",
+      "path": "src/app/(auth)/login/page.tsx",
       "accessCount": 1,
-      "lastAccessed": 1776004770282,
-      "type": "directory"
+      "lastAccessed": 1776217552433,
+      "type": "file"
     },
     {
-      "path": "C:\\Users\\Tom_notebook\\.claude\\plans\\twinkly-churning-hedgehog.md",
+      "path": "src/app/(auth)/invite/[token]/page.tsx",
       "accessCount": 1,
-      "lastAccessed": 1776005526199,
+      "lastAccessed": 1776217554631,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(driver)/layout.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217575424,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(parent)/layout.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217578496,
+      "type": "file"
+    },
+    {
+      "path": "src/components/driver/DriverHeader.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217584563,
+      "type": "file"
+    },
+    {
+      "path": "src/components/driver/DriverNav.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217590462,
+      "type": "file"
+    },
+    {
+      "path": "src/components/parent/ParentHeader.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217592910,
+      "type": "file"
+    },
+    {
+      "path": "src/components/parent/ParentNav.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217596422,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(driver)/dashboard/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217605126,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(driver)/schools/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217609929,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(driver)/schools/[studentId]/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217612341,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(driver)/payments/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217615861,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(driver)/board/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217621035,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(driver)/settings/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217625828,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(parent)/dashboard/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217633447,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(parent)/payments/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217639528,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(parent)/board/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217642713,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(parent)/settings/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217647520,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/queries/students.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776217657035,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/queries/payments.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776217666405,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/queries/notifications.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776217670922,
+      "type": "file"
+    },
+    {
+      "path": "src/middleware.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776217675648,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/layout.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217731139,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/dashboard/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217741041,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/schools/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217746524,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/schools/[studentId]/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217749800,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/payments/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217761204,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/board/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217767998,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/settings/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776217774954,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/supabase/admin.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776233176855,
       "type": "file"
     }
   ],

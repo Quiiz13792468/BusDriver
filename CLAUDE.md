@@ -32,14 +32,26 @@
 - 기존 기능 회귀 가능성을 항상 점검한다.
 - UI 변경은 기능 구현만 보지 말고 실제 사용성까지 함께 고려한다.
 
+## 역할 구조 (v2 확정)
+
+| 역할 | 설명 | 비고 |
+|---|---|---|
+| **ADMIN** | 서비스 운영자 (개발자 본인) | Phase 2에서 별도 관리 화면 구성 |
+| **DRIVER** | 버스기사 (핵심 사용자) | 전체 기능 접근. v1의 ADMIN role 대체 |
+| **PARENT** | 학부모 | 간소화된 화면. 자녀 정보 조회/이의제기만 가능 |
+
+- `profiles.role` CHECK: `('ADMIN', 'DRIVER', 'PARENT')`
+- 역할 판별 기준: `auth.uid()` + `profiles.role` (NextAuth 완전 제거, Supabase Auth 직접 사용)
+- 가입 경로: DRIVER/PARENT 모두 초대 링크 경유만 허용 (public signup 비활성화)
+
 ## 프로젝트 구현 원칙
-- 학부모는 이용금액, 이용정지일을 수정할 수 없다.
+- PARENT는 이용금액(custom_fee), 이용정지일(suspended_until)을 수정할 수 없다.
 - 목록 조회 시 inactive 학생은 기본 제외한다.
 - 모바일에서 숫자 입력은 가능하면 숫자 키패드를 유도한다.
 - SweetAlert2는 간단 입력에만 사용하고, 긴 폼은 페이지 또는 드로어를 우선 검토한다.
-- 관리자/학부모 역할 분기를 명확히 유지한다.
+- DRIVER/PARENT 역할 분기를 명확히 유지한다. (삼중 가드: 미들웨어 + 서버 컴포넌트 + RLS)
 - 입금은 누적 계산을 기준으로 처리한다.
-- 학교별 기본 이용금액이 학생별 값보다 우선한다.
+- 학교별 기본 이용금액(schools.default_fee)이 학생별 값(students.custom_fee)보다 우선한다.
 - 이용 정지 학생은 삭제가 아니라 inactive 상태로 유지한다.
 
 ## UI/UX 원칙
@@ -137,3 +149,40 @@
 - UI/UX가 중요한 프로젝트인데 구현 편의만 보고 의사결정하지 않는다.
 - 권한/보안 문제를 단순 기능 이슈로 축소하지 않는다.
 - `Todo.md`를 갱신하지 않고 작업 상태를 완료 처리하지 않는다.
+
+---
+
+## v2 구현 금지 패턴
+
+### [금지 1] 테이블 셀 텍스트 세로 줄바꿈
+- `<table>` 사용 시 `overflow-x-auto` 래퍼 + `whitespace-nowrap` 필수
+- 대안 우선순위: 카드/리스트 > 가로 스크롤 테이블 > 컬럼 축소
+
+### [금지 2] 헤더·탭바 콘텐츠 겹침
+- 모든 페이지 본문 `pt-[--header-h]` + `pb-nav-safe` 필수
+- "화면 일부가 잘린다" 리포트는 blocker
+
+### [금지 3] 과한 padding/margin으로 데이터 밀도 저하
+- 카드 내부 padding: 최대 `p-3` / 컴팩트 뷰 `p-2`
+- `p-4` 이상은 이유 없으면 즉시 반려
+
+---
+
+## CSS 변수 토큰 (globals.css 단일 관리)
+
+```css
+--header-h:       56px;
+--bottom-nav-h:   64px;
+--ad-banner-h:    50px;
+--control-height: 48px;
+--space-card:     12px;
+--space-compact:   8px;
+--space-list-gap:  8px;
+--space-section:  12px;
+
+.pb-nav-safe {
+  padding-bottom: calc(
+    var(--bottom-nav-h) + var(--ad-banner-h) + env(safe-area-inset-bottom, 0px)
+  );
+}
+```

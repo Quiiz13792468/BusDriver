@@ -1,9 +1,3 @@
-
----
-
-# 5) `supabase-architect.md`
-
-```md
 ---
 name: supabase-architect
 description: Supabase 스키마, RLS, 권한, 쿼리 구조, migration 영향도를 설계하고 검토합니다. DB나 인증 정책이 포함된 작업에서 사용됩니다.

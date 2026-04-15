@@ -1,7 +1,3 @@
-
-# 최종 `reviewer-security.md`
-
-```md
 ---
 name: reviewer-security
 description: 인증, 권한, RLS, 데이터 노출, 입력 검증, 관리자/학부모 권한 경계를 중심으로 검토합니다. 실제 사용자에게 보이면 안 되는 데이터나 허용되면 안 되는 동작이 가능한지 식별합니다.

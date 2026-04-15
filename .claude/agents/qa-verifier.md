@@ -1,9 +1,3 @@
-
----
-
-# 6) `qa-verifier.md`
-
-```md
 ---
 name: qa-verifier
 description: 구현 결과가 요구사항과 계획에 맞는지 검증하고, 누락/회귀/권한/UX 문제를 체크리스트 기반으로 확인합니다.

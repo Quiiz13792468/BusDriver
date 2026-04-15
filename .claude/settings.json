@@ -1,0 +1,8 @@
+{
+  "env": {
+    "ENABLE_TOOL_SEARCH": "1",
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "50",
+    "MAX_THINKING_TOKENS": "10000",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
+  }
+}
