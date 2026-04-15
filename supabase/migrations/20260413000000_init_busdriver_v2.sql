@@ -6,7 +6,9 @@
 -- =============================================================================
 -- 1. EXTENSIONS
 -- =============================================================================
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
+-- citext: 대소문자 구분 없는 텍스트 타입 (login_id 중복 방지)
+-- pgcrypto는 Supabase에 이미 설치되어 있으나 extensions 스키마에 있으므로
+-- gen_random_bytes 대신 gen_random_uuid() 기반 토큰 생성 사용
 CREATE EXTENSION IF NOT EXISTS citext;
 
 -- =============================================================================
@@ -25,14 +27,14 @@ BEGIN
 END;
 $$;
 
--- 초대 토큰 생성 함수 (base64url 안전 hex)
+-- 초대 토큰 생성 함수 (UUID 2개 합성 → 64자 hex, pgcrypto 불필요)
 CREATE OR REPLACE FUNCTION public.generate_invite_token()
 RETURNS text
 LANGUAGE sql
-STABLE
+VOLATILE
 SET search_path = public, pg_temp
 AS $$
-  SELECT encode(gen_random_bytes(32), 'hex');
+  SELECT replace(gen_random_uuid()::text, '-', '') || replace(gen_random_uuid()::text, '-', '');
 $$;
 
 -- =============================================================================
