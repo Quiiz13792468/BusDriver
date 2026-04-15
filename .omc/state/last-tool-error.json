@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"git push --set-upstream origin main 2>&1\",\"description\":\"Push with upstream tracking set\"}",
+  "tool_input_preview": "{\"command\":\"git push --set-upstream origin main 2>&1\",\"description\":\"Push to GitHub origin main\"}",
   "error": "Exit code 128\nfatal: could not read Username for 'https://github.com': No such device or address",
-  "timestamp": "2026-04-15T06:08:33.862Z",
-  "retry_count": 3
+  "timestamp": "2026-04-15T13:20:04.811Z",
+  "retry_count": 1
 }

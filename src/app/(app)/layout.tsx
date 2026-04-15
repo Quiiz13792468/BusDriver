@@ -26,7 +26,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex flex-col min-h-screen bg-[#F2F2F7]">
       {isDriver
-        ? <DriverHeader fullName={profile.full_name} />
+        ? <DriverHeader fullName={profile.full_name} userId={user.id} />
         : <ParentHeader fullName={profile.full_name} />
       }
       <main className="flex-1 pb-[calc(64px+env(safe-area-inset-bottom))]">
