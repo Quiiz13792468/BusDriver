@@ -1,6 +1,9 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { logoutAction } from '@/lib/actions/auth'
+import ProfileEditDrawer from './ProfileEditDrawer'
+import PasswordDrawer from './PasswordDrawer'
+import InviteDrawer from './InviteDrawer'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -9,48 +12,70 @@ export default async function SettingsPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, full_name, phone, login_id')
     .eq('id', user.id)
     .single()
 
   if (!profile) redirect('/login')
 
-  const driverItems = [
-    { label: '프로필 수정', href: '#' },
-    { label: '비밀번호 변경', href: '#' },
-    { label: '학교 관리', href: '#' },
-    { label: '초대 링크 생성', href: '#' },
-    { label: '알림 설정', href: '#' },
-    { label: '나의 포인트', href: '#' },
-  ]
+  const isDriver = profile.role === 'DRIVER'
 
-  const parentItems = [
-    { label: '프로필 수정', href: '#' },
-    { label: '비밀번호 변경', href: '#' },
-    { label: '버스기사 전화', href: '#' },
-    { label: '알림 설정', href: '#' },
-    { label: '나의 포인트', href: '#' },
-  ]
+  // DRIVER: 학생 목록 (초대 링크 학생 지정용)
+  let students: { id: string; name: string }[] = []
+  if (isDriver) {
+    const { data: schools } = await supabase
+      .from('schools')
+      .select('id')
+      .eq('owner_driver_id', user.id)
 
-  const items = profile.role === 'DRIVER' ? driverItems : parentItems
+    const schoolIds = (schools ?? []).map((s) => s.id)
+
+    if (schoolIds.length > 0) {
+      const { data: studs } = await supabase
+        .from('students')
+        .select('id, name')
+        .in('school_id', schoolIds)
+        .eq('is_active', true)
+        .order('name')
+      students = studs ?? []
+    }
+  }
 
   return (
     <div className="px-4 py-5 space-y-4">
       <h1 className="text-2xl font-bold text-black">설정</h1>
 
-      <div className="bg-white rounded-2xl divide-y divide-[#F2F2F7]">
-        {items.map((item) => (
-          <a
-            key={item.label}
-            href={item.href}
-            className="flex items-center justify-between px-4 py-4 text-base text-black"
-          >
-            {item.label}
-            <span className="text-[#C6C6C8]">›</span>
-          </a>
-        ))}
+      {/* 프로필 카드 */}
+      <div className="bg-white rounded-2xl px-4 py-4 flex items-center gap-4">
+        <div className="w-14 h-14 rounded-full bg-[#F5A400]/20 flex items-center justify-center text-xl font-bold text-[#F5A400] flex-none">
+          {profile.full_name?.[0] ?? '?'}
+        </div>
+        <div>
+          <p className="text-lg font-bold text-black">{profile.full_name}</p>
+          <p className="text-sm text-[#6C6C70]">{profile.login_id}</p>
+          <p className="text-xs text-[#C6C6C8] mt-0.5">
+            {isDriver ? '버스기사' : '학부모'}
+          </p>
+        </div>
       </div>
 
+      {/* 계정 설정 */}
+      <div className="bg-white rounded-2xl divide-y divide-[#F2F2F7]">
+        <ProfileEditDrawer
+          fullName={profile.full_name ?? ''}
+          phone={profile.phone ?? null}
+        />
+        <PasswordDrawer />
+      </div>
+
+      {/* DRIVER 전용 */}
+      {isDriver && (
+        <div className="bg-white rounded-2xl divide-y divide-[#F2F2F7]">
+          <InviteDrawer students={students} />
+        </div>
+      )}
+
+      {/* 로그아웃 */}
       <form action={logoutAction}>
         <button
           type="submit"
@@ -59,6 +84,9 @@ export default async function SettingsPage() {
           로그아웃
         </button>
       </form>
+
+      {/* 앱 버전 */}
+      <p className="text-center text-xs text-[#C6C6C8]">BusDriver v2.0</p>
     </div>
   )
 }
