@@ -227,6 +227,12 @@
       "type": "file"
     },
     {
+      "path": "src/app/(app)/board/page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776261661795,
+      "type": "file"
+    },
+    {
       "path": "AGENTS.md",
       "accessCount": 1,
       "lastAccessed": 1776217181204,
@@ -362,12 +368,6 @@
       "path": "src/middleware.ts",
       "accessCount": 1,
       "lastAccessed": 1776217675648,
-      "type": "file"
-    },
-    {
-      "path": "src/app/(app)/board/page.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776217767998,
       "type": "file"
     },
     {
