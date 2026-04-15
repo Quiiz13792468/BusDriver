@@ -125,6 +125,18 @@
   },
   "hotPaths": [
     {
+      "path": "src/app/(app)/dashboard/DriverDashboard.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1776252355152,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/schools/page.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1776252344473,
+      "type": "file"
+    },
+    {
       "path": "src/app/page.tsx",
       "accessCount": 2,
       "lastAccessed": 1776217568716,
@@ -161,6 +173,36 @@
       "type": "file"
     },
     {
+      "path": "src/app/(auth)/login/page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776252002653,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(auth)/invite/[token]/page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776252037642,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/dashboard/page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776252112961,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/schools/[studentId]/page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776252222329,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/dashboard/ParentDashboard.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776252346241,
+      "type": "file"
+    },
+    {
       "path": "AGENTS.md",
       "accessCount": 1,
       "lastAccessed": 1776217181204,
@@ -188,18 +230,6 @@
       "path": "src/app/(auth)/layout.tsx",
       "accessCount": 1,
       "lastAccessed": 1776217548583,
-      "type": "file"
-    },
-    {
-      "path": "src/app/(auth)/login/page.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776217552433,
-      "type": "file"
-    },
-    {
-      "path": "src/app/(auth)/invite/[token]/page.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776217554631,
       "type": "file"
     },
     {
@@ -329,24 +359,6 @@
       "type": "file"
     },
     {
-      "path": "src/app/(app)/dashboard/page.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776217741041,
-      "type": "file"
-    },
-    {
-      "path": "src/app/(app)/schools/page.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776217746524,
-      "type": "file"
-    },
-    {
-      "path": "src/app/(app)/schools/[studentId]/page.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776217749800,
-      "type": "file"
-    },
-    {
       "path": "src/app/(app)/payments/page.tsx",
       "accessCount": 1,
       "lastAccessed": 1776217761204,
@@ -368,6 +380,36 @@
       "path": "src/lib/supabase/admin.ts",
       "accessCount": 1,
       "lastAccessed": 1776233176855,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(auth)/login/LoginForm.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776252022452,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(auth)/invite/[token]/InviteForm.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776252058956,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/schools/StudentRegisterButton.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776252200384,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/actions/students.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776252214084,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/schools/[studentId]/StudentDetail.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776252260344,
       "type": "file"
     }
   ],

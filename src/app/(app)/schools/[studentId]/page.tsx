@@ -1,11 +1,13 @@
-import { redirect } from 'next/navigation'
+import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import StudentDetail from './StudentDetail'
 
 interface Props {
   params: Promise<{ studentId: string }>
 }
 
 export default async function StudentDetailPage({ params }: Props) {
+  const { studentId } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -18,13 +20,34 @@ export default async function StudentDetailPage({ params }: Props) {
 
   if (!profile || profile.role !== 'DRIVER') redirect('/dashboard')
 
-  const { studentId } = await params
+  const { data: student } = await supabase
+    .from('students')
+    .select('*, schools(id, name, default_fee)')
+    .eq('id', studentId)
+    .eq('driver_id', user.id)
+    .single()
+
+  if (!student) notFound()
+
+  const { data: schools } = await supabase
+    .from('schools')
+    .select('id, name, default_fee')
+    .eq('owner_driver_id', user.id)
+    .order('name')
+
+  // 최근 입금 내역 (최신 6건)
+  const { data: recentPayments } = await supabase
+    .from('payments')
+    .select('id, amount, paid_at, status, memo')
+    .eq('student_id', studentId)
+    .order('paid_at', { ascending: false })
+    .limit(6)
 
   return (
-    <div className="px-4 py-5 space-y-4">
-      <h1 className="text-2xl font-bold text-black">학생 상세</h1>
-      {/* TODO: 학생 상세 정보, 편집, 월별 입금 내역 */}
-      <p className="text-[#6C6C70] text-sm">studentId: {studentId}</p>
-    </div>
+    <StudentDetail
+      student={student}
+      schools={schools ?? []}
+      recentPayments={recentPayments ?? []}
+    />
   )
 }
