@@ -1,23 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import PaymentCell from './PaymentCell'
 
 interface Props {
   year: number
-}
-
-const statusLabel: Record<string, string> = {
-  CONFIRMED: '확정',
-  PENDING: '확인 중',
-  DISPUTED: '수정 요청',
-}
-const statusBg: Record<string, string> = {
-  CONFIRMED: 'bg-[#34C759]/10 text-[#34C759]',
-  PENDING: 'bg-[#FF6B00]/10 text-[#FF6B00]',
-  DISPUTED: 'bg-[#FF3B30]/10 text-[#FF3B30]',
-}
-
-function formatKRW(n: number) {
-  return n.toLocaleString('ko-KR') + '원'
 }
 
 const MONTHS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월']
@@ -134,14 +120,15 @@ export default async function ParentPayments({ year }: Props) {
 
                         return (
                           <td key={c.id} className="px-3 py-3 text-center">
-                            <div className="flex flex-col items-center gap-1">
-                              <span className="text-sm font-semibold text-black">
-                                {formatKRW(displayP.amount)}
-                              </span>
-                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusBg[displayP.status] ?? ''}`}>
-                                {statusLabel[displayP.status] ?? displayP.status}
-                              </span>
-                            </div>
+                            <PaymentCell
+                              payment={{
+                                id: displayP.id,
+                                amount: displayP.amount,
+                                paidAt: displayP.paid_at,
+                                status: displayP.status,
+                                memo: displayP.memo ?? null,
+                              }}
+                            />
                           </td>
                         )
                       })}
