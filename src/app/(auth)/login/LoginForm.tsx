@@ -67,8 +67,18 @@ export default function LoginForm() {
     })
   }
 
+  const tagline = role === 'DRIVER'
+    ? { title: '셔틀콕!', sub: '내 버스를 콕! 집어 관리하자' }
+    : { title: '셔틀콕!', sub: '우리 아이 셔틀버스를 콕! 집어타자' }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {/* 타이틀 */}
+      <div className="text-center pb-1">
+        <h1 className="text-2xl font-bold text-black">{tagline.title}</h1>
+        <p className="text-sm text-[#6C6C70] mt-1">{tagline.sub}</p>
+      </div>
+
       {/* 역할 선택 탭 */}
       <div className="flex rounded-2xl bg-[#F2F2F7] p-1 gap-1">
         {(['DRIVER', 'PARENT'] as Role[]).map((r) => (
