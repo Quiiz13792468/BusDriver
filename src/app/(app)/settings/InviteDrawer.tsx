@@ -3,38 +3,23 @@
 import { useState, useTransition } from 'react'
 import { createInviteTokenAction } from '@/lib/actions/settings'
 
-interface Student {
-  id: string
-  name: string
-}
-
-interface Props {
-  students: Student[]
-}
-
-export default function InviteDrawer({ students }: Props) {
+export default function InviteDrawer() {
   const [open, setOpen] = useState(false)
   const [inviteUrl, setInviteUrl] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [expiresHours, setExpiresHours] = useState('48')
-  const [targetStudentId, setTargetStudentId] = useState('')
   const [isPending, startTransition] = useTransition()
 
   const handleGenerate = () => {
     setError(null)
     setInviteUrl(null)
     startTransition(async () => {
-      const result = await createInviteTokenAction(
-        'PARENT',
-        parseInt(expiresHours),
-        targetStudentId || null,
-      )
+      const result = await createInviteTokenAction('PARENT', parseInt(expiresHours))
       if (result.error) {
         setError(result.error)
       } else if (result.token) {
-        const origin = window.location.origin
-        setInviteUrl(`${origin}/invite/${result.token}`)
+        setInviteUrl(`${window.location.origin}/invite/${result.token}`)
       }
     })
   }
@@ -86,7 +71,6 @@ export default function InviteDrawer({ students }: Props) {
             </div>
 
             <div className="px-5 py-4 space-y-4 pb-8">
-              {/* 유효기간 */}
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-[#6C6C70]">유효기간</label>
                 <div className="flex gap-2">
@@ -107,34 +91,13 @@ export default function InviteDrawer({ students }: Props) {
                 </div>
               </div>
 
-              {/* 학생 태그 (선택) */}
-              {students.length > 0 && (
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-[#6C6C70]">자녀 학생 지정 (선택)</label>
-                  <select
-                    value={targetStudentId}
-                    onChange={(e) => setTargetStudentId(e.target.value)}
-                    className="w-full h-12 px-4 rounded-2xl border border-[#C6C6C8] text-base bg-white focus:outline-none focus:border-[#F5A400]"
-                  >
-                    <option value="">지정 안 함</option>
-                    {students.map((s) => (
-                      <option key={s.id} value={s.id}>{s.name}</option>
-                    ))}
-                  </select>
-                  <p className="text-xs text-[#6C6C70] px-1">
-                    지정하면 학부모 가입 시 해당 학생이 자동 연결됩니다.
-                  </p>
-                </div>
-              )}
-
               {error && (
                 <div className="px-4 py-3 rounded-2xl bg-[#FF3B30]/10 border border-[#FF3B30]/20">
                   <p className="text-sm font-medium text-[#FF3B30]">{error}</p>
                 </div>
               )}
 
-              {/* 생성된 링크 */}
-              {inviteUrl && (
+              {inviteUrl ? (
                 <div className="space-y-2">
                   <div className="px-4 py-3 rounded-2xl bg-[#F2F2F7] break-all">
                     <p className="text-sm text-[#3C3C43]">{inviteUrl}</p>
@@ -154,9 +117,7 @@ export default function InviteDrawer({ students }: Props) {
                     새 링크 생성
                   </button>
                 </div>
-              )}
-
-              {!inviteUrl && (
+              ) : (
                 <button
                   type="button"
                   disabled={isPending}

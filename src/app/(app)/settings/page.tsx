@@ -20,26 +20,6 @@ export default async function SettingsPage() {
 
   const isDriver = profile.role === 'DRIVER'
 
-  // DRIVER: 학생 목록 (초대 링크 학생 지정용)
-  let students: { id: string; name: string }[] = []
-  if (isDriver) {
-    const { data: schools } = await supabase
-      .from('schools')
-      .select('id')
-      .eq('owner_driver_id', user.id)
-
-    const schoolIds = (schools ?? []).map((s) => s.id)
-
-    if (schoolIds.length > 0) {
-      const { data: studs } = await supabase
-        .from('students')
-        .select('id, name')
-        .in('school_id', schoolIds)
-        .eq('is_active', true)
-        .order('name')
-      students = studs ?? []
-    }
-  }
 
   return (
     <div className="px-4 py-5 space-y-4">
@@ -71,7 +51,7 @@ export default async function SettingsPage() {
       {/* DRIVER 전용 */}
       {isDriver && (
         <div className="bg-white rounded-2xl divide-y divide-[#F2F2F7]">
-          <InviteDrawer students={students} />
+          <InviteDrawer />
         </div>
       )}
 

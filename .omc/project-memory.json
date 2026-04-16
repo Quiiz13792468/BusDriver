@@ -125,9 +125,21 @@
   },
   "hotPaths": [
     {
+      "path": "src/app/(app)/settings/page.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1776339711973,
+      "type": "file"
+    },
+    {
       "path": "src/app/(app)/dashboard/DriverDashboard.tsx",
       "accessCount": 4,
       "lastAccessed": 1776252355152,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/layout.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1776261855100,
       "type": "file"
     },
     {
@@ -149,9 +161,15 @@
       "type": "file"
     },
     {
-      "path": "src/app/(app)/layout.tsx",
+      "path": "src/app/(app)/board/page.tsx",
       "accessCount": 3,
-      "lastAccessed": 1776261571394,
+      "lastAccessed": 1776261848987,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/actions/auth.ts",
+      "accessCount": 3,
+      "lastAccessed": 1776261854977,
       "type": "file"
     },
     {
@@ -170,12 +188,6 @@
       "path": "src/app/globals.css",
       "accessCount": 2,
       "lastAccessed": 1776233124095,
-      "type": "file"
-    },
-    {
-      "path": "src/lib/actions/auth.ts",
-      "accessCount": 2,
-      "lastAccessed": 1776233194004,
       "type": "file"
     },
     {
@@ -224,12 +236,6 @@
       "path": "src/app/(app)/payments/page.tsx",
       "accessCount": 2,
       "lastAccessed": 1776261488555,
-      "type": "file"
-    },
-    {
-      "path": "src/app/(app)/board/page.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1776261661795,
       "type": "file"
     },
     {
@@ -368,12 +374,6 @@
       "path": "src/middleware.ts",
       "accessCount": 1,
       "lastAccessed": 1776217675648,
-      "type": "file"
-    },
-    {
-      "path": "src/app/(app)/settings/page.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776217774954,
       "type": "file"
     },
     {
