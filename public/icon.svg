@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#F5A400"/>
+  <!-- 버스 바디 -->
+  <rect x="96" y="160" width="320" height="200" rx="24" fill="white"/>
+  <!-- 앞유리 -->
+  <rect x="320" y="180" width="76" height="80" rx="8" fill="#F5A400" opacity="0.7"/>
+  <!-- 측면 창문 -->
+  <rect x="116" y="180" width="64" height="60" rx="6" fill="#F5A400" opacity="0.7"/>
+  <rect x="196" y="180" width="64" height="60" rx="6" fill="#F5A400" opacity="0.7"/>
+  <!-- 바퀴 -->
+  <circle cx="168" cy="368" r="44" fill="#3C3C43"/>
+  <circle cx="168" cy="368" r="22" fill="#F5A400"/>
+  <circle cx="344" cy="368" r="44" fill="#3C3C43"/>
+  <circle cx="344" cy="368" r="22" fill="#F5A400"/>
+  <!-- 차체 하단 -->
+  <rect x="96" y="340" width="320" height="20" rx="0" fill="white"/>
+</svg>
