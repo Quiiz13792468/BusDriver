@@ -4,16 +4,17 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
-export async function loginAction(formData: FormData) {
-  const loginId = formData.get('login_id') as string
-  const password = formData.get('password') as string
-  const role = formData.get('role') as 'DRIVER' | 'PARENT'
-
+/**
+ * login_id + role → email 반환 (RLS 우회용)
+ * 실제 signInWithPassword는 클라이언트에서 처리
+ */
+export async function resolveLoginEmailAction(
+  loginId: string,
+  role: 'DRIVER' | 'PARENT',
+): Promise<{ email?: string; error?: string }> {
   try {
-    const supabase = await createClient()
     const adminClient = createAdminClient()
 
-    // login_id + role로 프로필 조회 (RLS 우회: 로그인 전이라 auth.uid() 없음)
     const { data: profile, error: profileError } = await adminClient
       .from('profiles')
       .select('id, role')
@@ -25,25 +26,15 @@ export async function loginAction(formData: FormData) {
       return { error: '아이디 또는 비밀번호가 올바르지 않습니다.' }
     }
 
-    // service role로 auth.users email 조회
     const { data: userData } = await adminClient.auth.admin.getUserById(profile.id)
     if (!userData?.user?.email) {
       return { error: '아이디 또는 비밀번호가 올바르지 않습니다.' }
     }
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: userData.user.email,
-      password,
-    })
-
-    if (error) {
-      return { error: '아이디 또는 비밀번호가 올바르지 않습니다.' }
-    }
-
-    return { success: true }
+    return { email: userData.user.email }
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
-    console.error('[loginAction] error:', e)
+    console.error('[resolveLoginEmailAction] error:', e)
     return { error: '[DEBUG] ' + msg }
   }
 }
