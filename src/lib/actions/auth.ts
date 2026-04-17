@@ -42,8 +42,9 @@ export async function loginAction(formData: FormData) {
 
     return { success: true }
   } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
     console.error('[loginAction] error:', e)
-    return { error: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' }
+    return { error: '[DEBUG] ' + msg }
   }
 }
 
