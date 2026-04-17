@@ -1,9 +1,7 @@
 'use client'
 
 import { useState, useEffect, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { resolveLoginEmailAction } from '@/lib/actions/auth'
+import { loginAction } from '@/lib/actions/auth'
 
 type Role = 'DRIVER' | 'PARENT'
 
@@ -11,7 +9,6 @@ const ROLE_KEY = 'busdriver_last_role'
 const SAVED_CREDS_KEY = 'busdriver_saved_creds'
 
 export default function LoginForm() {
-  const router = useRouter()
   const [role, setRole] = useState<Role>('DRIVER')
   const [loginId, setLoginId] = useState('')
   const [password, setPassword] = useState('')
@@ -60,22 +57,9 @@ export default function LoginForm() {
 
     startTransition(async () => {
       try {
-        // 1. 서버: login_id + role → email 조회 (admin client, RLS 우회)
-        const result = await resolveLoginEmailAction(loginId, role)
+        const result = await loginAction(loginId, role, password)
         if (result?.error) {
           setError(result.error)
-          return
-        }
-
-        // 2. 클라이언트: 브라우저에서 직접 signInWithPassword (쿠키 확실히 설정)
-        const supabase = createClient()
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: result.email!,
-          password,
-        })
-
-        if (signInError) {
-          setError('아이디 또는 비밀번호가 올바르지 않습니다.')
           return
         }
 

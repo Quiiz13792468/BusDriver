@@ -5,14 +5,15 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 /**
- * login_id + role → email 반환 (RLS 우회용)
- * 실제 signInWithPassword는 클라이언트에서 처리
+ * login_id + role + password → 서버에서 직접 signIn (쿠키 Set-Cookie로 확실히 설정)
  */
-export async function resolveLoginEmailAction(
+export async function loginAction(
   loginId: string,
   role: 'DRIVER' | 'PARENT',
-): Promise<{ email?: string; error?: string }> {
+  password: string,
+): Promise<{ error?: string }> {
   try {
+    // 1. admin client로 login_id + role → email 조회 (RLS 우회)
     const adminClient = createAdminClient()
 
     const { data: profile, error: profileError } = await adminClient
@@ -31,11 +32,21 @@ export async function resolveLoginEmailAction(
       return { error: '아이디 또는 비밀번호가 올바르지 않습니다.' }
     }
 
-    return { email: userData.user.email }
+    // 2. 서버 클라이언트로 signIn → Set-Cookie 헤더로 세션 쿠키 설정
+    const supabase = await createClient()
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: userData.user.email,
+      password,
+    })
+
+    if (signInError) {
+      return { error: '아이디 또는 비밀번호가 올바르지 않습니다.' }
+    }
+
+    return {}
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e)
-    console.error('[resolveLoginEmailAction] error:', e)
-    return { error: '[DEBUG] ' + msg }
+    console.error('[loginAction] error:', e)
+    return { error: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' }
   }
 }
 
