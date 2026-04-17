@@ -61,11 +61,15 @@ export default function LoginForm() {
     formData.set('role', role)
 
     startTransition(async () => {
-      const result = await loginAction(formData)
-      if (result?.error) {
-        setError(result.error)
-      } else {
-        setSuccess(true)
+      try {
+        const result = await loginAction(formData)
+        if (result?.error) {
+          setError(result.error)
+        } else {
+          setSuccess(true)
+        }
+      } catch {
+        setError('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.')
       }
     })
   }

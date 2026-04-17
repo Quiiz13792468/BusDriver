@@ -9,34 +9,39 @@ export async function loginAction(formData: FormData) {
   const password = formData.get('password') as string
   const role = formData.get('role') as 'DRIVER' | 'PARENT'
 
-  const supabase = await createClient()
-  const adminClient = createAdminClient()
+  try {
+    const supabase = await createClient()
+    const adminClient = createAdminClient()
 
-  // login_id + role로 프로필 조회 (RLS 우회: 로그인 전이라 auth.uid() 없음)
-  const { data: profile, error: profileError } = await adminClient
-    .from('profiles')
-    .select('id, role')
-    .eq('login_id', loginId)
-    .eq('role', role)
-    .single()
+    // login_id + role로 프로필 조회 (RLS 우회: 로그인 전이라 auth.uid() 없음)
+    const { data: profile, error: profileError } = await adminClient
+      .from('profiles')
+      .select('id, role')
+      .eq('login_id', loginId)
+      .eq('role', role)
+      .single()
 
-  if (profileError || !profile) {
-    return { error: '아이디 또는 비밀번호가 올바르지 않습니다.' }
-  }
+    if (profileError || !profile) {
+      return { error: '아이디 또는 비밀번호가 올바르지 않습니다.' }
+    }
 
-  // service role로 auth.users email 조회
-  const { data: userData } = await adminClient.auth.admin.getUserById(profile.id)
-  if (!userData?.user?.email) {
-    return { error: '아이디 또는 비밀번호가 올바르지 않습니다.' }
-  }
+    // service role로 auth.users email 조회
+    const { data: userData } = await adminClient.auth.admin.getUserById(profile.id)
+    if (!userData?.user?.email) {
+      return { error: '아이디 또는 비밀번호가 올바르지 않습니다.' }
+    }
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email: userData.user.email,
-    password,
-  })
+    const { error } = await supabase.auth.signInWithPassword({
+      email: userData.user.email,
+      password,
+    })
 
-  if (error) {
-    return { error: '아이디 또는 비밀번호가 올바르지 않습니다.' }
+    if (error) {
+      return { error: '아이디 또는 비밀번호가 올바르지 않습니다.' }
+    }
+  } catch (e) {
+    console.error('[loginAction] error:', e)
+    return { error: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' }
   }
 
   redirect('/dashboard')
