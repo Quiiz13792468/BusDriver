@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1776217108295,
+  "lastScanned": 1776347748386,
   "projectRoot": "/mnt/e/Work/Source/Github/BusDriver",
   "techStack": {
     "languages": [
@@ -50,7 +50,8 @@
       "dev": "next dev",
       "build": "next build",
       "start": "next start",
-      "lint": "eslint"
+      "lint": "eslint",
+      "seed": "node --env-file=.env.local scripts/seed.mjs"
     }
   },
   "conventions": {
@@ -64,6 +65,7 @@
     "workspaces": [],
     "mainDirectories": [
       "public",
+      "scripts",
       "src"
     ],
     "gitBranches": {
@@ -76,30 +78,46 @@
     "public": {
       "path": "public",
       "purpose": "Public files",
-      "fileCount": 5,
-      "lastAccessed": 1776217108250,
+      "fileCount": 7,
+      "lastAccessed": 1776347748329,
       "keyFiles": [
         "file.svg",
         "globe.svg",
-        "next.svg",
-        "vercel.svg",
-        "window.svg"
+        "icon.svg",
+        "manifest.json",
+        "next.svg"
+      ]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 1,
+      "lastAccessed": 1776347748335,
+      "keyFiles": [
+        "seed.mjs"
       ]
     },
     "src": {
       "path": "src",
       "purpose": "Source code",
       "fileCount": 1,
-      "lastAccessed": 1776217108256,
+      "lastAccessed": 1776347748349,
       "keyFiles": [
-        "middleware.ts"
+        "proxy.ts"
       ]
+    },
+    "supabase": {
+      "path": "supabase",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1776347748353,
+      "keyFiles": []
     },
     "src/app": {
       "path": "src/app",
       "purpose": "Application code",
       "fileCount": 4,
-      "lastAccessed": 1776217108266,
+      "lastAccessed": 1776347748366,
       "keyFiles": [
         "favicon.ico",
         "globals.css",
@@ -110,24 +128,78 @@
       "path": "src/components",
       "purpose": "UI components",
       "fileCount": 0,
-      "lastAccessed": 1776217108270,
+      "lastAccessed": 1776347748371,
       "keyFiles": []
     },
     "src/lib": {
       "path": "src/lib",
       "purpose": "Library code",
       "fileCount": 1,
-      "lastAccessed": 1776217108274,
+      "lastAccessed": 1776347748376,
       "keyFiles": [
         "utils.ts"
+      ]
+    },
+    "src/types": {
+      "path": "src/types",
+      "purpose": "Type definitions",
+      "fileCount": 1,
+      "lastAccessed": 1776347748380,
+      "keyFiles": [
+        "database.ts"
+      ]
+    },
+    "supabase/migrations": {
+      "path": "supabase/migrations",
+      "purpose": "Database migrations",
+      "fileCount": 1,
+      "lastAccessed": 1776347748386,
+      "keyFiles": [
+        "20260413000000_init_busdriver_v2.sql"
       ]
     }
   },
   "hotPaths": [
     {
+      "path": "src/app/(auth)/login/LoginForm.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1776394904725,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/layout.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1776394828649,
+      "type": "file"
+    },
+    {
+      "path": "src/app/layout.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1776344309032,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/actions/auth.ts",
+      "accessCount": 6,
+      "lastAccessed": 1776394471072,
+      "type": "file"
+    },
+    {
       "path": "src/app/(app)/settings/page.tsx",
       "accessCount": 5,
       "lastAccessed": 1776339711973,
+      "type": "file"
+    },
+    {
+      "path": "supabase/migrations/20260413000000_init_busdriver_v2.sql",
+      "accessCount": 5,
+      "lastAccessed": 1776394453279,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(auth)/login/page.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1776394875588,
       "type": "file"
     },
     {
@@ -137,21 +209,9 @@
       "type": "file"
     },
     {
-      "path": "src/app/(app)/layout.tsx",
-      "accessCount": 4,
-      "lastAccessed": 1776261855100,
-      "type": "file"
-    },
-    {
       "path": "src/app/(app)/schools/page.tsx",
       "accessCount": 3,
       "lastAccessed": 1776252344473,
-      "type": "file"
-    },
-    {
-      "path": "supabase/migrations/20260413000000_init_busdriver_v2.sql",
-      "accessCount": 3,
-      "lastAccessed": 1776258590624,
       "type": "file"
     },
     {
@@ -167,45 +227,27 @@
       "type": "file"
     },
     {
-      "path": "src/lib/actions/auth.ts",
+      "path": "Todo.md",
       "accessCount": 3,
-      "lastAccessed": 1776261854977,
+      "lastAccessed": 1776347802177,
       "type": "file"
     },
     {
       "path": "src/app/page.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1776217568716,
+      "accessCount": 3,
+      "lastAccessed": 1776394829029,
       "type": "file"
     },
     {
-      "path": "src/app/layout.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1776233107690,
+      "path": "src/proxy.ts",
+      "accessCount": 3,
+      "lastAccessed": 1776397794410,
       "type": "file"
     },
     {
       "path": "src/app/globals.css",
       "accessCount": 2,
       "lastAccessed": 1776233124095,
-      "type": "file"
-    },
-    {
-      "path": "src/proxy.ts",
-      "accessCount": 2,
-      "lastAccessed": 1776233226651,
-      "type": "file"
-    },
-    {
-      "path": "Todo.md",
-      "accessCount": 2,
-      "lastAccessed": 1776233286585,
-      "type": "file"
-    },
-    {
-      "path": "src/app/(auth)/login/page.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1776252002653,
       "type": "file"
     },
     {
@@ -236,6 +278,24 @@
       "path": "src/app/(app)/payments/page.tsx",
       "accessCount": 2,
       "lastAccessed": 1776261488555,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/actions/payments.ts",
+      "accessCount": 2,
+      "lastAccessed": 1776343104464,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/supabase/admin.ts",
+      "accessCount": 2,
+      "lastAccessed": 1776394421839,
+      "type": "file"
+    },
+    {
+      "path": "src/middleware.ts",
+      "accessCount": 2,
+      "lastAccessed": 1776397759322,
       "type": "file"
     },
     {
@@ -371,24 +431,6 @@
       "type": "file"
     },
     {
-      "path": "src/middleware.ts",
-      "accessCount": 1,
-      "lastAccessed": 1776217675648,
-      "type": "file"
-    },
-    {
-      "path": "src/lib/supabase/admin.ts",
-      "accessCount": 1,
-      "lastAccessed": 1776233176855,
-      "type": "file"
-    },
-    {
-      "path": "src/app/(auth)/login/LoginForm.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776252022452,
-      "type": "file"
-    },
-    {
       "path": "src/app/(auth)/invite/[token]/InviteForm.tsx",
       "accessCount": 1,
       "lastAccessed": 1776252058956,
@@ -410,12 +452,6 @@
       "path": "src/app/(app)/schools/[studentId]/StudentDetail.tsx",
       "accessCount": 1,
       "lastAccessed": 1776252260344,
-      "type": "file"
-    },
-    {
-      "path": "src/lib/actions/payments.ts",
-      "accessCount": 1,
-      "lastAccessed": 1776261485800,
       "type": "file"
     },
     {

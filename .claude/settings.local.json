@@ -53,7 +53,8 @@
       "Bash(gh pr:*)",
       "Bash(npm install:*)",
       "Bash(bash:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(supabase status:*)"
     ]
   }
 }
