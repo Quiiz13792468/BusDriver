@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { loginAction } from '@/lib/actions/auth'
 
 type Role = 'DRIVER' | 'PARENT'
@@ -9,6 +10,7 @@ const ROLE_KEY = 'busdriver_last_role'
 const SAVED_CREDS_KEY = 'busdriver_saved_creds'
 
 export default function LoginForm() {
+  const router = useRouter()
   const [role, setRole] = useState<Role>('DRIVER')
   const [loginId, setLoginId] = useState('')
   const [password, setPassword] = useState('')
@@ -65,8 +67,9 @@ export default function LoginForm() {
         const result = await loginAction(formData)
         if (result?.error) {
           setError(result.error)
-        } else {
+        } else if (result?.success) {
           setSuccess(true)
+          router.push('/dashboard')
         }
       } catch {
         setError('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.')

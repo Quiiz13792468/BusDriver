@@ -39,12 +39,12 @@ export async function loginAction(formData: FormData) {
     if (error) {
       return { error: '아이디 또는 비밀번호가 올바르지 않습니다.' }
     }
+
+    return { success: true }
   } catch (e) {
     console.error('[loginAction] error:', e)
     return { error: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' }
   }
-
-  redirect('/dashboard')
 }
 
 export async function logoutAction() {
