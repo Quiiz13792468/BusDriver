@@ -25,7 +25,6 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  // 세션 갱신 (getUser() 사용 - getSession() 대신)
   const { data: { user } } = await supabase.auth.getUser()
 
   const { pathname } = request.nextUrl
@@ -44,5 +43,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|json|webmanifest|ico|txt|xml)$).*)'],
 }

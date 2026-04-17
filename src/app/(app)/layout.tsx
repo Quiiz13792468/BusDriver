@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import DriverHeader from '@/components/driver/DriverHeader'
 import DriverNav from '@/components/driver/DriverNav'
 import ParentHeader from '@/components/parent/ParentHeader'
@@ -13,7 +14,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
+  const adminClient = createAdminClient()
+  const { data: profile } = await adminClient
     .from('profiles')
     .select('id, role, full_name')
     .eq('id', user.id)
