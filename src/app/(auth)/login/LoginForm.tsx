@@ -14,6 +14,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState('')
   const [saveCredentials, setSaveCredentials] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
   const [isPending, startTransition] = useTransition()
 
   // 마지막 로그인 역할 + 저장된 자격증명 복원
@@ -63,6 +64,8 @@ export default function LoginForm() {
       const result = await loginAction(formData)
       if (result?.error) {
         setError(result.error)
+      } else {
+        setSuccess(true)
       }
     })
   }
@@ -141,6 +144,13 @@ export default function LoginForm() {
         <span className="text-base text-[#6C6C70]">아이디·비밀번호 저장</span>
       </label>
 
+      {/* 성공 메시지 */}
+      {success && (
+        <div className="px-4 py-3 rounded-2xl bg-[#34C759]/10 border border-[#34C759]/20">
+          <p className="text-sm font-medium text-[#34C759]">로그인 성공! 정보를 불러오고 있습니다...</p>
+        </div>
+      )}
+
       {/* 오류 메시지 */}
       {error && (
         <div className="px-4 py-3 rounded-2xl bg-[#FF3B30]/10 border border-[#FF3B30]/20">
@@ -151,10 +161,10 @@ export default function LoginForm() {
       {/* 로그인 버튼 */}
       <button
         type="submit"
-        disabled={isPending}
+        disabled={isPending || success}
         className="w-full h-14 rounded-full bg-[#F5A400] text-black text-lg font-bold disabled:opacity-60 transition-opacity"
       >
-        {isPending ? '로그인 중...' : '로그인'}
+        {success ? '로그인 성공!' : isPending ? '로그인 중...' : '로그인'}
       </button>
 
       {/* 하단 링크 */}
