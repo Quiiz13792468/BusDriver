@@ -2,9 +2,9 @@
  * 테스트 데이터 시드 스크립트
  * 실행: node --env-file=.env.local scripts/seed.mjs
  *
- * 기존 auth 유저를 재활용:
- *   버스기사 | admin@test.com  / (기존 비밀번호)
- *   학부모   | parent1@test.com / (기존 비밀번호)
+ * 테스트 계정 (없으면 생성, 비밀번호 고정):
+ *   버스기사 | admin@test.com   / SeedTemp1234!
+ *   학부모   | parent1@test.com / test1234!
  */
 
 import { createClient } from '@supabase/supabase-js'
@@ -35,21 +35,32 @@ function getMonthDate(offsetMonths = 0) {
   return d.toISOString().split('T')[0]
 }
 
-// 기존 auth 유저를 이메일로 찾는 헬퍼
-async function findUserByEmail(email) {
+// auth 유저를 찾거나 없으면 생성하는 헬퍼
+async function upsertAuthUser(email, password) {
   const { data, error } = await admin.auth.admin.listUsers()
   if (error) throw new Error('유저 목록 조회 실패: ' + error.message)
-  const user = data.users.find(u => u.email === email)
-  if (!user) throw new Error(`유저를 찾을 수 없습니다: ${email}`)
-  return user
+  const existing = data.users.find(u => u.email === email)
+  if (existing) {
+    // 비밀번호를 항상 고정값으로 재설정
+    await admin.auth.admin.updateUserById(existing.id, { password })
+    return existing
+  }
+  // 없으면 새로 생성
+  const { data: created, error: createErr } = await admin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+  })
+  if (createErr) throw new Error(`유저 생성 실패 (${email}): ` + createErr.message)
+  return created.user
 }
 
 async function seed() {
   console.log('🌱 시드 데이터 생성 시작...\n')
 
-  // ── 1. DRIVER 계정 (기존 유저 재활용) ──────────────────────
-  console.log('1️⃣  DRIVER 계정 확인 (admin@test.com)')
-  const driverUser = await findUserByEmail('admin@test.com')
+  // ── 1. DRIVER 계정 ────────────────────────────────────────
+  console.log('1️⃣  DRIVER 계정 upsert (admin@test.com)')
+  const driverUser = await upsertAuthUser('admin@test.com', 'test1234!')
   const driverId = driverUser.id
 
   const { error: dpErr } = await admin.from('profiles').upsert({
@@ -62,9 +73,9 @@ async function seed() {
   if (dpErr) throw new Error('DRIVER 프로필 생성 실패: ' + dpErr.message)
   console.log('   ✅ admin@test.com → DRIVER / 김기사\n')
 
-  // ── 2. PARENT 계정 (기존 유저 재활용) ─────────────────────
-  console.log('2️⃣  PARENT 계정 확인 (parent1@test.com)')
-  const parentUser = await findUserByEmail('parent1@test.com')
+  // ── 2. PARENT 계정 ────────────────────────────────────────
+  console.log('2️⃣  PARENT 계정 upsert (parent1@test.com)')
+  const parentUser = await upsertAuthUser('parent1@test.com', 'test1234!')
   const parentId = parentUser.id
 
   const { error: ppErr } = await admin.from('profiles').upsert({
@@ -138,11 +149,9 @@ async function seed() {
 
   // ── 6. DRIVER 세션 획득 (트리거가 auth.uid() 필요) ────────
   console.log('6️⃣  드라이버 세션 획득')
-  const SEED_PW = 'SeedTemp1234!'
-  await admin.auth.admin.updateUserById(driverId, { password: SEED_PW })
   const { data: { session }, error: signInErr } = await anonClient.auth.signInWithPassword({
     email: 'admin@test.com',
-    password: SEED_PW,
+    password: 'test1234!',
   })
   if (signInErr || !session) throw new Error('드라이버 로그인 실패: ' + signInErr?.message)
   const driverClient = createClient(SUPABASE_URL, ANON_KEY, {
@@ -217,8 +226,8 @@ async function seed() {
   // ── 완료 ───────────────────────────────────────────────
   console.log('🎉 시드 완료!')
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-  console.log('버스기사  | admin@test.com   / (기존 비밀번호)')
-  console.log('학부모    | parent1@test.com / (기존 비밀번호)')
+  console.log('버스기사  | admin@test.com   / test1234!')
+  console.log('학부모    | parent1@test.com / test1234!')
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
 }
 

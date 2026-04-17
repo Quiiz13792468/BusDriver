@@ -12,8 +12,8 @@ export async function loginAction(formData: FormData) {
   const supabase = await createClient()
   const adminClient = createAdminClient()
 
-  // login_id + role로 프로필 조회
-  const { data: profile, error: profileError } = await supabase
+  // login_id + role로 프로필 조회 (RLS 우회: 로그인 전이라 auth.uid() 없음)
+  const { data: profile, error: profileError } = await adminClient
     .from('profiles')
     .select('id, role')
     .eq('login_id', loginId)
