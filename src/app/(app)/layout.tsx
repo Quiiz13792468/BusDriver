@@ -12,7 +12,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) redirect('/login')
+  if (!user) {
+    console.log('[layout] no user → redirect /login')
+    redirect('/login')
+  }
 
   const adminClient = createAdminClient()
   const { data: profile } = await adminClient
@@ -21,7 +24,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     .eq('id', user.id)
     .single()
 
+  console.log(`[layout] user=${user.id} | profile.role=${profile?.role ?? 'null'}`)
+
   if (!profile || profile.role === 'ADMIN') {
+    console.log('[layout] ADMIN or no profile → redirect /login')
     redirect('/login')
   }
 
