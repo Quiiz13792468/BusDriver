@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
 import { loginAction } from '@/lib/actions/auth'
 
 type Role = 'DRIVER' | 'PARENT'
@@ -10,7 +9,6 @@ const ROLE_KEY = 'busdriver_last_role'
 const SAVED_CREDS_KEY = 'busdriver_saved_creds'
 
 export default function LoginForm() {
-  const router = useRouter()
   const [role, setRole] = useState<Role>('DRIVER')
   const [loginId, setLoginId] = useState('')
   const [password, setPassword] = useState('')
@@ -65,8 +63,7 @@ export default function LoginForm() {
       }
 
       setSuccess(true)
-      router.push('/dashboard')
-      router.refresh()
+      window.location.href = '/dashboard'
     })
   }
 
