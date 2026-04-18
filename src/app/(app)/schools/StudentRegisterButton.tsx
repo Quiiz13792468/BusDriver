@@ -48,7 +48,7 @@ export default function StudentRegisterButton({ schools, driverId }: Props) {
 
       {/* 드로어 */}
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end">
+        <div className="fixed inset-0 z-[60] flex items-end">
           {/* 오버레이 */}
           <div
             className="absolute inset-0 bg-black/40"

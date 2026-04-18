@@ -71,7 +71,7 @@ export default function PaymentCell({ payment }: Props) {
 
       {/* 상세 바텀시트 */}
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end">
+        <div className="fixed inset-0 z-[60] flex items-end">
           <div className="absolute inset-0 bg-black/40" onClick={() => { setOpen(false); setDisputing(false); setMemo('') }} />
           <div className="relative w-full bg-white rounded-t-3xl max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between px-5 py-4 border-b border-[#F2F2F7]">
