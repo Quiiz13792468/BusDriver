@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { consumeInviteTokenAction } from '@/lib/actions/auth'
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function InviteForm({ token, role }: Props) {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [loginId, setLoginId] = useState('')
   const [password, setPassword] = useState('')
@@ -50,7 +52,11 @@ export default function InviteForm({ token, role }: Props) {
       )
       if (result?.error) {
         setError(result.error)
+        return
       }
+
+      router.push('/dashboard')
+      router.refresh()
     })
   }
 

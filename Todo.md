@@ -6,6 +6,8 @@
 
 ## 🔥 Critical
 
+- [x] loginAction의 NEXT_REDIRECT 예외를 catch 블록이 삼켜 대시보드 이동 불가 — LoginForm/InviteForm에서 router.push로 전환
+
 ## 🔒 Security
 
 ## 🧠 Backlog

@@ -47,7 +47,7 @@ export async function loginAction(
     return { error: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' }
   }
 
-  redirect('/dashboard')
+  return {}
 }
 
 export async function logoutAction() {
@@ -93,5 +93,5 @@ export async function consumeInviteTokenAction(
     return { error: '가입 처리 중 오류가 발생했습니다.' }
   }
 
-  redirect('/dashboard')
+  return {}
 }
