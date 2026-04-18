@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import ChatView from './ChatView'
 
 export default async function ChatPage({
@@ -13,7 +14,8 @@ export default async function ChatPage({
 
   const { userId: otherUserId } = await params
 
-  const { data: profile } = await supabase
+  const adminClient = createAdminClient()
+  const { data: profile } = await adminClient
     .from('profiles')
     .select('role')
     .eq('id', user.id)
@@ -26,7 +28,7 @@ export default async function ChatPage({
   const parentId = isDriver ? otherUserId : user.id
 
   // 상대방 이름 조회
-  const { data: otherProfile } = await supabase
+  const { data: otherProfile } = await adminClient
     .from('profiles')
     .select('full_name, role')
     .eq('id', otherUserId)
