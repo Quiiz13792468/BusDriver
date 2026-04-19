@@ -60,10 +60,10 @@ export default async function DriverBoard({ userId, tab, schoolFilter }: Props) 
       </div>
 
       {/* 탭 */}
-      <div className="flex gap-2">
+      <div className="flex justify-center gap-2">
         <Link
           href="/board?tab=notices"
-          className={`h-9 px-4 rounded-full text-sm font-medium border ${
+          className={`inline-flex items-center justify-center h-9 px-4 rounded-full text-sm font-medium border ${
             tab === 'notices' ? 'bg-black text-white border-black' : 'bg-white text-[#6C6C70] border-[#C6C6C8]'
           }`}
         >
@@ -71,7 +71,7 @@ export default async function DriverBoard({ userId, tab, schoolFilter }: Props) 
         </Link>
         <Link
           href="/board?tab=messages"
-          className={`h-9 px-4 rounded-full text-sm font-medium border ${
+          className={`inline-flex items-center justify-center h-9 px-4 rounded-full text-sm font-medium border ${
             tab === 'messages' ? 'bg-black text-white border-black' : 'bg-white text-[#6C6C70] border-[#C6C6C8]'
           }`}
         >

@@ -69,7 +69,7 @@ export default async function ParentDashboard() {
           <ul className="divide-y divide-[#F2F2F7]">
             {children.map((c) => {
               if (!c) return null
-              const fee = c.schools?.default_fee || c.custom_fee || 0
+              const fee = c.custom_fee || c.schools?.default_fee || 0
               const childPayments = (payments ?? []).filter((p) => p.student_id === c.id)
               const confirmed = childPayments.filter((p) => p.status === 'CONFIRMED').reduce((s, p) => s + p.amount, 0)
               const pending = childPayments.some((p) => p.status === 'PENDING')

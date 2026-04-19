@@ -67,7 +67,7 @@ export default function StudentDetail({ student, schools, recentPayments }: Prop
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
-  const effectiveFee = student.schools?.default_fee ?? student.custom_fee ?? 0
+  const effectiveFee = student.custom_fee ?? student.schools?.default_fee ?? 0
 
   const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

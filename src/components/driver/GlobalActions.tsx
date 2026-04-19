@@ -14,12 +14,14 @@ interface Props {
 }
 
 type ModalType = 'payment' | 'fuel' | null
+type FuelType = 'GASOLINE' | 'DIESEL'
 
 export default function GlobalActions({ students }: Props) {
   const [modal, setModal] = useState<ModalType>(null)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [mounted, setMounted] = useState(false)
+  const [fuelType, setFuelType] = useState<FuelType>('GASOLINE')
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -28,12 +30,17 @@ export default function GlobalActions({ students }: Props) {
   const close = () => {
     setModal(null)
     setError(null)
+    setFuelType('GASOLINE')
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
     const formData = new FormData(e.currentTarget)
+    // 주유 모달: fuelType 상태값을 formData에 주입
+    if (modal === 'fuel') {
+      formData.set('fuel_type', fuelType)
+    }
     startTransition(async () => {
       const action = modal === 'payment' ? registerPaymentAction : registerFuelAction
       const result = await action(formData)
@@ -100,9 +107,32 @@ export default function GlobalActions({ students }: Props) {
                 </div>
               )}
 
+              {/* 주유: 유종 선택 */}
+              {modal === 'fuel' && (
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-[#6C6C70]">유종</label>
+                  <div className="flex gap-2">
+                    {(['GASOLINE', 'DIESEL'] as FuelType[]).map((ft) => (
+                      <button
+                        key={ft}
+                        type="button"
+                        onClick={() => setFuelType(ft)}
+                        className={`flex-1 h-12 rounded-2xl border text-base font-medium transition-colors ${
+                          fuelType === ft
+                            ? 'bg-black text-white border-black'
+                            : 'bg-white text-[#6C6C70] border-[#C6C6C8]'
+                        }`}
+                      >
+                        {ft === 'GASOLINE' ? '휘발유' : '경유'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-[#6C6C70]">
-                  금액 <span className="text-[#FF3B30]">*</span>
+                  {modal === 'fuel' ? '주유 금액' : '금액'} <span className="text-[#FF3B30]">*</span>
                 </label>
                 <input
                   name="amount"
@@ -114,6 +144,21 @@ export default function GlobalActions({ students }: Props) {
                   className={inputClass}
                 />
               </div>
+
+              {/* 주유: 리터당 가격 */}
+              {modal === 'fuel' && (
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-[#6C6C70]">리터당 가격 (선택)</label>
+                  <input
+                    name="price_per_liter"
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    placeholder="예: 1650"
+                    className={inputClass}
+                  />
+                </div>
+              )}
 
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-[#6C6C70]">

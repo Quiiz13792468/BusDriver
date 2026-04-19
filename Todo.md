@@ -32,9 +32,12 @@
 ## 🧪 Verification Needed
 
 - [ ] Supabase SQL 마이그레이션 실행 필요 (`supabase/migrations/20260413000000_init_busdriver_v2.sql`)
+- [ ] Supabase SQL 마이그레이션 실행 필요 (`supabase/migrations/20260419000000_add_fuel_type_invite_role_payment_memos.sql`)
 - [ ] consume_invite_token RPC 동작 검증 (가입 플로우 전체 테스트)
 - [ ] RLS 정책 실제 동작 검증 (DRIVER/PARENT 역할 분리)
-- [ ] 수수료 우선순위 확인: school.default_fee > student.custom_fee (CLAUDE.md 기준 적용됨 — 도메인 오너 재확인 권장)
+- [ ] payment_memos RLS 실제 동작 검증 (DRIVER/PARENT 역할 기준)
+- [ ] getPaymentDetailAction의 profiles FK 별칭(`payments_created_by_fkey`) 실제 스키마와 일치 여부 확인
+- [ ] 수수료 우선순위 확인: custom_fee → default_fee 순서 (3개 파일 수정 완료 — 실제 동작 재확인 권장)
 
 ## 📦 완료된 작업
 
@@ -61,3 +64,17 @@
   - types/database.ts
 - [x] globals.css CSS 변수 토큰 적용
 - [x] 빌드 검증 통과 (Next.js 16, TypeScript, 11개 라우트)
+- [x] Stage A: 게시판 필터 버튼 중앙 정렬 (#5)
+- [x] Stage A: 미납 알림 카운트 항상 표시 (#6)
+- [x] Stage A: 입금확인 요청 카운트 항상 표시 (#7)
+- [x] Stage B: fuel_records에 fuel_type/price_per_liter 컬럼 추가 마이그레이션
+- [x] Stage B: invite_tokens에 target_role 컬럼 추가 마이그레이션
+- [x] Stage B: payment_memos 테이블 생성 + RLS 마이그레이션
+- [x] Stage C: 수수료 우선순위 수정 (custom_fee → default_fee 순서, 3개 파일)
+- [x] Stage C: 주유 모달 유종(휘발유/경유) 선택 + 리터당 가격 입력 추가 (#1)
+- [x] Stage C: 설정 페이지 학교 관리 링크 + /settings/schools 페이지 구현 (#2)
+- [x] Stage C: 초대 링크 역할 선택(학부모/버스기사) 기능 추가 (#4)
+- [x] Stage D: 홈 학교별×월별 입금 매트릭스 구현 (sticky 컬럼, 셀 클릭 등록) (#8)
+- [x] Stage E: CONFIRMED 셀 클릭 입금 상세 모달 (2열 레이아웃, 메모, 확정취소, 수정모드) (#9)
+- [x] Stage E: 장부 페이지 입금 내역 행 클릭 동일 상세 모달 연동 (#9c)
+- [x] 빌드 검증 통과 (Stage A~E 전체, TypeScript, 14개 라우트)

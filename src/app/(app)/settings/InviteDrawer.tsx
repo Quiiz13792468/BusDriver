@@ -3,19 +3,22 @@
 import { useState, useTransition } from 'react'
 import { createInviteTokenAction } from '@/lib/actions/settings'
 
+type TargetRole = 'PARENT' | 'DRIVER'
+
 export default function InviteDrawer() {
   const [open, setOpen] = useState(false)
   const [inviteUrl, setInviteUrl] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [expiresHours, setExpiresHours] = useState('48')
+  const [targetRole, setTargetRole] = useState<TargetRole>('PARENT')
   const [isPending, startTransition] = useTransition()
 
   const handleGenerate = () => {
     setError(null)
     setInviteUrl(null)
     startTransition(async () => {
-      const result = await createInviteTokenAction('PARENT', parseInt(expiresHours))
+      const result = await createInviteTokenAction(targetRole, parseInt(expiresHours))
       if (result.error) {
         setError(result.error)
       } else if (result.token) {
@@ -37,6 +40,7 @@ export default function InviteDrawer() {
     setInviteUrl(null)
     setError(null)
     setCopied(false)
+    setTargetRole('PARENT')
   }
 
   const expireLabels: Record<string, string> = {
@@ -71,6 +75,27 @@ export default function InviteDrawer() {
             </div>
 
             <div className="px-5 py-4 space-y-4 pb-8">
+              {/* 대상 역할 선택 */}
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-[#6C6C70]">초대 대상</label>
+                <div className="flex gap-2">
+                  {(['PARENT', 'DRIVER'] as TargetRole[]).map((role) => (
+                    <button
+                      key={role}
+                      type="button"
+                      onClick={() => setTargetRole(role)}
+                      className={`flex-1 h-12 rounded-2xl border text-base font-medium transition-colors ${
+                        targetRole === role
+                          ? 'bg-black text-white border-black'
+                          : 'bg-white text-[#6C6C70] border-[#C6C6C8]'
+                      }`}
+                    >
+                      {role === 'PARENT' ? '학부모' : '버스기사'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-[#6C6C70]">유효기간</label>
                 <div className="flex gap-2">

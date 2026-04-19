@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import PaymentMatrix from './PaymentMatrix'
 
 function formatKRW(amount: number) {
   return amount.toLocaleString('ko-KR') + '원'
@@ -71,6 +72,38 @@ export default async function DriverDashboard() {
     (s) => !confirmedIds.has(s.id)
   )
 
+  // 매트릭스용: 학교별 학생 목록 + 올해 전체 CONFIRMED 결제
+  const { data: { user } } = await supabase.auth.getUser()
+  const matrixData = user ? await (async () => {
+    const yearFrom = `${year}-01-01`
+    const yearTo = `${year}-12-31`
+    const [schoolsRes, studentsRes, paymentsRes] = await Promise.all([
+      supabase
+        .from('schools')
+        .select('id, name')
+        .eq('owner_driver_id', user.id)
+        .order('name'),
+      supabase
+        .from('students')
+        .select('id, name, school_id, custom_fee, schools(default_fee)')
+        .eq('driver_id', user.id)
+        .eq('is_active', true)
+        .order('name'),
+      supabase
+        .from('payments')
+        .select('id, student_id, amount, paid_at, status')
+        .eq('driver_id', user.id)
+        .eq('status', 'CONFIRMED')
+        .gte('paid_at', yearFrom)
+        .lte('paid_at', yearTo),
+    ])
+    return {
+      schools: schoolsRes.data ?? [],
+      students: studentsRes.data ?? [],
+      payments: paymentsRes.data ?? [],
+    }
+  })() : { schools: [], students: [], payments: [] }
+
   return (
     <div className="px-4 py-5 space-y-3">
       {/* 헤더: 홈 + 이번달 입금 요약 */}
@@ -99,7 +132,7 @@ export default async function DriverDashboard() {
         ) : (
           <ul className="divide-y divide-[#F2F2F7]">
             {todayStudents.data.map((s) => {
-              const fee = (s.schools as unknown as { default_fee: number } | null)?.default_fee || s.custom_fee || 0
+              const fee = s.custom_fee || (s.schools as unknown as { default_fee: number } | null)?.default_fee || 0
               return (
                 <li key={s.id}>
                   <Link
@@ -122,9 +155,9 @@ export default async function DriverDashboard() {
       <section className="bg-white rounded-2xl overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-[#F2F2F7]">
           <h2 className="text-base font-semibold text-black">미납 알림</h2>
-          {overdueList.length > 0 && (
-            <span className="text-sm font-bold text-[#FF3B30]">{overdueList.length}명</span>
-          )}
+          <span className={`text-sm font-bold ${overdueList.length > 0 ? 'text-[#FF3B30]' : 'text-[#6C6C70]'}`}>
+            {overdueList.length}명
+          </span>
         </div>
         {!overdueList.length ? (
           <p className="px-4 py-4 text-sm text-[#6C6C70]">미납 학생이 없습니다.</p>
@@ -151,11 +184,9 @@ export default async function DriverDashboard() {
       <section className="bg-white rounded-2xl overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-[#F2F2F7]">
           <h2 className="text-base font-semibold text-black">입금확인 요청</h2>
-          {(pendingPayments.data?.length ?? 0) > 0 && (
-            <span className="text-sm font-bold text-[#5856D6]">
-              {pendingPayments.data!.length}건
-            </span>
-          )}
+          <span className={`text-sm font-bold ${(pendingPayments.data?.length ?? 0) > 0 ? 'text-[#5856D6]' : 'text-[#6C6C70]'}`}>
+            {pendingPayments.data?.length ?? 0}건
+          </span>
         </div>
         {!pendingPayments.data?.length ? (
           <p className="px-4 py-4 text-sm text-[#6C6C70]">새로운 요청이 없습니다.</p>
@@ -176,6 +207,15 @@ export default async function DriverDashboard() {
           </ul>
         )}
       </section>
+
+      {/* 학교별 × 월별 입금 매트릭스 */}
+      <PaymentMatrix
+        year={year}
+        currentMonth={month}
+        schools={matrixData.schools}
+        students={matrixData.students as unknown as Array<{ id: string; name: string; school_id: string; custom_fee: number | null; schools: { default_fee: number } | null }>}
+        payments={matrixData.payments}
+      />
 
     </div>
   )

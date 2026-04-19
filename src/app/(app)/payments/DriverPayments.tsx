@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import Link from 'next/link'
+import PaymentsList from './PaymentsList'
 
 interface Props {
   year: number
@@ -28,6 +30,14 @@ export default async function DriverPayments({ year, month, studentFilter }: Pro
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
+
+  const adminClient = createAdminClient()
+  const { data: profile } = await adminClient
+    .from('profiles')
+    .select('full_name')
+    .eq('id', user.id)
+    .single()
+  const driverName = profile?.full_name ?? '버스기사'
 
   const fromDate = `${year}-${String(month).padStart(2, '0')}-01`
   const toDate = `${year}-${String(month).padStart(2, '0')}-31`
@@ -69,7 +79,7 @@ export default async function DriverPayments({ year, month, studentFilter }: Pro
   // 주유 내역
   const { data: fuelRecords } = await supabase
     .from('fuel_records')
-    .select('id, amount, fueled_at, memo')
+    .select('id, amount, fueled_at, memo, fuel_type, price_per_liter')
     .eq('driver_id', user.id)
     .gte('fueled_at', fromDate)
     .lte('fueled_at', toDate)
@@ -188,35 +198,13 @@ export default async function DriverPayments({ year, month, studentFilter }: Pro
         <div className="px-4 py-3 border-b border-[#F2F2F7]">
           <h2 className="text-base font-semibold text-black">입금 내역</h2>
         </div>
-        {!payments?.length ? (
-          <p className="px-4 py-4 text-sm text-[#6C6C70]">입금 내역이 없습니다.</p>
-        ) : (
-          <ul className="divide-y divide-[#F2F2F7]">
-            {payments.map((p) => {
-              const student = p.students as unknown as { id: string; name: string } | null
-              return (
-                <li key={p.id} className="flex items-center justify-between px-4 py-3">
-                  <div>
-                    <p className="text-base font-medium text-black">{student?.name ?? '—'}</p>
-                    <p className="text-xs text-[#6C6C70] mt-0.5">
-                      {p.paid_at}
-                      {p.created_by_role === 'PARENT' && (
-                        <span className="ml-1 text-[#5856D6]">학부모 등록</span>
-                      )}
-                    </p>
-                    {p.memo && <p className="text-xs text-[#6C6C70]">{p.memo}</p>}
-                  </div>
-                  <div className="text-right">
-                    <p className="text-base font-semibold">{formatKRW(p.amount)}</p>
-                    <p className={`text-xs font-medium ${statusColor[p.status] ?? ''}`}>
-                      {statusLabel[p.status] ?? p.status}
-                    </p>
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-        )}
+        <PaymentsList
+          payments={(payments ?? []).map((p) => ({
+            ...p,
+            students: p.students as unknown as { id: string; name: string } | null,
+          }))}
+          driverName={driverName}
+        />
       </section>
 
       {/* 주유 내역 */}
@@ -228,15 +216,26 @@ export default async function DriverPayments({ year, month, studentFilter }: Pro
           <p className="px-4 py-4 text-sm text-[#6C6C70]">주유 내역이 없습니다.</p>
         ) : (
           <ul className="divide-y divide-[#F2F2F7]">
-            {fuelRecords.map((r) => (
-              <li key={r.id} className="flex items-center justify-between px-4 py-3">
-                <div>
-                  <p className="text-base font-medium text-black">{formatKRW(r.amount)}</p>
-                  {r.memo && <p className="text-xs text-[#6C6C70] mt-0.5">{r.memo}</p>}
-                </div>
-                <p className="text-sm text-[#6C6C70]">{r.fueled_at}</p>
-              </li>
-            ))}
+            {fuelRecords.map((r) => {
+              const fuelLabel = r.fuel_type === 'GASOLINE' ? '휘발유' : r.fuel_type === 'DIESEL' ? '경유' : null
+              const liters = r.price_per_liter && r.price_per_liter > 0
+                ? (r.amount / r.price_per_liter).toFixed(1)
+                : null
+              return (
+                <li key={r.id} className="flex items-center justify-between px-4 py-3">
+                  <div>
+                    <p className="text-base font-medium text-black">{formatKRW(r.amount)}</p>
+                    {(liters || fuelLabel) && (
+                      <p className="text-xs text-[#6C6C70] mt-0.5">
+                        {liters ? `${liters}L` : ''}{liters && fuelLabel ? ' ' : ''}{fuelLabel ? `(${fuelLabel})` : ''}
+                      </p>
+                    )}
+                    {r.memo && <p className="text-xs text-[#6C6C70] mt-0.5">{r.memo}</p>}
+                  </div>
+                  <p className="text-sm text-[#6C6C70]">{r.fueled_at}</p>
+                </li>
+              )
+            })}
           </ul>
         )}
       </section>

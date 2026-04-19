@@ -62,7 +62,7 @@
 - SweetAlert2는 간단 입력에만 사용하고, 긴 폼은 페이지 또는 드로어를 우선 검토한다.
 - DRIVER/PARENT 역할 분기를 명확히 유지한다. (삼중 가드: 미들웨어 + 서버 컴포넌트 + RLS)
 - 입금은 누적 계산을 기준으로 처리한다.
-- 학교별 기본 이용금액(schools.default_fee)이 학생별 값(students.custom_fee)보다 우선한다.
+- 학생별 이용금액(students.custom_fee)이 학교별 기본값(schools.default_fee)보다 우선한다.
 - 이용 정지 학생은 삭제가 아니라 inactive 상태로 유지한다.
 
 ## UI/UX 원칙

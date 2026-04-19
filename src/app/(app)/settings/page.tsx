@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { logoutAction } from '@/lib/actions/auth'
+import Link from 'next/link'
 import ProfileEditDrawer from './ProfileEditDrawer'
 import PasswordDrawer from './PasswordDrawer'
 import InviteDrawer from './InviteDrawer'
@@ -53,6 +54,13 @@ export default async function SettingsPage() {
       {/* DRIVER 전용 */}
       {isDriver && (
         <div className="bg-white rounded-2xl divide-y divide-[#F2F2F7]">
+          <Link
+            href="/settings/schools"
+            className="flex items-center justify-between w-full px-4 py-4 text-base text-black"
+          >
+            학교 관리
+            <span className="text-[#C6C6C8]">›</span>
+          </Link>
           <InviteDrawer />
         </div>
       )}
