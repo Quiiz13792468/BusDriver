@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
+import { createPortal } from 'react-dom'
 import { registerPaymentAction, registerFuelAction } from '@/lib/actions/payments'
 
 interface Student {
@@ -18,6 +19,9 @@ export default function GlobalActions({ students }: Props) {
   const [modal, setModal] = useState<ModalType>(null)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => { setMounted(true) }, [])
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -62,8 +66,8 @@ export default function GlobalActions({ students }: Props) {
         </button>
       </div>
 
-      {/* 모달 */}
-      {modal && (
+      {/* 모달 (portal로 body에 렌더링하여 stacking context 탈출) */}
+      {modal && mounted && createPortal(
         <div className="fixed inset-0 z-[60] flex items-end">
           <div className="absolute inset-0 bg-black/40" onClick={close} />
           <div className="relative w-full bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto">
@@ -149,7 +153,8 @@ export default function GlobalActions({ students }: Props) {
               </button>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )

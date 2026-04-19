@@ -77,6 +77,29 @@ export default async function DriverPayments({ year, month, studentFilter }: Pro
 
   const fuelSum = (fuelRecords ?? []).reduce((s, r) => s + r.amount, 0)
 
+  // 연별 합계 (학생 필터 적용)
+  const yearFromDate = `${year}-01-01`
+  const yearToDate = `${year}-12-31`
+
+  let yearPayQuery = supabase
+    .from('payments')
+    .select('amount, status')
+    .eq('driver_id', user.id)
+    .eq('status', 'CONFIRMED')
+    .gte('paid_at', yearFromDate)
+    .lte('paid_at', yearToDate)
+  if (studentFilter) yearPayQuery = yearPayQuery.eq('student_id', studentFilter)
+  const { data: yearPayments } = await yearPayQuery
+  const yearlyPaymentSum = (yearPayments ?? []).reduce((s, p) => s + p.amount, 0)
+
+  const { data: yearFuel } = await supabase
+    .from('fuel_records')
+    .select('amount')
+    .eq('driver_id', user.id)
+    .gte('fueled_at', yearFromDate)
+    .lte('fueled_at', yearToDate)
+  const yearlyFuelSum = (yearFuel ?? []).reduce((s, r) => s + r.amount, 0)
+
   return (
     <div className="px-4 py-5 space-y-3">
       <h1 className="text-2xl font-bold text-black">장부</h1>
@@ -85,16 +108,22 @@ export default async function DriverPayments({ year, month, studentFilter }: Pro
       <div className="flex items-center justify-between bg-white rounded-2xl px-4 py-3">
         <Link
           href={`/payments?year=${prevYear}&month=${prevMonth}${studentFilter ? `&student=${studentFilter}` : ''}`}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-[#F2F2F7] text-lg"
+          aria-label="이전 달"
+          className="w-11 h-11 flex items-center justify-center rounded-full bg-[#F2F2F7] active:bg-[#E5E5EA]"
         >
-          ‹
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
         </Link>
         <span className="text-base font-semibold">{year}년 {MONTHS[month - 1]}</span>
         <Link
           href={`/payments?year=${nextYear}&month=${nextMonth}${studentFilter ? `&student=${studentFilter}` : ''}`}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-[#F2F2F7] text-lg"
+          aria-label="다음 달"
+          className="w-11 h-11 flex items-center justify-center rounded-full bg-[#F2F2F7] active:bg-[#E5E5EA]"
         >
-          ›
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
         </Link>
       </div>
 
@@ -110,11 +139,32 @@ export default async function DriverPayments({ year, month, studentFilter }: Pro
         </div>
       </div>
 
+      {/* 연별 합계 */}
+      <div className="bg-white rounded-2xl px-4 py-3">
+        <p className="text-xs text-[#6C6C70]">{year}년 누계</p>
+        <div className="grid grid-cols-3 gap-2 mt-2">
+          <div>
+            <p className="text-[11px] text-[#6C6C70]">확정 입금</p>
+            <p className="text-base font-bold text-[#34C759]">{formatKRW(yearlyPaymentSum)}</p>
+          </div>
+          <div>
+            <p className="text-[11px] text-[#6C6C70]">주유 비용</p>
+            <p className="text-base font-bold text-[#FF3B30]">{formatKRW(yearlyFuelSum)}</p>
+          </div>
+          <div>
+            <p className="text-[11px] text-[#6C6C70]">순이익</p>
+            <p className={`text-base font-bold ${yearlyPaymentSum - yearlyFuelSum >= 0 ? 'text-black' : 'text-[#FF3B30]'}`}>
+              {formatKRW(yearlyPaymentSum - yearlyFuelSum)}
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* 학생 필터 */}
-      <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4">
+      <div className="flex justify-center flex-wrap gap-2 pb-1">
         <Link
           href={`/payments?year=${year}&month=${month}`}
-          className={`flex-none h-9 px-4 rounded-full text-sm font-medium border whitespace-nowrap ${
+          className={`inline-flex items-center justify-center min-w-[64px] h-9 px-4 rounded-full text-sm font-medium border whitespace-nowrap ${
             !studentFilter ? 'bg-black text-white border-black' : 'bg-white text-[#6C6C70] border-[#C6C6C8]'
           }`}
         >
@@ -124,7 +174,7 @@ export default async function DriverPayments({ year, month, studentFilter }: Pro
           <Link
             key={s.id}
             href={`/payments?year=${year}&month=${month}&student=${s.id}`}
-            className={`flex-none h-9 px-4 rounded-full text-sm font-medium border whitespace-nowrap ${
+            className={`inline-flex items-center justify-center min-w-[64px] h-9 px-4 rounded-full text-sm font-medium border whitespace-nowrap ${
               studentFilter === s.id ? 'bg-black text-white border-black' : 'bg-white text-[#6C6C70] border-[#C6C6C8]'
             }`}
           >
