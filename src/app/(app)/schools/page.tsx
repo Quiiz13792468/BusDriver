@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import Link from 'next/link'
 import StudentRegisterButton from './StudentRegisterButton'
+import SchoolRegisterButton from './SchoolRegisterButton'
 
 export default async function SchoolsPage({
   searchParams,
@@ -55,7 +56,10 @@ export default async function SchoolsPage({
     <div className="px-4 py-5 space-y-3">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-black">학생관리</h1>
-        <StudentRegisterButton schools={schools ?? []} driverId={user.id} />
+        <div className="flex items-center gap-2">
+          <SchoolRegisterButton />
+          <StudentRegisterButton schools={schools ?? []} driverId={user.id} />
+        </div>
       </div>
 
       {/* 학교 필터 */}

@@ -73,7 +73,18 @@ export default async function DriverDashboard() {
 
   return (
     <div className="px-4 py-5 space-y-3">
-      <h1 className="text-2xl font-bold text-black">홈</h1>
+      {/* 헤더: 홈 + 이번달 입금 요약 */}
+      <div className="flex items-end justify-between gap-3">
+        <h1 className="text-2xl font-bold text-black">홈</h1>
+        <Link
+          href="/payments"
+          className="flex flex-col items-end leading-tight"
+          aria-label={`${year}년 ${month}월 확정 입금 합계 ${formatKRW(monthlySum)}`}
+        >
+          <span className="text-[11px] text-[#6C6C70]">{month}월 확정 입금</span>
+          <span className="text-xl font-bold text-[#34C759]">{formatKRW(monthlySum)}</span>
+        </Link>
+      </div>
 
       {/* 오늘 입금 예정 */}
       <section className="bg-white rounded-2xl overflow-hidden">
@@ -166,14 +177,6 @@ export default async function DriverDashboard() {
         )}
       </section>
 
-      {/* 이번달 입금 요약 */}
-      <section className="bg-white rounded-2xl px-4 py-4">
-        <h2 className="text-base font-semibold text-black mb-2">이번달 입금 요약</h2>
-        <p className="text-3xl font-bold text-black">{formatKRW(monthlySum)}</p>
-        <p className="text-sm text-[#6C6C70] mt-1">
-          {year}년 {month}월 확정 입금 합계
-        </p>
-      </section>
     </div>
   )
 }
