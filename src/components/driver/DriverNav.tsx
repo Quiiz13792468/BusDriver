@@ -27,7 +27,7 @@ export default function DriverNav() {
               }`}
             >
               <span className="text-xl leading-none">{tab.icon}</span>
-              <span>{tab.label}</span>
+              <span className="text-[18px]">{tab.label}</span>
             </Link>
           )
         })}

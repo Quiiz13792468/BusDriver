@@ -112,9 +112,9 @@ export default async function DriverDashboard() {
         <Link
           href="/payments"
           className="flex flex-col items-end leading-tight"
-          aria-label={`${year}년 ${month}월 확정 입금 합계 ${formatKRW(monthlySum)}`}
+          aria-label={`${year}년 ${month}월 입금 확정 합계 ${formatKRW(monthlySum)}`}
         >
-          <span className="text-[11px] text-[#6C6C70]">{month}월 확정 입금</span>
+          <span className="text-[11px] text-[#6C6C70]">{month}월 입금 확정</span>
           <span className="text-xl font-bold text-[#34C759]">{formatKRW(monthlySum)}</span>
         </Link>
       </div>

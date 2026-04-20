@@ -171,7 +171,7 @@ export default async function DriverPayments({ year, month, studentFilter }: Pro
       </div>
 
       {/* 학생 필터 */}
-      <div className="flex justify-center flex-wrap gap-2 pb-1">
+      <div className="flex justify-start flex-wrap gap-2 pb-1">
         <Link
           href={`/payments?year=${year}&month=${month}`}
           className={`inline-flex items-center justify-center min-w-[64px] h-9 px-4 rounded-full text-sm font-medium border whitespace-nowrap ${

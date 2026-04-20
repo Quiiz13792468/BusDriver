@@ -19,7 +19,7 @@ export default async function DriverHeader({ fullName, userId }: Props) {
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-[#C6C6C8] h-14 flex items-center justify-between px-4">
-      <span className="text-xl font-bold text-[#F5A400]">🚌</span>
+      <span className="font-bold text-[#F5A400]" style={{ fontSize: 36, lineHeight: 1 }}>🚌</span>
 
       <div className="flex items-center gap-2">
         <GlobalActions students={students ?? []} />

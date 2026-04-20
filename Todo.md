@@ -29,6 +29,15 @@
 - [ ] PWA 설정 (manifest.json, service worker)
 - [ ] 광고: Google AdSense 모바일 하단 배너 + 데스크톱 사이드바
 
+## 🧪 Verification Needed (Stage F)
+
+- [x] [+학교] 버튼을 schools/page.tsx에서 제거하고 settings/schools/page.tsx 상단으로 이동
+- [x] 게시판·장부 필터 chip 영역 justify-start 정렬 변경
+- [x] schools/page.tsx 하단 문구 "총 n명의 활성 학생" → "총 n명의 학생 이용 중"
+- [x] DriverDashboard.tsx "{month}월 확정 입금" → "{month}월 입금 확정" + aria-label 조정
+- [x] DriverHeader.tsx 좌측 버스 아이콘 크기 36px(style fontSize:36) 적용
+- [x] DriverNav.tsx 탭 레이블 span font-size text-[18px] 적용
+
 ## 🧪 Verification Needed
 
 - [ ] Supabase SQL 마이그레이션 실행 필요 (`supabase/migrations/20260413000000_init_busdriver_v2.sql`)
