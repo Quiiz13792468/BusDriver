@@ -32,6 +32,7 @@ interface Props {
   students: Student[]
   payments: Payment[]
   driverName?: string
+  recentMonthsOnly?: boolean
 }
 
 interface RegisterModalData {
@@ -53,11 +54,15 @@ function formatKRW(n: number) {
   return n.toLocaleString('ko-KR') + '원'
 }
 
-export default function PaymentMatrix({ year, currentMonth, schools, students, payments, driverName = '버스기사' }: Props) {
+export default function PaymentMatrix({ year, currentMonth, schools, students, payments, driverName = '버스기사', recentMonthsOnly = false }: Props) {
   const [registerModal, setRegisterModal] = useState<RegisterModalData | null>(null)
   const [detailModal, setDetailModal] = useState<DetailModalData | null>(null)
 
   if (!schools.length || !students.length) return null
+
+  const visibleMonths = recentMonthsOnly
+    ? MONTHS.filter((m) => m >= Math.max(1, currentMonth - 2) && m <= currentMonth)
+    : MONTHS
 
   // 학생별 월별 CONFIRMED 결제 맵 생성: key = `${studentId}-${month}` → { amount, id }
   const paymentMap = new Map<string, { amount: number; id: string }>()
@@ -104,7 +109,7 @@ export default function PaymentMatrix({ year, currentMonth, schools, students, p
 
             {/* 가로 스크롤 테이블 */}
             <div className="overflow-x-auto">
-              <table className="border-collapse" style={{ minWidth: `${40 + MONTHS.length * 56}px` }}>
+              <table className="border-collapse" style={{ minWidth: `${40 + visibleMonths.length * 56}px` }}>
                 <thead>
                   <tr className="border-b border-[#F2F2F7]">
                     {/* sticky 이름 컬럼 헤더 */}
@@ -114,7 +119,7 @@ export default function PaymentMatrix({ year, currentMonth, schools, students, p
                     >
                       학생
                     </th>
-                    {MONTHS.map((m) => (
+                    {visibleMonths.map((m) => (
                       <th
                         key={m}
                         className={`px-1 py-2 text-center text-xs font-medium whitespace-nowrap ${
@@ -139,7 +144,7 @@ export default function PaymentMatrix({ year, currentMonth, schools, students, p
                       >
                         {student.name}
                       </td>
-                      {MONTHS.map((m) => {
+                      {visibleMonths.map((m) => {
                         const key = `${student.id}-${m}`
                         const entry = paymentMap.get(key)
                         const amount = entry?.amount

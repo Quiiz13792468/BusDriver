@@ -19,7 +19,7 @@ export default async function DashboardPage() {
   if (!profile) redirect('/login')
 
   if (profile.role === 'DRIVER') {
-    return <DriverDashboard />
+    return <DriverDashboard driverName={profile.full_name ?? '버스기사'} />
   }
 
   return <ParentDashboard />
