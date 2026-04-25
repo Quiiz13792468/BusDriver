@@ -219,7 +219,7 @@ export default function HomeTabs({
       </div>
 
       {/* 탭 콘텐츠 */}
-      <div key={tab} style={{ paddingTop: 12, animation: 'tabSlideIn 0.18s ease' }}>
+      <div key={tab} style={{ paddingTop: 12, animation: 'tabSlideIn 0.22s ease' }}>
 
         {/* 입금 예정 */}
         {tab === 0 && (
