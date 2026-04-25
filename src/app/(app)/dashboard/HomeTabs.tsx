@@ -70,6 +70,10 @@ interface RegisterTarget {
   defaultAmount: number
 }
 
+function fmtWon(n: number) {
+  return '₩' + n.toLocaleString('ko-KR')
+}
+
 function formatKRW(n: number) {
   return n.toLocaleString('ko-KR') + '원'
 }
@@ -77,8 +81,13 @@ function formatKRW(n: number) {
 const inputClass =
   'w-full h-12 px-4 rounded-2xl border border-[#C6C6C8] text-base bg-white focus:outline-none focus:border-[#F5A400] focus:ring-2 focus:ring-[#F5A400]/20'
 
+const AMBER = '#F5A400'
+const RED = '#FF3B30'
+const BLUE = '#007AFF'
+const LABEL = '#8E8E93'
+const SEP = '#E5E5EA'
+
 const TABS = ['입금 예정', '미납', '확인 요청', '입금 현황']
-const CHIP_COLORS = ['#F5A400', '#FF3B30', '#5856D6']
 
 export default function HomeTabs({
   year, month, monthlySum,
@@ -149,115 +158,174 @@ export default function HomeTabs({
     })
   }
 
-  const chipCounts = [todayStudents.length, overdueList.length, pendingPayments.length]
-  const chipLabels = [`예정 ${todayStudents.length}명`, `미납 ${overdueList.length}명`, `요청 ${pendingPayments.length}건`]
+  const todaySum = todayStudents.reduce((s, x) => s + (x.custom_fee ?? x.default_fee ?? 0), 0)
+  const overdueSum = overdueList.reduce((s, x) => s + (x.custom_fee ?? x.default_fee ?? 0), 0)
+  const pendingSum = pendingPayments.reduce((s, p) => s + p.amount, 0)
+
+  const chips = [
+    { label: '입금 예정', value: `${todayStudents.length}명`, color: AMBER, tabIdx: 0 },
+    { label: '미납', value: `${overdueList.length}명`, color: RED, tabIdx: 1 },
+    { label: '확인 요청', value: `${pendingPayments.length}건`, color: BLUE, tabIdx: 2 },
+  ]
 
   return (
     <>
-      {/* 이번달 입금 요약 배너 */}
-      <div className="mx-4 mt-3 rounded-2xl bg-[#F5A400] px-4 py-3">
-        <p className="text-xs font-medium text-black/60 mb-0.5">{month}월 확정 입금</p>
-        <p className="text-2xl font-bold text-black">{formatKRW(monthlySum)}</p>
+      {/* 이번달 입금 요약 */}
+      <div style={{ background: 'rgb(245,164,0)', padding: '14px 18px 12px', borderBottom: `1px solid ${SEP}` }}>
+        <div style={{ color: 'rgb(33,33,35)', marginBottom: 2, fontSize: 16 }}>{month}월 입금 확정</div>
+        <div style={{ fontSize: 34, fontWeight: 800, color: '#fff', letterSpacing: -1 }}>
+          {fmtWon(monthlySum)}
+        </div>
       </div>
 
       {/* 상태 칩 */}
-      <div className="flex gap-2 px-4 mt-2.5">
-        {chipLabels.map((label, i) => (
+      <div style={{ display: 'flex', gap: 10, padding: '6px 14px', background: '#fff', borderBottom: `1px solid ${SEP}` }}>
+        {chips.map(({ label, value, color, tabIdx }) => (
           <button
-            key={i}
-            onClick={() => setTab(i)}
-            className="h-8 px-3 rounded-full text-xs font-semibold border transition-colors"
+            key={label}
+            onClick={() => setTab(tabIdx)}
             style={{
-              borderColor: CHIP_COLORS[i],
-              color: tab === i ? '#fff' : CHIP_COLORS[i],
-              backgroundColor: tab === i ? CHIP_COLORS[i] : 'transparent',
+              flex: 1, borderRadius: 12, padding: '10px 6px', textAlign: 'center',
+              background: `${color}18`, cursor: 'pointer',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+              border: `1.5px solid ${color}33`,
             }}
           >
-            {label}
+            <span style={{ fontSize: 12, color: '#000' }}>{label}</span>
+            <span style={{ fontWeight: 800, color, fontSize: 24 }}>{value}</span>
           </button>
         ))}
       </div>
 
       {/* 탭바 */}
-      <div className="flex border-b border-[#E5E5EA] mt-2.5 px-1">
+      <div style={{ display: 'flex', background: '#fff', borderBottom: `1.5px solid ${AMBER}` }}>
         {TABS.map((t, i) => (
           <button
             key={i}
             onClick={() => setTab(i)}
-            className={`flex-1 py-2.5 text-sm font-medium relative transition-colors ${
-              tab === i ? 'text-black' : 'text-[#8E8E93]'
-            }`}
+            style={{
+              flex: 1, padding: '11px 4px',
+              fontWeight: tab === i ? 700 : 500,
+              color: tab === i ? AMBER : LABEL,
+              borderTop: 'none', borderLeft: 'none', borderRight: 'none',
+              borderBottom: tab === i ? `2.5px solid ${AMBER}` : '2.5px solid transparent',
+              background: 'none', cursor: 'pointer',
+              whiteSpace: 'nowrap', fontSize: 18,
+            }}
           >
-            <span>{t}</span>
-            {i < 3 && chipCounts[i] > 0 && (
-              <span
-                className="ml-0.5 text-[10px] font-bold align-top leading-none"
-                style={{ color: CHIP_COLORS[i] }}
-              >
-                {chipCounts[i]}
-              </span>
-            )}
-            {tab === i && (
-              <span className="absolute bottom-0 left-2 right-2 h-[2px] bg-black rounded-full" />
-            )}
+            {t}
           </button>
         ))}
       </div>
 
       {/* 탭 콘텐츠 */}
-      <div key={tab} className="px-4 pt-3 pb-2 space-y-2" style={{ animation: 'tabSlideIn 0.18s ease' }}>
+      <div key={tab} style={{ paddingTop: 12, animation: 'tabSlideIn 0.18s ease' }}>
 
         {/* 입금 예정 */}
         {tab === 0 && (
           todayStudents.length === 0 ? (
-            <div className="bg-white rounded-2xl px-4 py-8 text-center">
+            <div className="bg-white rounded-2xl mx-[14px] px-4 py-8 text-center">
               <p className="text-sm text-[#8E8E93]">오늘 입금 예정 학생이 없습니다</p>
             </div>
           ) : (
-            todayStudents.map((s) => (
-              <div key={s.id} className="bg-white rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-base font-semibold text-black truncate">{s.name}</p>
-                  {s.school_name && <p className="text-xs text-[#8E8E93] mt-0.5">{s.school_name}</p>}
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-sm font-bold text-[#34C759]">
-                    {formatKRW(s.custom_fee ?? s.default_fee ?? 0)}
-                  </span>
-                  <button
-                    onClick={() => openRegister(s)}
-                    className="h-9 px-4 rounded-full bg-[#F5A400] text-black text-sm font-semibold"
-                  >
-                    등록
-                  </button>
-                </div>
+            <>
+              <div style={{ padding: '0 14px 8px', fontSize: 13, color: LABEL, fontWeight: 500 }}>
+                오늘 입금 예정 · {todayStudents.length}명 · 합계 {fmtWon(todaySum)}
               </div>
-            ))
+              {todayStudents.map((s) => (
+                <div key={s.id} style={{
+                  background: '#fff', borderRadius: 14, padding: '14px 16px',
+                  display: 'flex', alignItems: 'center', gap: 14,
+                  margin: '0 14px 10px', border: `1.5px solid ${AMBER}33`,
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.08)', minHeight: 72,
+                }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, color: '#111', fontSize: 22 }}>{s.name}</div>
+                    {s.school_name && (
+                      <div style={{ color: LABEL, marginTop: 2, fontSize: 16 }}>{s.school_name}</div>
+                    )}
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontWeight: 700, color: '#111', fontSize: 22, marginBottom: 6 }}>
+                      {fmtWon(s.custom_fee ?? s.default_fee ?? 0)}
+                    </div>
+                    <button
+                      onClick={() => openRegister(s)}
+                      style={{
+                        background: AMBER, color: '#fff', border: 'none',
+                        borderRadius: 8, padding: '6px 14px',
+                        fontSize: 14, fontWeight: 700, cursor: 'pointer', minHeight: 34,
+                      }}
+                    >
+                      등록
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </>
           )
         )}
 
         {/* 미납 */}
         {tab === 1 && (
           overdueList.length === 0 ? (
-            <div className="bg-white rounded-2xl px-4 py-8 text-center">
+            <div className="bg-white rounded-2xl mx-[14px] px-4 py-8 text-center">
               <p className="text-sm text-[#8E8E93]">미납 학생이 없습니다</p>
             </div>
           ) : (
-            overdueList.map((s) => (
-              <div key={s.id} className="bg-white rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-base font-semibold text-black truncate">{s.name}</p>
-                  <p className="text-xs text-[#FF3B30] mt-0.5">{s.payment_day}일 미납</p>
-                  {s.school_name && <p className="text-xs text-[#8E8E93]">{s.school_name}</p>}
-                </div>
-                <button
-                  onClick={() => openRegister(s)}
-                  className="h-9 px-4 rounded-full bg-[#F5A400] text-black text-sm font-semibold shrink-0"
-                >
-                  입금 등록
-                </button>
+            <>
+              <div style={{ padding: '0 14px 8px', fontSize: 13, color: LABEL, fontWeight: 500 }}>
+                미납 학생 · {overdueList.length}명 · 총 {fmtWon(overdueSum)}
               </div>
-            ))
+              {overdueList.map((s) => (
+                <div key={s.id} style={{
+                  background: '#fff', borderRadius: 14,
+                  margin: '0 14px 10px', padding: '14px 16px',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: `1.5px solid ${RED}33`,
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 700, fontSize: 22, color: '#111' }}>{s.name}</div>
+                      {s.school_name && (
+                        <div style={{ color: LABEL, fontSize: 16, marginTop: 2 }}>{s.school_name}</div>
+                      )}
+                      <div style={{ color: RED, marginTop: 4, fontWeight: 600, fontSize: 14 }}>
+                        {s.payment_day}일 이후 미납
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontWeight: 800, color: RED, fontSize: 22 }}>
+                        {fmtWon(s.custom_fee ?? s.default_fee ?? 0)}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      onClick={() => openRegister(s)}
+                      disabled={isPending}
+                      style={{
+                        flex: 1, minHeight: 48, background: RED, color: '#fff',
+                        border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 700,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      입금요청
+                    </button>
+                    <button
+                      onClick={() => openRegister(s)}
+                      disabled={isPending}
+                      style={{
+                        flex: 1, minHeight: 48, background: '#F2F2F7', color: '#555',
+                        border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      입금확정
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </>
           )
         )}
 
@@ -265,40 +333,61 @@ export default function HomeTabs({
         {tab === 2 && (
           <>
             {pendingPayments.length === 0 ? (
-              <div className="bg-white rounded-2xl px-4 py-8 text-center">
+              <div className="bg-white rounded-2xl mx-[14px] px-4 py-8 text-center">
                 <p className="text-sm text-[#8E8E93]">새로운 요청이 없습니다</p>
               </div>
             ) : (
-              pendingPayments.map((p) => (
-                <div key={p.id} className="bg-white rounded-2xl px-4 py-3 space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-base font-semibold text-black">{p.student_name ?? '—'}</p>
-                      <p className="text-xs text-[#8E8E93] mt-0.5">{p.paid_at}</p>
-                    </div>
-                    <p className="text-base font-bold text-black">{formatKRW(p.amount)}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => { setDisputeId(p.id); setDisputeMemo(''); setError(null) }}
-                      disabled={isPending}
-                      className="flex-1 h-10 rounded-full border border-[#FF3B30] text-[#FF3B30] text-sm font-semibold disabled:opacity-50"
-                    >
-                      재확인요청
-                    </button>
-                    <button
-                      onClick={() => handleConfirm(p.id)}
-                      disabled={isPending}
-                      className="flex-1 h-10 rounded-full bg-[#34C759] text-white text-sm font-bold disabled:opacity-50"
-                    >
-                      {isPending ? '처리 중...' : '확정'}
-                    </button>
-                  </div>
+              <>
+                <div style={{ padding: '0 14px 8px', fontSize: 13, color: LABEL, fontWeight: 500 }}>
+                  입금 확인 요청 · {pendingPayments.length}건 · 합계 {fmtWon(pendingSum)}
                 </div>
-              ))
+                {pendingPayments.map((p) => (
+                  <div key={p.id} style={{
+                    background: '#fff', borderRadius: 14,
+                    margin: '0 14px 10px', padding: '14px 16px',
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: `1.5px solid ${BLUE}22`,
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: 24, color: '#000' }}>
+                          {p.student_name ?? '—'}
+                        </div>
+                        <div style={{ marginTop: 1, fontSize: 16, color: LABEL }}>{p.paid_at}</div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontWeight: 700, fontSize: 22 }}>{fmtWon(p.amount)}</div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        onClick={() => handleConfirm(p.id)}
+                        disabled={isPending}
+                        style={{
+                          flex: 1, minHeight: 44, background: BLUE, color: '#fff',
+                          border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {isPending ? '처리 중...' : '확정'}
+                      </button>
+                      <button
+                        onClick={() => { setDisputeId(p.id); setDisputeMemo(''); setError(null) }}
+                        disabled={isPending}
+                        style={{
+                          flex: 1, minHeight: 44, background: '#F2F2F7', color: '#555',
+                          border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 600,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        재확인요청
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </>
             )}
             {error && (
-              <div className="px-4 py-3 rounded-2xl bg-[#FF3B30]/10 border border-[#FF3B30]/20">
+              <div className="mx-[14px] px-4 py-3 rounded-2xl bg-[#FF3B30]/10 border border-[#FF3B30]/20">
                 <p className="text-sm font-medium text-[#FF3B30]">{error}</p>
               </div>
             )}
@@ -307,7 +396,7 @@ export default function HomeTabs({
 
         {/* 입금 현황 */}
         {tab === 3 && (
-          <div className="-mx-4">
+          <div className="-mx-0">
             <PaymentMatrix
               year={year}
               currentMonth={month}
@@ -383,7 +472,7 @@ export default function HomeTabs({
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full h-14 rounded-full bg-[#F5A400] text-black text-base font-bold disabled:opacity-60"
+                className="w-full h-14 rounded-full bg-[#F5A400] text-white text-base font-bold disabled:opacity-60"
               >
                 {isPending ? '등록 중...' : '등록'}
               </button>

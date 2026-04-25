@@ -61,13 +61,15 @@ export default function GlobalActions({ students }: Props) {
       <div className="flex items-center gap-2">
         <button
           onClick={() => { setModal('payment'); setError(null) }}
-          className="h-9 px-3 rounded-full bg-[#F5A400] text-black text-sm font-semibold"
+          className="h-9 px-3 rounded-full bg-transparent text-sm font-bold text-[#F5A400]"
+          style={{ border: '1.5px solid #F5A400' }}
         >
           입금
         </button>
         <button
           onClick={() => { setModal('fuel'); setError(null) }}
-          className="h-9 px-3 rounded-full bg-white border border-[#C6C6C8] text-sm font-semibold text-black"
+          className="h-9 px-3 rounded-full bg-transparent text-sm font-bold text-[#F5A400]"
+          style={{ border: '1.5px solid #F5A400' }}
         >
           주유
         </button>
