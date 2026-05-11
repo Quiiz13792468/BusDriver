@@ -74,6 +74,11 @@ function fmtWon(n: number) {
   return '₩' + n.toLocaleString('ko-KR')
 }
 
+function formatDate(dateStr: string): string {
+  const [year, month, day] = dateStr.split('-').map(Number)
+  return `${year}년 ${month}월 ${day}일`
+}
+
 function formatKRW(n: number) {
   return n.toLocaleString('ko-KR') + '원'
 }
@@ -191,7 +196,7 @@ export default function HomeTabs({
               border: `1.5px solid ${color}33`,
             }}
           >
-            <span style={{ fontSize: 12, color: '#000' }}>{label}</span>
+            <span style={{ fontSize: 14, color: '#000' }}>{label}</span>
             <span style={{ fontWeight: 800, color, fontSize: 24 }}>{value}</span>
           </button>
         ))}
@@ -352,7 +357,7 @@ export default function HomeTabs({
                         <div style={{ fontWeight: 700, fontSize: 24, color: '#000' }}>
                           {p.student_name ?? '—'}
                         </div>
-                        <div style={{ marginTop: 1, fontSize: 16, color: LABEL }}>{p.paid_at}</div>
+                        <div style={{ marginTop: 1, fontSize: 16, color: LABEL }}>{formatDate(p.paid_at)}</div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
                         <div style={{ fontWeight: 700, fontSize: 22 }}>{fmtWon(p.amount)}</div>

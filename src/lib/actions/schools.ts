@@ -64,3 +64,32 @@ export async function updateSchoolAction(schoolId: string, formData: FormData) {
   revalidatePath('/schools')
   return { error: null }
 }
+
+export async function deleteSchoolAction(schoolId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: '로그인이 필요합니다.' }
+
+  const { data: activeStudents } = await supabase
+    .from('students')
+    .select('id')
+    .eq('school_id', schoolId)
+    .eq('is_active', true)
+    .limit(1)
+
+  if (activeStudents && activeStudents.length > 0) {
+    return { error: '재학 중인 학생이 있어 삭제할 수 없습니다.' }
+  }
+
+  const { error } = await supabase
+    .from('schools')
+    .delete()
+    .eq('id', schoolId)
+    .eq('owner_driver_id', user.id)
+
+  if (error) return { error: '학교 삭제에 실패했습니다.' }
+
+  revalidatePath('/settings/schools')
+  revalidatePath('/schools')
+  return { error: null }
+}

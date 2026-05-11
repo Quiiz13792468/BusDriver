@@ -33,6 +33,11 @@ function formatKRW(n: number) {
   return n.toLocaleString('ko-KR') + '원'
 }
 
+function formatDate(dateStr: string): string {
+  const [year, month, day] = dateStr.split('-').map(Number)
+  return `${year}년 ${month}월 ${day}일`
+}
+
 export default function PaymentsList({ payments, driverName }: Props) {
   const [detailModal, setDetailModal] = useState<{ paymentId: string; studentName: string } | null>(null)
 
@@ -54,7 +59,7 @@ export default function PaymentsList({ payments, driverName }: Props) {
               <div>
                 <p className="text-base font-medium text-black">{student?.name ?? '—'}</p>
                 <p className="text-xs text-[#6C6C70] mt-0.5">
-                  {p.paid_at}
+                  {formatDate(p.paid_at)}
                   {p.created_by_role === 'PARENT' && (
                     <span className="ml-1 text-[#5856D6]">학부모 등록</span>
                   )}

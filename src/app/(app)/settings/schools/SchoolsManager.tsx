@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { updateSchoolAction } from '@/lib/actions/schools'
+import { updateSchoolAction, deleteSchoolAction } from '@/lib/actions/schools'
 
 interface School {
   id: string
@@ -21,7 +21,6 @@ export default function SchoolsManager({ schools }: Props) {
   const [editTarget, setEditTarget] = useState<School | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
-  // 로컬 상태로 낙관적 업데이트
   const [localSchools, setLocalSchools] = useState<School[]>(schools)
 
   const inputClass =
@@ -42,7 +41,6 @@ export default function SchoolsManager({ schools }: Props) {
       if (result?.error) {
         setError(result.error)
       } else {
-        // 로컬 상태 갱신
         const newName = (formData.get('name') as string).trim()
         const newFee = parseInt(formData.get('default_fee') as string, 10) || 0
         setLocalSchools((prev) =>
@@ -51,6 +49,18 @@ export default function SchoolsManager({ schools }: Props) {
           )
         )
         handleClose()
+      }
+    })
+  }
+
+  const handleDelete = (school: School) => {
+    if (!confirm(`"${school.name}" 학교를 삭제하시겠습니까?\n재학 중인 학생이 있으면 삭제할 수 없습니다.`)) return
+    startTransition(async () => {
+      const result = await deleteSchoolAction(school.id)
+      if (result?.error) {
+        alert(result.error)
+      } else {
+        setLocalSchools((prev) => prev.filter((s) => s.id !== school.id))
       }
     })
   }
@@ -65,19 +75,33 @@ export default function SchoolsManager({ schools }: Props) {
       ) : (
         <div className="bg-white rounded-2xl divide-y divide-[#F2F2F7]">
           {localSchools.map((school) => (
-            <button
+            <div
               key={school.id}
-              onClick={() => { setEditTarget(school); setError(null) }}
-              className="flex items-center justify-between w-full px-4 py-4 text-left"
+              className="flex items-center justify-between px-4 py-4"
             >
-              <div>
+              <div className="flex-1 min-w-0 mr-3">
                 <p className="text-base font-medium text-black">{school.name}</p>
                 <p className="text-sm text-[#6C6C70] mt-0.5">
                   기본 이용금액: {school.default_fee ? formatKRW(school.default_fee) : '미설정'}
                 </p>
               </div>
-              <span className="text-[#C6C6C8] text-lg">›</span>
-            </button>
+              <div className="flex flex-col gap-1.5 flex-shrink-0">
+                <button
+                  onClick={() => { setEditTarget(school); setError(null) }}
+                  disabled={isPending}
+                  className="min-w-[60px] min-h-[42px] rounded-xl bg-[#F2F2F7] text-black text-sm font-semibold disabled:opacity-60"
+                >
+                  수정
+                </button>
+                <button
+                  onClick={() => handleDelete(school)}
+                  disabled={isPending}
+                  className="min-w-[60px] min-h-[42px] rounded-xl bg-[#FF3B30]/10 text-[#FF3B30] text-sm font-semibold disabled:opacity-60"
+                >
+                  삭제
+                </button>
+              </div>
+            </div>
           ))}
         </div>
       )}

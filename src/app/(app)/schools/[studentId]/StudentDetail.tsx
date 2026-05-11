@@ -61,6 +61,11 @@ function formatKRW(n: number) {
   return n.toLocaleString('ko-KR') + '원'
 }
 
+function formatDate(dateStr: string): string {
+  const [year, month, day] = dateStr.split('-').map(Number)
+  return `${year}년 ${month}월 ${day}일`
+}
+
 export default function StudentDetail({ student, schools, recentPayments }: Props) {
   const router = useRouter()
   const [editing, setEditing] = useState(false)
@@ -272,7 +277,7 @@ export default function StudentDetail({ student, schools, recentPayments }: Prop
                   <p className={`text-sm font-medium ${statusColor[p.status] ?? 'text-[#6C6C70]'}`}>
                     {statusLabel[p.status] ?? p.status}
                   </p>
-                  <p className="text-xs text-[#6C6C70] mt-0.5">{p.paid_at}</p>
+                  <p className="text-xs text-[#6C6C70] mt-0.5">{formatDate(p.paid_at)}</p>
                 </div>
               </li>
             ))}
