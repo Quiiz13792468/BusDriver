@@ -12,6 +12,9 @@ export async function registerPaymentAction(formData: FormData) {
   const amount = parseInt(formData.get('amount') as string, 10)
   const paidAt = formData.get('paid_at') as string
   const memo = (formData.get('memo') as string)?.trim() || null
+  const serviceTypeRaw = formData.get('service_type') as string | null
+  const serviceType = serviceTypeRaw && ['MORNING', 'AFTERNOON', 'BOTH'].includes(serviceTypeRaw)
+    ? serviceTypeRaw : null
 
   if (!studentId) return { error: '학생을 선택해주세요.' }
   if (!amount || amount <= 0) return { error: '금액을 올바르게 입력해주세요.' }
@@ -22,6 +25,7 @@ export async function registerPaymentAction(formData: FormData) {
     amount,
     paid_at: paidAt,
     memo,
+    service_type: serviceType,
     // driver_id, created_by, created_by_role은 트리거에서 자동 세팅
   })
 
@@ -30,6 +34,23 @@ export async function registerPaymentAction(formData: FormData) {
   revalidatePath('/payments')
   revalidatePath('/dashboard')
   return { error: null }
+}
+
+export async function getStudentPaidMonthsAction(studentId: string, year: number): Promise<number[]> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  const { data } = await supabase
+    .from('payments')
+    .select('paid_at')
+    .eq('student_id', studentId)
+    .eq('status', 'CONFIRMED')
+    .gte('paid_at', `${year}-01-01`)
+    .lte('paid_at', `${year}-12-31`)
+
+  if (!data) return []
+  return [...new Set(data.map((p) => parseInt(p.paid_at.split('-')[1], 10)))]
 }
 
 export async function registerFuelAction(formData: FormData) {

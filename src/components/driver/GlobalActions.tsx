@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { createPortal } from 'react-dom'
-import { registerPaymentAction, registerFuelAction } from '@/lib/actions/payments'
+import { registerPaymentAction, registerFuelAction, getStudentPaidMonthsAction } from '@/lib/actions/payments'
 
 interface Student {
   id: string
@@ -16,10 +16,12 @@ interface Props {
 
 type ModalType = 'payment' | 'fuel' | null
 type FuelType = 'GASOLINE' | 'DIESEL'
+type ServiceType = 'BOTH' | 'MORNING' | 'AFTERNOON'
 
 const IOS = {
   amber: '#F5A400',
   red: '#FF3B30',
+  green: '#34C759',
   bg: '#F2F2F7',
   card: '#FFFFFF',
   label: '#8E8E93',
@@ -46,6 +48,13 @@ const labelStyle: React.CSSProperties = {
   display: 'block',
 }
 
+const MONTH_LABELS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월']
+const SERVICE_OPTIONS: { value: ServiceType; label: string }[] = [
+  { value: 'BOTH', label: '등하교' },
+  { value: 'MORNING', label: '등교' },
+  { value: 'AFTERNOON', label: '하교' },
+]
+
 export default function GlobalActions({ students }: Props) {
   const [modal, setModal] = useState<ModalType>(null)
   const [error, setError] = useState<string | null>(null)
@@ -57,6 +66,15 @@ export default function GlobalActions({ students }: Props) {
   const [studentId, setStudentId] = useState('')
   const [showList, setShowList] = useState(false)
   const studentBoxRef = useRef<HTMLDivElement | null>(null)
+
+  // 입금 모달 전용 상태
+  const [serviceType, setServiceType] = useState<ServiceType>('BOTH')
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null)
+  const [paidMonths, setPaidMonths] = useState<number[]>([])
+  const [loadingMonths, setLoadingMonths] = useState(false)
+
+  const currentYear = new Date().getFullYear()
+  const currentMonth = new Date().getMonth() + 1
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -90,30 +108,50 @@ export default function GlobalActions({ students }: Props) {
     setStudentQuery('')
     setStudentId('')
     setShowList(false)
+    setServiceType('BOTH')
+    setSelectedMonth(null)
+    setPaidMonths([])
+    setLoadingMonths(false)
   }
 
-  const selectStudent = (s: Student) => {
+  const selectStudent = async (s: Student) => {
     setStudentId(s.id)
     setStudentQuery(s.school_name ? `${s.name} (${s.school_name})` : s.name)
     setShowList(false)
+    setSelectedMonth(null)
+    setLoadingMonths(true)
+    const months = await getStudentPaidMonthsAction(s.id, currentYear)
+    setPaidMonths(months)
+    setLoadingMonths(false)
   }
 
   const handleStudentChange = (v: string) => {
     setStudentQuery(v)
     setStudentId('')
+    setPaidMonths([])
+    setSelectedMonth(null)
     setShowList(true)
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
-    if (modal === 'payment' && !studentId) {
-      setError('학생을 선택해주세요')
-      return
+    if (modal === 'payment') {
+      if (!studentId) {
+        setError('학생을 선택해주세요')
+        return
+      }
+      if (!selectedMonth) {
+        setError('납부 월을 선택해주세요')
+        return
+      }
     }
     const formData = new FormData(e.currentTarget)
     if (modal === 'payment') {
       formData.set('student_id', studentId)
+      formData.set('service_type', serviceType)
+      const mm = String(selectedMonth).padStart(2, '0')
+      formData.set('paid_at', `${currentYear}-${mm}-01`)
     } else if (modal === 'fuel') {
       formData.set('fuel_type', fuelType)
     }
@@ -202,7 +240,7 @@ export default function GlobalActions({ students }: Props) {
             </div>
 
             <form onSubmit={handleSubmit}>
-              {/* 입금: 학생 검색 (autocomplete) */}
+              {/* 입금: 학생 검색 */}
               {modal === 'payment' && (
                 <div ref={studentBoxRef} style={{ marginBottom: 14, position: 'relative' }}>
                   <label style={labelStyle}>학생 선택</label>
@@ -268,6 +306,106 @@ export default function GlobalActions({ students }: Props) {
                 </div>
               )}
 
+              {/* 입금: 이용유형 */}
+              {modal === 'payment' && (
+                <div style={{ marginBottom: 14 }}>
+                  <label style={labelStyle}>이용유형</label>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {SERVICE_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setServiceType(opt.value)}
+                        style={{
+                          flex: 1, minHeight: 44, borderRadius: 10,
+                          border: `2px solid ${serviceType === opt.value ? IOS.amber : IOS.sep}`,
+                          background: serviceType === opt.value ? IOS.amber : IOS.bg,
+                          color: serviceType === opt.value ? '#fff' : '#555',
+                          fontSize: 15, fontWeight: 700, cursor: 'pointer',
+                        }}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 금액 (공통) */}
+              <div style={{ marginBottom: 14 }}>
+                <label style={labelStyle}>
+                  {modal === 'fuel' ? '주유금액' : '입금 금액'}
+                </label>
+                <input
+                  name="amount"
+                  type="number"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  min={1}
+                  required
+                  placeholder="0"
+                  style={inputStyle}
+                />
+              </div>
+
+              {/* 입금: 월 선택 그리드 */}
+              {modal === 'payment' && (
+                <div style={{ marginBottom: 14 }}>
+                  <label style={labelStyle}>
+                    납부 월 선택
+                    {loadingMonths && (
+                      <span style={{ marginLeft: 8, fontSize: 12, color: IOS.label }}>로딩 중...</span>
+                    )}
+                  </label>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: 8,
+                  }}>
+                    {MONTH_LABELS.map((label, idx) => {
+                      const m = idx + 1
+                      const isPaid = paidMonths.includes(m)
+                      const isFuture = m > currentMonth
+                      const isSelected = selectedMonth === m
+
+                      let bg = IOS.bg
+                      let color = '#333'
+                      let border = `1.5px solid transparent`
+
+                      if (isPaid) {
+                        bg = IOS.green
+                        color = '#fff'
+                      } else if (isSelected) {
+                        bg = IOS.amber
+                        color = '#fff'
+                        border = `1.5px solid ${IOS.amber}`
+                      } else if (isFuture) {
+                        bg = IOS.bg
+                        color = '#C6C6C8'
+                      }
+
+                      return (
+                        <button
+                          key={m}
+                          type="button"
+                          disabled={isPaid || isFuture}
+                          onClick={() => setSelectedMonth(isSelected ? null : m)}
+                          style={{
+                            minHeight: 44, borderRadius: 10,
+                            background: bg, color, border,
+                            fontSize: 15, fontWeight: isSelected || isPaid ? 700 : 500,
+                            cursor: isPaid || isFuture ? 'default' : 'pointer',
+                            opacity: isFuture ? 0.4 : 1,
+                          }}
+                        >
+                          {label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* 주유: 유종 */}
               {modal === 'fuel' && (
                 <div style={{ marginBottom: 14 }}>
@@ -318,37 +456,6 @@ export default function GlobalActions({ students }: Props) {
                     pattern="[0-9]*"
                     min={1}
                     placeholder="0"
-                    style={inputStyle}
-                  />
-                </div>
-              )}
-
-              {/* 금액 (공통) */}
-              <div style={{ marginBottom: 14 }}>
-                <label style={labelStyle}>
-                  {modal === 'fuel' ? '주유금액' : '입금 금액'}
-                </label>
-                <input
-                  name="amount"
-                  type="number"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  min={1}
-                  required
-                  placeholder="0"
-                  style={inputStyle}
-                />
-              </div>
-
-              {/* 입금: 입금일 */}
-              {modal === 'payment' && (
-                <div style={{ marginBottom: 14 }}>
-                  <label style={labelStyle}>입금일</label>
-                  <input
-                    name="paid_at"
-                    type="date"
-                    defaultValue={today}
-                    required
                     style={inputStyle}
                   />
                 </div>

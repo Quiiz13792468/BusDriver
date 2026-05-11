@@ -6,14 +6,6 @@ import { useRouter } from 'next/navigation'
 import { registerPaymentAction, confirmPaymentAction, disputePaymentAction } from '@/lib/actions/payments'
 import PaymentMatrix from './PaymentMatrix'
 
-interface TodayStudent {
-  id: string
-  name: string
-  school_name: string | null
-  custom_fee: number | null
-  default_fee: number | null
-}
-
 interface OverdueStudent {
   id: string
   name: string
@@ -55,7 +47,6 @@ interface Props {
   year: number
   month: number
   monthlySum: number
-  todayStudents: TodayStudent[]
   overdueList: OverdueStudent[]
   pendingPayments: PendingPayment[]
   schools: School[]
@@ -79,10 +70,6 @@ function formatDate(dateStr: string): string {
   return `${year}년 ${month}월 ${day}일`
 }
 
-function formatKRW(n: number) {
-  return n.toLocaleString('ko-KR') + '원'
-}
-
 const inputClass =
   'w-full h-12 px-4 rounded-2xl border border-[#C6C6C8] text-base bg-white focus:outline-none focus:border-[#F5A400] focus:ring-2 focus:ring-[#F5A400]/20'
 
@@ -92,11 +79,11 @@ const BLUE = '#007AFF'
 const LABEL = '#8E8E93'
 const SEP = '#E5E5EA'
 
-const TABS = ['입금 예정', '미납', '확인 요청', '입금 현황']
+const TABS = ['미납', '확인 요청', '입금 현황']
 
 export default function HomeTabs({
   year, month, monthlySum,
-  todayStudents, overdueList, pendingPayments,
+  overdueList, pendingPayments,
   schools, matrixStudents, matrixPayments,
   driverName,
 }: Props) {
@@ -113,7 +100,7 @@ export default function HomeTabs({
 
   const today = new Date().toISOString().split('T')[0]
 
-  const openRegister = (s: TodayStudent | OverdueStudent) => {
+  const openRegister = (s: OverdueStudent) => {
     setError(null)
     setRegisterTarget({
       studentId: s.id,
@@ -163,14 +150,12 @@ export default function HomeTabs({
     })
   }
 
-  const todaySum = todayStudents.reduce((s, x) => s + (x.custom_fee ?? x.default_fee ?? 0), 0)
   const overdueSum = overdueList.reduce((s, x) => s + (x.custom_fee ?? x.default_fee ?? 0), 0)
   const pendingSum = pendingPayments.reduce((s, p) => s + p.amount, 0)
 
   const chips = [
-    { label: '입금 예정', value: `${todayStudents.length}명`, color: AMBER, tabIdx: 0 },
-    { label: '미납', value: `${overdueList.length}명`, color: RED, tabIdx: 1 },
-    { label: '확인 요청', value: `${pendingPayments.length}건`, color: BLUE, tabIdx: 2 },
+    { label: '미납', value: `${overdueList.length}명`, color: RED, tabIdx: 0 },
+    { label: '확인 요청', value: `${pendingPayments.length}건`, color: BLUE, tabIdx: 1 },
   ]
 
   return (
@@ -226,53 +211,8 @@ export default function HomeTabs({
       {/* 탭 콘텐츠 */}
       <div key={tab} style={{ paddingTop: 12, animation: 'tabSlideIn 0.22s ease' }}>
 
-        {/* 입금 예정 */}
-        {tab === 0 && (
-          todayStudents.length === 0 ? (
-            <div className="bg-white rounded-2xl mx-[14px] px-4 py-8 text-center">
-              <p className="text-sm text-[#8E8E93]">오늘 입금 예정 학생이 없습니다</p>
-            </div>
-          ) : (
-            <>
-              <div style={{ padding: '0 14px 8px', fontSize: 13, color: LABEL, fontWeight: 500 }}>
-                오늘 입금 예정 · {todayStudents.length}명 · 합계 {fmtWon(todaySum)}
-              </div>
-              {todayStudents.map((s) => (
-                <div key={s.id} style={{
-                  background: '#fff', borderRadius: 14, padding: '14px 16px',
-                  display: 'flex', alignItems: 'center', gap: 14,
-                  margin: '0 14px 10px', border: `1.5px solid ${AMBER}33`,
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.08)', minHeight: 72,
-                }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, color: '#111', fontSize: 22 }}>{s.name}</div>
-                    {s.school_name && (
-                      <div style={{ color: LABEL, marginTop: 2, fontSize: 16 }}>{s.school_name}</div>
-                    )}
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontWeight: 700, color: '#111', fontSize: 22, marginBottom: 6 }}>
-                      {fmtWon(s.custom_fee ?? s.default_fee ?? 0)}
-                    </div>
-                    <button
-                      onClick={() => openRegister(s)}
-                      style={{
-                        background: AMBER, color: '#fff', border: 'none',
-                        borderRadius: 8, padding: '6px 14px',
-                        fontSize: 14, fontWeight: 700, cursor: 'pointer', minHeight: 34,
-                      }}
-                    >
-                      등록
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </>
-          )
-        )}
-
         {/* 미납 */}
-        {tab === 1 && (
+        {tab === 0 && (
           overdueList.length === 0 ? (
             <div className="bg-white rounded-2xl mx-[14px] px-4 py-8 text-center">
               <p className="text-sm text-[#8E8E93]">미납 학생이 없습니다</p>
@@ -335,7 +275,7 @@ export default function HomeTabs({
         )}
 
         {/* 확인 요청 */}
-        {tab === 2 && (
+        {tab === 1 && (
           <>
             {pendingPayments.length === 0 ? (
               <div className="bg-white rounded-2xl mx-[14px] px-4 py-8 text-center">
@@ -400,7 +340,7 @@ export default function HomeTabs({
         )}
 
         {/* 입금 현황 */}
-        {tab === 3 && (
+        {tab === 2 && (
           <div className="-mx-0">
             <PaymentMatrix
               year={year}

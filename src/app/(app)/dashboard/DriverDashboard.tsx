@@ -17,13 +17,7 @@ export default async function DriverDashboard({ driverName }: Props) {
   const fromDate = `${year}-${String(month).padStart(2, '0')}-01`
   const toDate = `${year}-${String(month).padStart(2, '0')}-31`
 
-  const [todayRes, overdueRes, pendingRes, monthlyRes] = await Promise.all([
-    supabase
-      .from('students')
-      .select('id, name, custom_fee, schools(name, default_fee)')
-      .eq('is_active', true)
-      .eq('payment_day', today),
-
+  const [overdueRes, pendingRes, monthlyRes] = await Promise.all([
     supabase
       .from('students')
       .select('id, name, payment_day, custom_fee, schools(name, default_fee)')
@@ -59,17 +53,6 @@ export default async function DriverDashboard({ driverName }: Props) {
   const confirmedIds = new Set((confirmedThisMonth ?? []).map((r) => r.student_id))
 
   type SchoolJoin = { name: string; default_fee: number } | null
-
-  const todayStudents = (todayRes.data ?? []).map((s) => {
-    const school = s.schools as unknown as SchoolJoin
-    return {
-      id: s.id,
-      name: s.name,
-      school_name: school?.name ?? null,
-      custom_fee: s.custom_fee,
-      default_fee: school?.default_fee ?? null,
-    }
-  })
 
   const overdueList = (overdueRes.data ?? [])
     .filter((s) => !confirmedIds.has(s.id))
@@ -129,7 +112,6 @@ export default async function DriverDashboard({ driverName }: Props) {
       year={year}
       month={month}
       monthlySum={monthlySum}
-      todayStudents={todayStudents}
       overdueList={overdueList}
       pendingPayments={pendingPayments}
       schools={matrixData.schools}
