@@ -133,68 +133,68 @@ export default function PaymentMatrix({ year, currentMonth, schools, students, p
                 const allPaid = unpaidMonths.length === 0
 
                 return (
-                  <div key={student.id} className="px-4 py-3">
-                    {/* 학생 이름 + 버튼 행 */}
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[15px] font-semibold text-black">{student.name}</span>
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => router.push(`/schools/${student.id}`)}
-                          style={{
-                            fontSize: 13, color: IOS.blue,
-                            background: 'transparent', border: `1px solid ${IOS.blue}`,
-                            borderRadius: 8, padding: '4px 10px',
-                            cursor: 'pointer', minHeight: 28, fontWeight: 500,
-                          }}
-                        >
-                          정보
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleRecord(student)}
-                          disabled={!latestPaymentMap.has(student.id)}
-                          style={{
-                            fontSize: 13,
-                            color: latestPaymentMap.has(student.id) ? IOS.label : '#C6C6C8',
-                            background: 'transparent',
-                            border: `1px solid ${latestPaymentMap.has(student.id) ? IOS.sep : '#E5E5EA'}`,
-                            borderRadius: 8, padding: '4px 10px',
-                            cursor: latestPaymentMap.has(student.id) ? 'pointer' : 'default',
-                            minHeight: 28, fontWeight: 500,
-                          }}
-                        >
-                          기록
-                        </button>
-                      </div>
+                  <div key={student.id} style={{ display: 'flex', alignItems: 'flex-start', padding: '14px 16px', gap: 10 }}>
+                    {/* 학생 정보 + 미납 칩 */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 17, fontWeight: 700, color: '#111', lineHeight: 1.3 }}>{student.name}</div>
+                      <div style={{ fontSize: 13, color: IOS.label, marginTop: 2, marginBottom: 8 }}>{school.name}</div>
+                      {allPaid ? (
+                        <span style={{ fontSize: 14, color: IOS.green, fontWeight: 700 }}>✓ 모든 월 완납</span>
+                      ) : (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                          {unpaidMonths.map((m) => (
+                            <button
+                              key={m}
+                              type="button"
+                              onClick={() => handleUnpaidBadgeClick(student, m)}
+                              style={{
+                                background: 'rgba(255,59,48,0.12)',
+                                color: IOS.red,
+                                border: `1.5px solid ${IOS.red}`,
+                                borderRadius: 20,
+                                padding: '5px 12px',
+                                fontSize: 14, fontWeight: 700,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {m}월
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
-                    {/* 미납 뱃지 또는 완납 표시 */}
-                    {allPaid ? (
-                      <span style={{
-                        fontSize: 13, color: IOS.green, fontWeight: 600,
-                      }}>
-                        ✓ 모든 월 완납
-                      </span>
-                    ) : (
-                      <div className="flex flex-wrap gap-1.5">
-                        {unpaidMonths.map((m) => (
-                          <button
-                            key={m}
-                            type="button"
-                            onClick={() => handleUnpaidBadgeClick(student, m)}
-                            style={{
-                              background: IOS.red, color: '#fff',
-                              border: 'none', borderRadius: 12,
-                              padding: '3px 10px', fontSize: 12, fontWeight: 600,
-                              cursor: 'pointer', minHeight: 24,
-                            }}
-                          >
-                            {m}월
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                    {/* 버튼 세로 배치 */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
+                      <button
+                        type="button"
+                        onClick={() => router.push(`/schools/${student.id}`)}
+                        style={{
+                          minWidth: 60, minHeight: 48,
+                          background: IOS.bg,
+                          border: '2px solid #E5E5EA',
+                          borderRadius: 12,
+                          fontSize: 16, fontWeight: 800, color: '#333',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        정보
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRecord(student)}
+                        style={{
+                          minWidth: 60, minHeight: 48,
+                          background: IOS.amber,
+                          border: 'none',
+                          borderRadius: 12,
+                          fontSize: 16, fontWeight: 800, color: '#fff',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        기록
+                      </button>
+                    </div>
                   </div>
                 )
               })}

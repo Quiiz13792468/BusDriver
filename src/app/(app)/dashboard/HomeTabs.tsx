@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
-import { registerPaymentAction, confirmPaymentAction, disputePaymentAction } from '@/lib/actions/payments'
+import { registerPaymentAction, confirmPaymentAction, disputePaymentAction, getStudentPaidMonthsAction } from '@/lib/actions/payments'
 import PaymentMatrix from './PaymentMatrix'
 
 interface OverdueStudent {
@@ -93,6 +93,10 @@ export default function HomeTabs({
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [registerTarget, setRegisterTarget] = useState<RegisterTarget | null>(null)
+  const [serviceType, setServiceType] = useState<'BOTH' | 'MORNING' | 'AFTERNOON'>('BOTH')
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null)
+  const [paidMonths, setPaidMonths] = useState<number[]>([])
+  const [loadingMonths, setLoadingMonths] = useState(false)
   const [disputeId, setDisputeId] = useState<string | null>(null)
   const [disputeMemo, setDisputeMemo] = useState('')
 
@@ -102,25 +106,42 @@ export default function HomeTabs({
 
   const openRegister = (s: OverdueStudent) => {
     setError(null)
+    setServiceType('BOTH')
+    setSelectedMonth(null)
+    setPaidMonths([])
+    setLoadingMonths(true)
     setRegisterTarget({
       studentId: s.id,
       studentName: s.name,
       defaultAmount: s.custom_fee ?? s.default_fee ?? 0,
+    })
+    getStudentPaidMonthsAction(s.id, year).then((months) => {
+      setPaidMonths(months)
+      setLoadingMonths(false)
     })
   }
 
   const handleRegisterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!registerTarget) return
+    if (!selectedMonth) {
+      setError('납부 월을 선택해주세요')
+      return
+    }
     setError(null)
     const fd = new FormData(e.currentTarget)
     fd.set('student_id', registerTarget.studentId)
+    fd.set('service_type', serviceType)
+    fd.set('paid_at', `${year}-${String(selectedMonth).padStart(2, '0')}-01`)
     startTransition(async () => {
       const result = await registerPaymentAction(fd)
       if (result?.error) {
         setError(result.error)
       } else {
         setRegisterTarget(null)
+        setSelectedMonth(null)
+        setServiceType('BOTH')
+        setPaidMonths([])
         router.refresh()
       }
     })
@@ -181,7 +202,7 @@ export default function HomeTabs({
               border: `1.5px solid ${color}33`,
             }}
           >
-            <span style={{ fontSize: 14, color: '#000' }}>{label}</span>
+            <span style={{ fontSize: 17, fontWeight: 700, color: '#000' }}>{label}</span>
             <span style={{ fontWeight: 800, color, fontSize: 24 }}>{value}</span>
           </button>
         ))}
@@ -358,7 +379,7 @@ export default function HomeTabs({
       {/* 입금 등록 모달 */}
       {registerTarget && mounted && createPortal(
         <div className="fixed inset-0 z-[60] flex items-end">
-          <div className="absolute inset-0 bg-black/40" onClick={() => { setRegisterTarget(null); setError(null) }} />
+          <div className="absolute inset-0 bg-black/40" onClick={() => { setRegisterTarget(null); setError(null); setSelectedMonth(null); setServiceType('BOTH'); setPaidMonths([]) }} />
           <div className="relative w-full bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between px-5 py-4 border-b border-[#F2F2F7]">
               <div>
@@ -366,16 +387,33 @@ export default function HomeTabs({
                 <p className="text-sm text-[#6C6C70] mt-0.5">{registerTarget.studentName}</p>
               </div>
               <button
-                onClick={() => { setRegisterTarget(null); setError(null) }}
+                onClick={() => { setRegisterTarget(null); setError(null); setSelectedMonth(null); setServiceType('BOTH'); setPaidMonths([]) }}
                 className="w-9 h-9 flex items-center justify-center rounded-full bg-[#F2F2F7] text-[#6C6C70]"
               >
                 ✕
               </button>
             </div>
-            <form onSubmit={handleRegisterSubmit} className="px-5 py-4 space-y-4 pb-8">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-[#6C6C70]">
-                  금액 <span className="text-[#FF3B30]">*</span>
+            <form onSubmit={handleRegisterSubmit} className="px-5 py-4 pb-8" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* 이용유형 */}
+              <div>
+                <label className="text-sm font-medium text-[#6C6C70]" style={{ display: 'block', marginBottom: 6 }}>이용유형</label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {([['BOTH', '등하교'], ['MORNING', '등교'], ['AFTERNOON', '하교']] as const).map(([v, l]) => (
+                    <button key={v} type="button" onClick={() => setServiceType(v)}
+                      style={{
+                        flex: 1, minHeight: 44, borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer',
+                        border: `1.5px solid ${serviceType === v ? AMBER : SEP}`,
+                        background: serviceType === v ? AMBER : '#F2F2F7',
+                        color: serviceType === v ? '#fff' : '#555',
+                      }}>{l}</button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 금액 */}
+              <div>
+                <label className="text-sm font-medium text-[#6C6C70]" style={{ display: 'block', marginBottom: 6 }}>
+                  금액 <span style={{ color: RED }}>*</span>
                 </label>
                 <input
                   name="amount"
@@ -388,20 +426,46 @@ export default function HomeTabs({
                   className={inputClass}
                 />
               </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-[#6C6C70]">
-                  입금일 <span className="text-[#FF3B30]">*</span>
+
+              {/* 월 선택 */}
+              <div>
+                <label className="text-sm font-medium text-[#6C6C70]" style={{ display: 'block', marginBottom: 6 }}>
+                  납부 월 선택 <span style={{ color: RED }}>*</span>
+                  {loadingMonths && <span style={{ marginLeft: 8, fontSize: 12, color: LABEL }}>로딩 중...</span>}
                 </label>
-                <input
-                  name="paid_at"
-                  type="date"
-                  required
-                  defaultValue={today}
-                  className={inputClass}
-                />
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+                  {[1,2,3,4,5,6,7,8,9,10,11,12].map((m) => {
+                    const isPaid = paidMonths.includes(m)
+                    const isFuture = m > month
+                    const isSelected = selectedMonth === m
+                    let bg: string, color: string, border: string
+                    if (isSelected) { bg = AMBER; color = '#fff'; border = AMBER }
+                    else if (isFuture) { bg = '#F5F5F5'; color = '#ccc'; border = '#ddd' }
+                    else if (isPaid) { bg = '#E8F4FF'; color = BLUE; border = BLUE }
+                    else { bg = '#FFF0F0'; color = RED; border = RED }
+                    const clickable = !isFuture && !isPaid
+                    return (
+                      <button key={m} type="button"
+                        onClick={() => clickable && setSelectedMonth(isSelected ? null : m)}
+                        style={{
+                          borderRadius: 10, border: `1.5px solid ${border}`, background: bg,
+                          cursor: clickable ? 'pointer' : 'default', padding: '8px 4px',
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+                          opacity: isFuture ? 0.3 : 1,
+                        }}>
+                        <span style={{ fontSize: 16, fontWeight: 800, color }}>{m}월</span>
+                        <span style={{ fontSize: 11, color: isSelected ? 'rgba(255,255,255,0.85)' : color, fontWeight: 600 }}>
+                          {isFuture ? '' : isPaid ? '완납' : '미납'}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-[#6C6C70]">메모</label>
+
+              {/* 메모 */}
+              <div>
+                <label className="text-sm font-medium text-[#6C6C70]" style={{ display: 'block', marginBottom: 6 }}>메모</label>
                 <input
                   name="memo"
                   type="text"
@@ -409,6 +473,7 @@ export default function HomeTabs({
                   className={inputClass}
                 />
               </div>
+
               {error && (
                 <div className="px-4 py-3 rounded-2xl bg-[#FF3B30]/10 border border-[#FF3B30]/20">
                   <p className="text-sm font-medium text-[#FF3B30]">{error}</p>
@@ -419,7 +484,7 @@ export default function HomeTabs({
                 disabled={isPending}
                 className="w-full h-14 rounded-full bg-[#F5A400] text-white text-base font-bold disabled:opacity-60"
               >
-                {isPending ? '등록 중...' : '등록'}
+                {isPending ? '등록 중...' : '등록하기'}
               </button>
             </form>
           </div>
