@@ -30,7 +30,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // 인증 불필요 경로
-  const publicPaths = ['/login', '/auth', '/invite', '/api/dev-log']
+  const publicPaths = ['/login', '/parent-login', '/auth', '/invite', '/api/dev-log']
   const isPublic = publicPaths.some((p) => pathname.startsWith(p))
 
   console.log(`[middleware] ${pathname} | user=${user?.id ?? 'null'} | error=${error?.message ?? 'none'}`)
