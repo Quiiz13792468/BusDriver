@@ -40,3 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env.local
+
+# dev logs (개발 모드 전용 로그 — 커밋하지 않음)
+.dev-logs/

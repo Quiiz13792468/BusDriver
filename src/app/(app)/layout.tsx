@@ -7,6 +7,7 @@ import ParentHeader from '@/components/parent/ParentHeader'
 import ParentNav from '@/components/parent/ParentNav'
 import AdBanner from '@/components/ads/AdBanner'
 import AdSidebar from '@/components/ads/AdSidebar'
+import DevLogSessionSync from '@/components/DevLogSessionSync'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -35,6 +36,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F2F2F7]">
+      <DevLogSessionSync userId={user.id} role={profile.role} />
       {isDriver
         ? <DriverHeader fullName={profile.full_name} userId={user.id} />
         : <ParentHeader fullName={profile.full_name} />

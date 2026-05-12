@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
 import './globals.css'
+import DevLogProvider from '@/components/DevLogProvider'
 
 export const metadata: Metadata = {
   title: '버스드라이버',
@@ -34,7 +35,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           strategy="afterInteractive"
           crossOrigin="anonymous"
         />
-        {children}
+        <DevLogProvider>
+          {children}
+        </DevLogProvider>
       </body>
     </html>
   )
