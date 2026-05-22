@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 
 const tabs = [
   { href: '/dashboard', label: '홈', icon: '🏠' },
-  { href: '/schools', label: '학생관리', icon: '👩‍🎓' },
+  { href: '/schools', label: '학생관리', icon: '🎓' },
   { href: '/payments', label: '장부', icon: '📒' },
   { href: '/board', label: '게시판', icon: '💬' },
 ]

@@ -24,17 +24,16 @@ export default async function DriverHeader({ fullName, userId }: Props) {
   }))
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-[#C6C6C8] h-14 flex items-center justify-between px-4">
-      <span className="font-bold text-[#F5A400]" style={{ fontSize: 36, lineHeight: 1 }}>🚌</span>
+    <header className="sticky top-0 z-50 bg-white border-b border-[#E5E5EA] flex items-center px-4 gap-2" style={{ padding: '12px 16px 10px', height: 'auto' }}>
+      <span style={{ fontSize: 26, lineHeight: 1 }}>🚌</span>
 
-      <div className="flex items-center gap-2">
+      <div style={{ display: 'flex', gap: 8, flex: 1, justifyContent: 'flex-end' }}>
         <GlobalActions students={students} />
-        <span className="text-sm text-[#6C6C70]">{fullName}</span>
-        <Link
-          href="/settings"
-          className="w-9 h-9 flex items-center justify-center rounded-full"
-          aria-label="설정"
-        >
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <span style={{ fontSize: 14, color: '#444', fontWeight: 500 }}>{fullName}</span>
+        <Link href="/settings" aria-label="설정" style={{ fontSize: 22, lineHeight: 1 }}>
           ⚙️
         </Link>
       </div>

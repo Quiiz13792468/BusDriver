@@ -359,7 +359,7 @@ export default function GlobalActions({ students }: Props) {
                   </label>
                   <div style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gridTemplateColumns: 'repeat(4, 1fr)',
                     gap: 8,
                   }}>
                     {MONTH_LABELS.map((label, idx) => {
@@ -368,20 +368,26 @@ export default function GlobalActions({ students }: Props) {
                       const isFuture = m > currentMonth
                       const isSelected = selectedMonth === m
 
-                      let bg = IOS.bg
-                      let color = '#333'
-                      let border = `1.5px solid transparent`
+                      let bg = '#FFF0F0'
+                      let color = '#FF3B30'
+                      let border = `1.5px solid #FF3B30`
+                      let statusText = '미납'
 
                       if (isPaid) {
-                        bg = IOS.green
-                        color = '#fff'
+                        bg = '#E8F4FF'
+                        color = '#007AFF'
+                        border = `1.5px solid #007AFF`
+                        statusText = '완납'
                       } else if (isSelected) {
                         bg = IOS.amber
                         color = '#fff'
                         border = `1.5px solid ${IOS.amber}`
+                        statusText = '미납'
                       } else if (isFuture) {
-                        bg = IOS.bg
-                        color = '#C6C6C8'
+                        bg = '#F5F5F5'
+                        color = '#ccc'
+                        border = `1.5px solid #ddd`
+                        statusText = ''
                       }
 
                       return (
@@ -391,14 +397,22 @@ export default function GlobalActions({ students }: Props) {
                           disabled={isPaid || isFuture}
                           onClick={() => setSelectedMonth(isSelected ? null : m)}
                           style={{
-                            minHeight: 44, borderRadius: 10,
+                            minHeight: 52, borderRadius: 10,
                             background: bg, color, border,
-                            fontSize: 15, fontWeight: isSelected || isPaid ? 700 : 500,
+                            fontSize: 14, fontWeight: 700,
                             cursor: isPaid || isFuture ? 'default' : 'pointer',
-                            opacity: isFuture ? 0.4 : 1,
+                            opacity: isFuture ? 0.3 : 1,
+                            display: 'flex', flexDirection: 'column',
+                            alignItems: 'center', justifyContent: 'center',
+                            gap: 2, padding: '6px 4px',
                           }}
                         >
-                          {label}
+                          <span>{label}</span>
+                          {statusText && (
+                            <span style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>
+                              {statusText}
+                            </span>
+                          )}
                         </button>
                       )
                     })}
