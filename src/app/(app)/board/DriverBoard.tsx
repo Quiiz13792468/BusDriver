@@ -1,3 +1,5 @@
+// 게시판 화면 — 1:1 대화 / 전체 공지 탭, 디자인 목업 기준
+
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import NoticeWriteButton from './NoticeWriteButton'
@@ -9,6 +11,11 @@ interface Props {
   schoolFilter?: string
 }
 
+function formatKoDate(isoStr: string) {
+  const d = new Date(isoStr)
+  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`
+}
+
 export default async function DriverBoard({ userId, tab, schoolFilter }: Props) {
   const supabase = await createClient()
 
@@ -18,6 +25,13 @@ export default async function DriverBoard({ userId, tab, schoolFilter }: Props) 
     .eq('owner_driver_id', userId)
     .order('name')
 
+  // 읽지 않은 메시지 수 (탭 배지용)
+  const { count: unreadCount } = await supabase
+    .from('board_messages')
+    .select('*', { count: 'exact', head: true })
+    .eq('driver_id', userId)
+    .eq('is_read', false)
+
   let notices = null
   if (tab === 'notices') {
     let q = supabase
@@ -26,13 +40,11 @@ export default async function DriverBoard({ userId, tab, schoolFilter }: Props) 
       .eq('driver_id', userId)
       .order('created_at', { ascending: false })
       .limit(20)
-
     if (schoolFilter) q = q.eq('school_id', schoolFilter)
     const { data } = await q
     notices = data
   }
 
-  // 1:1 채팅 상대방 목록 (최근 메시지 기준)
   let conversations = null
   if (tab === 'messages') {
     const { data: msgs } = await supabase
@@ -41,7 +53,6 @@ export default async function DriverBoard({ userId, tab, schoolFilter }: Props) 
       .eq('driver_id', userId)
       .order('created_at', { ascending: false })
 
-    // 학부모별 최신 메시지만
     const seen = new Set<string>()
     conversations = (msgs ?? []).filter((m) => {
       if (seen.has(m.parent_id)) return false
@@ -51,96 +62,84 @@ export default async function DriverBoard({ userId, tab, schoolFilter }: Props) 
   }
 
   return (
-    <div className="px-4 py-5 space-y-3">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-black">게시판</h1>
-        {tab === 'notices' && (
-          <NoticeWriteButton schools={schools ?? []} driverId={userId} />
-        )}
+    <div>
+      {/* 탭 바 */}
+      <div style={{ display: 'flex', background: '#fff', borderBottom: '1px solid #E5E5EA', position: 'sticky', top: 56, zIndex: 40 }}>
+        {[
+          { key: 'messages', label: '1:1 대화', badge: unreadCount ?? 0 },
+          { key: 'notices', label: '전체 공지', badge: 0 },
+        ].map(t => (
+          <Link key={t.key} href={`/board?tab=${t.key}`}
+            style={{
+              flex: 1, textAlign: 'center', padding: '13px 0', fontSize: 15, fontWeight: 600,
+              textDecoration: 'none',
+              color: tab === t.key ? '#F5A400' : '#8E8E93',
+              borderBottom: tab === t.key ? '2.5px solid #F5A400' : '2.5px solid transparent',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              position: 'relative',
+            }}>
+            {t.label}
+            {t.badge > 0 && (
+              <span style={{ minWidth: 18, height: 18, borderRadius: 9, background: '#FF3B30', color: '#fff', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
+                {t.badge}
+              </span>
+            )}
+          </Link>
+        ))}
       </div>
 
-      {/* 탭 */}
-      <div className="flex justify-start gap-2">
-        <Link
-          href="/board?tab=notices"
-          className={`inline-flex items-center justify-center h-9 px-4 rounded-full text-sm font-medium border ${
-            tab === 'notices' ? 'bg-black text-white border-black' : 'bg-white text-[#6C6C70] border-[#C6C6C8]'
-          }`}
-        >
-          공지
-        </Link>
-        <Link
-          href="/board?tab=messages"
-          className={`inline-flex items-center justify-center h-9 px-4 rounded-full text-sm font-medium border ${
-            tab === 'messages' ? 'bg-black text-white border-black' : 'bg-white text-[#6C6C70] border-[#C6C6C8]'
-          }`}
-        >
-          1:1 메시지
-        </Link>
-      </div>
+      {/* 1:1 대화 탭 */}
+      {tab === 'messages' && (
+        <div style={{ padding: '8px 0' }}>
+          <MessageList conversations={conversations ?? []} role="DRIVER" />
+        </div>
+      )}
 
-      {/* 공지 탭 */}
+      {/* 전체 공지 탭 */}
       {tab === 'notices' && (
-        <>
+        <div style={{ padding: '12px 16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 10 }}>
+            <NoticeWriteButton schools={schools ?? []} driverId={userId} />
+          </div>
+
           {(schools ?? []).length > 1 && (
-            <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4">
-              <Link
-                href="/board?tab=notices"
-                className={`flex-none h-9 px-4 rounded-full text-sm font-medium border whitespace-nowrap ${
-                  !schoolFilter ? 'bg-black text-white border-black' : 'bg-white text-[#6C6C70] border-[#C6C6C8]'
-                }`}
-              >
+            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 10, paddingBottom: 2 }}>
+              <Link href="/board?tab=notices"
+                style={{ flexShrink: 0, height: 36, padding: '0 16px', borderRadius: 18, border: `1.5px solid ${!schoolFilter ? '#000' : '#C6C6C8'}`, background: !schoolFilter ? '#000' : '#fff', color: !schoolFilter ? '#fff' : '#6C6C70', fontSize: 14, fontWeight: 500, display: 'flex', alignItems: 'center', textDecoration: 'none', whiteSpace: 'nowrap' }}>
                 전체
               </Link>
-              {schools!.map((s) => (
-                <Link
-                  key={s.id}
-                  href={`/board?tab=notices&school=${s.id}`}
-                  className={`flex-none h-9 px-4 rounded-full text-sm font-medium border whitespace-nowrap ${
-                    schoolFilter === s.id ? 'bg-black text-white border-black' : 'bg-white text-[#6C6C70] border-[#C6C6C8]'
-                  }`}
-                >
+              {schools!.map(s => (
+                <Link key={s.id} href={`/board?tab=notices&school=${s.id}`}
+                  style={{ flexShrink: 0, height: 36, padding: '0 16px', borderRadius: 18, border: `1.5px solid ${schoolFilter === s.id ? '#000' : '#C6C6C8'}`, background: schoolFilter === s.id ? '#000' : '#fff', color: schoolFilter === s.id ? '#fff' : '#6C6C70', fontSize: 14, fontWeight: 500, display: 'flex', alignItems: 'center', textDecoration: 'none', whiteSpace: 'nowrap' }}>
                   {s.name}
                 </Link>
               ))}
             </div>
           )}
 
-          <div className="bg-white rounded-2xl overflow-hidden">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {!notices?.length ? (
-              <p className="px-4 py-8 text-center text-sm text-[#6C6C70]">작성된 공지가 없습니다.</p>
+              <div style={{ background: '#fff', borderRadius: 16, padding: '32px 16px', textAlign: 'center' }}>
+                <p style={{ fontSize: 15, color: '#8E8E93' }}>작성된 공지가 없습니다.</p>
+              </div>
             ) : (
-              <ul className="divide-y divide-[#F2F2F7]">
-                {notices.map((n) => {
-                  const school = n.schools as unknown as { name: string } | null
-                  return (
-                    <li key={n.id} className="px-4 py-4">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-base font-semibold text-black truncate">{n.title}</p>
-                          <p className="text-sm text-[#6C6C70] mt-0.5 line-clamp-2">{n.content}</p>
-                        </div>
-                        <div className="text-right flex-none">
-                          {school && (
-                            <p className="text-xs text-[#5856D6]">{school.name}</p>
-                          )}
-                          <p className="text-xs text-[#6C6C70] mt-0.5">
-                            {new Date(n.created_at).toLocaleDateString('ko-KR')}
-                          </p>
-                        </div>
+              notices.map(n => {
+                const school = n.schools as unknown as { name: string } | null
+                return (
+                  <div key={n.id} style={{ background: '#F5A40015', border: '1px solid #F5A40030', borderRadius: 16, padding: '14px 16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.title}</p>
+                        <p style={{ fontSize: 14, color: '#3C3C43', margin: '0 0 6px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{n.content}</p>
+                        <p style={{ fontSize: 12, color: '#8E8E93', margin: 0 }}>{formatKoDate(n.created_at)}{school ? ` · ${school.name}` : ''}</p>
                       </div>
-                    </li>
-                  )
-                })}
-              </ul>
+                    </div>
+                  </div>
+                )
+              })
             )}
           </div>
-        </>
-      )}
-
-      {/* 1:1 메시지 탭 */}
-      {tab === 'messages' && (
-        <MessageList conversations={conversations ?? []} role="DRIVER" />
+        </div>
       )}
     </div>
   )

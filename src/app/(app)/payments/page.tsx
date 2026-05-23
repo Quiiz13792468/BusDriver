@@ -7,7 +7,7 @@ import ParentPayments from './ParentPayments'
 export default async function PaymentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ year?: string; month?: string; student?: string }>
+  searchParams: Promise<{ year?: string; month?: string; student?: string; tab?: string }>
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -28,7 +28,7 @@ export default async function PaymentsPage({
   const month = parseInt(params.month ?? String(now.getMonth() + 1), 10)
 
   if (profile.role === 'DRIVER') {
-    return <DriverPayments year={year} month={month} studentFilter={params.student} />
+    return <DriverPayments year={year} month={month} tab={params.tab ?? 'payments'} />
   }
 
   return <ParentPayments year={year} />

@@ -25,7 +25,7 @@ export default async function BoardPage({
   const params = await searchParams
 
   if (profile.role === 'DRIVER') {
-    return <DriverBoard userId={user.id} tab={params.tab ?? 'notices'} schoolFilter={params.school} />
+    return <DriverBoard userId={user.id} tab={params.tab ?? 'messages'} schoolFilter={params.school} />
   }
 
   return <ParentBoard userId={user.id} />
