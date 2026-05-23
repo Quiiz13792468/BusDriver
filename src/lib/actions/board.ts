@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { withActionLog } from '@/lib/dev-logger/server-logger'
 
 export const createNoticeAction = withActionLog('createNoticeAction', async (formData: FormData) => {
@@ -9,7 +10,8 @@ export const createNoticeAction = withActionLog('createNoticeAction', async (for
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
 
-  const { data: profile } = await supabase
+  const adminClient = createAdminClient()
+  const { data: profile } = await adminClient
     .from('profiles')
     .select('role')
     .eq('id', user.id)
@@ -43,7 +45,8 @@ export const sendMessageAction = withActionLog('sendMessageAction', async (formD
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
 
-  const { data: profile } = await supabase
+  const adminClient = createAdminClient()
+  const { data: profile } = await adminClient
     .from('profiles')
     .select('role')
     .eq('id', user.id)

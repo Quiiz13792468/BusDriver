@@ -21,13 +21,10 @@ export const registerPaymentAction = withActionLog('registerPaymentAction', asyn
   if (!amount || amount <= 0) return { error: '금액을 올바르게 입력해주세요.' }
   if (!paidAt) return { error: '입금일을 선택해주세요.' }
 
-  const { error } = await supabase.from('payments').insert({
-    student_id: studentId,
-    amount,
-    paid_at: paidAt,
-    memo,
-    service_type: serviceType,
-  })
+  const insertRow: Record<string, unknown> = { student_id: studentId, amount, paid_at: paidAt, memo }
+  if (serviceType) insertRow.service_type = serviceType
+
+  const { error } = await supabase.from('payments').insert(insertRow)
 
   if (error) return { error: '입금 등록에 실패했습니다: ' + error.message }
 
@@ -72,14 +69,11 @@ export const registerFuelAction = withActionLog('registerFuelAction', async (for
   if (!amount || amount <= 0) return { error: '금액을 올바르게 입력해주세요.' }
   if (!fueledAt) return { error: '날짜를 선택해주세요.' }
 
-  const { error } = await supabase.from('fuel_records').insert({
-    driver_id: user.id,
-    fueled_at: fueledAt,
-    amount,
-    memo,
-    fuel_type: fuelType,
-    price_per_liter: pricePerLiter,
-  })
+  const insertRow: Record<string, unknown> = { driver_id: user.id, fueled_at: fueledAt, amount, memo }
+  if (fuelType) insertRow.fuel_type = fuelType
+  if (pricePerLiter) insertRow.price_per_liter = pricePerLiter
+
+  const { error } = await supabase.from('fuel_records').insert(insertRow)
 
   if (error) return { error: '주유 등록에 실패했습니다.' }
 
