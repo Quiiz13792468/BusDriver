@@ -90,7 +90,7 @@ export default async function DriverPayments({ year, month, tab }: Props) {
   const [{ data: payments }, { data: fuelRecords }] = await Promise.all([
     supabase
       .from('payments')
-      .select('id, amount, paid_at, status, memo, students(name)')
+      .select('id, amount, paid_at, status, memo, students(name, schools(name))')
       .eq('driver_id', user.id)
       .gte('paid_at', fromDate)
       .lte('paid_at', toDate)
@@ -107,6 +107,10 @@ export default async function DriverPayments({ year, month, tab }: Props) {
   const monthlyIncome = (payments ?? []).filter(p => p.status === 'CONFIRMED').reduce((s, p) => s + p.amount, 0)
   const fuelSum = (fuelRecords ?? []).reduce((s, r) => s + r.amount, 0)
   const netProfit = monthlyIncome - fuelSum
+  const totalLiters = (fuelRecords ?? []).reduce((s, r) => {
+    return r.price_per_liter && r.price_per_liter > 0 ? s + r.amount / r.price_per_liter : s
+  }, 0)
+  const avgPricePerLiter = totalLiters > 0 ? Math.round(fuelSum / totalLiters) : 0
 
   // 6개월 차트 데이터
   const chartMonths = Array.from({ length: 6 }, (_, i) => {
@@ -134,53 +138,55 @@ export default async function DriverPayments({ year, month, tab }: Props) {
   const tabBase = `/payments?year=${year}&month=${month}`
 
   return (
-    <div style={{ padding: '16px 16px 0' }}>
-      <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 14 }}>장부</h1>
-
+    <div style={{ padding: '0 0 0' }}>
       {/* 월 네비게이션 */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', borderRadius: 16, padding: '10px 16px', marginBottom: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', padding: '14px 20px', borderBottom: '1px solid #E5E5EA' }}>
         <Link href={`/payments?year=${prevYear}&month=${prevMonth}&tab=${tab}`} aria-label="이전 달"
-          style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 22, background: '#F2F2F7', textDecoration: 'none', color: '#000', fontSize: 20 }}>
+          style={{ padding: '0 8px', textDecoration: 'none', color: '#000', fontSize: 24 }}>
           ‹
         </Link>
-        <span style={{ fontSize: 16, fontWeight: 600 }}>{year}년 {month}월</span>
+        <span style={{ fontSize: 20, fontWeight: 700 }}>{year}년 {month}월</span>
         <Link href={`/payments?year=${nextYear}&month=${nextMonth}&tab=${tab}`} aria-label="다음 달"
-          style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 22, background: '#F2F2F7', textDecoration: 'none', color: '#000', fontSize: 20 }}>
+          style={{ padding: '0 8px', textDecoration: 'none', color: '#000', fontSize: 24 }}>
           ›
         </Link>
       </div>
 
-      {/* KPI 3열 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 10 }}>
-        <div style={{ background: '#fff', borderRadius: 14, padding: '12px 10px' }}>
-          <p style={{ fontSize: 12, color: '#8E8E93', marginBottom: 4 }}>입금 확정</p>
-          <p style={{ fontSize: 17, fontWeight: 700, color: '#34C759' }}>{formatKRW(monthlyIncome)}</p>
-        </div>
-        <div style={{ background: '#fff', borderRadius: 14, padding: '12px 10px' }}>
-          <p style={{ fontSize: 12, color: '#8E8E93', marginBottom: 4 }}>주유 비용</p>
-          <p style={{ fontSize: 17, fontWeight: 700, color: '#FF3B30' }}>{formatKRW(fuelSum)}</p>
-        </div>
-        <div style={{ background: '#fff', borderRadius: 14, padding: '12px 10px' }}>
-          <p style={{ fontSize: 12, color: '#8E8E93', marginBottom: 4 }}>순이익</p>
-          <p style={{ fontSize: 17, fontWeight: 700, color: netProfit >= 0 ? '#F5A400' : '#FF3B30' }}>{formatKRW(netProfit)}</p>
-        </div>
+      {/* KPI */}
+      <div style={{ display: 'flex', background: '#fff', borderBottom: '1px solid #E5E5EA' }}>
+        {[
+          { label: '입금 확정', value: formatKRW(monthlyIncome), color: '#34C759' },
+          { label: '주유 비용', value: formatKRW(fuelSum), color: '#FF3B30' },
+          { label: '순이익', value: formatKRW(netProfit), color: netProfit >= 0 ? '#F5A400' : '#FF3B30' },
+        ].map((kpi, i) => (
+          <div key={i} style={{ flex: 1, padding: '14px 10px', textAlign: 'center', borderRight: i < 2 ? '1px solid #E5E5EA' : 'none' }}>
+            <p style={{ fontSize: 12, color: '#8E8E93', margin: '0 0 4px' }}>{kpi.label}</p>
+            <p style={{ fontSize: 20, fontWeight: 800, color: kpi.color, margin: 0 }}>{kpi.value}</p>
+          </div>
+        ))}
       </div>
 
       {/* 6개월 차트 */}
-      <div style={{ background: '#fff', borderRadius: 16, padding: '14px 12px', marginBottom: 10 }}>
-        <div style={{ display: 'flex', gap: 16, marginBottom: 10 }}>
-          <span style={{ fontSize: 12, color: '#34C759', fontWeight: 600 }}>● 입금</span>
-          <span style={{ fontSize: 12, color: '#FF3B30', fontWeight: 600 }}>● 주유</span>
-        </div>
+      <div style={{ background: '#fff', borderRadius: 16, margin: '12px 14px', padding: '16px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}>
+        <p style={{ fontSize: 15, fontWeight: 700, color: '#111', margin: '0 0 8px' }}>6개월 수입·지출 흐름</p>
         <LedgerChart income={barIncome} fuel={barFuel} monthLabels={monthLabels} currentIdx={5} />
+        <div style={{ display: 'flex', gap: 16, marginTop: 8, justifyContent: 'center' }}>
+          <span style={{ fontSize: 12, color: '#34C759', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ width: 10, height: 10, background: '#34C759', borderRadius: 2, display: 'inline-block' }} />입금
+          </span>
+          <span style={{ fontSize: 12, color: '#FF3B30', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ width: 10, height: 10, background: '#FF3B30', borderRadius: 2, display: 'inline-block' }} />주유
+          </span>
+        </div>
       </div>
 
       {/* 탭 바 */}
-      <div style={{ display: 'flex', background: '#fff', borderRadius: 16, marginBottom: 10, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', background: '#fff', borderBottom: '1.5px solid #F5A400' }}>
         {[{ key: 'payments', label: '입금 내역' }, { key: 'fuel', label: '주유 내역' }].map(t => (
           <Link key={t.key} href={`${tabBase}&tab=${t.key}`}
             style={{
-              flex: 1, textAlign: 'center', padding: '13px 0', fontSize: 15, fontWeight: 600,
+              flex: 1, textAlign: 'center', padding: '13px 0', fontSize: 18,
+              fontWeight: tab === t.key ? 800 : 500,
               textDecoration: 'none',
               color: tab === t.key ? '#F5A400' : '#8E8E93',
               borderBottom: tab === t.key ? '2.5px solid #F5A400' : '2.5px solid transparent',
@@ -192,78 +198,72 @@ export default async function DriverPayments({ year, month, tab }: Props) {
 
       {/* 입금 내역 탭 */}
       {tab === 'payments' && (
-        <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', marginBottom: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '12px 14px', marginBottom: 16 }}>
           {!(payments ?? []).length ? (
-            <p style={{ padding: '32px 16px', textAlign: 'center', fontSize: 15, color: '#8E8E93' }}>입금 내역이 없습니다.</p>
+            <div style={{ background: '#fff', borderRadius: 14, padding: '32px 16px', textAlign: 'center' }}>
+              <p style={{ fontSize: 15, color: '#8E8E93' }}>입금 내역이 없습니다.</p>
+            </div>
           ) : (
-            <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-              {(payments ?? []).map((p, i) => {
-                const student = p.students as unknown as { name: string } | null
-                const [mm, dd] = p.paid_at.split('-').slice(1)
-                return (
-                  <li key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 16px', borderBottom: i < (payments ?? []).length - 1 ? '1px solid #F2F2F7' : 'none' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                      <div style={{ textAlign: 'center', minWidth: 36 }}>
-                        <span style={{ fontSize: 16, fontWeight: 700, color: '#F5A400', display: 'block' }}>{parseInt(mm)}월</span>
-                        <span style={{ fontSize: 13, color: '#8E8E93', display: 'block' }}>{parseInt(dd)}일</span>
-                      </div>
-                      <div>
-                        <p style={{ fontSize: 16, fontWeight: 600, margin: 0 }}>{formatKRW(p.amount)}</p>
-                        {student && <p style={{ fontSize: 13, color: '#8E8E93', margin: '2px 0 0' }}>{student.name}</p>}
-                        {p.memo && <p style={{ fontSize: 13, color: '#8E8E93', margin: '2px 0 0' }}>{p.memo}</p>}
-                      </div>
+            (payments ?? []).map((p) => {
+              const student = p.students as unknown as { name: string; schools?: { name: string } | null } | null
+              const [, mm, dd] = p.paid_at.split('-')
+              return (
+                <div key={p.id} style={{ background: '#fff', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1.5px solid #F5A40033', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>{student?.name ?? '알 수 없음'}</p>
+                    {student?.schools?.name && <p style={{ fontSize: 13, color: '#8E8E93', margin: '2px 0 0' }}>{student.schools.name}</p>}
+                    {p.memo && <p style={{ fontSize: 13, color: '#8E8E93', margin: '2px 0 0' }}>{p.memo}</p>}
+                  </div>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <p style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>{formatKRW(p.amount)}</p>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 2, marginTop: 2 }}>
+                      <span style={{ fontSize: 16, fontWeight: 700, color: '#F5A400' }}>{parseInt(mm)}월</span>
+                      <span style={{ fontSize: 13, color: '#8E8E93' }}>{parseInt(dd)}일</span>
                     </div>
-                    <span style={{
-                      fontSize: 12, fontWeight: 600, padding: '3px 10px', borderRadius: 8,
-                      background: p.status === 'CONFIRMED' ? '#34C75918' : p.status === 'DISPUTED' ? '#FF3B3018' : '#F2F2F7',
-                      color: p.status === 'CONFIRMED' ? '#34C759' : p.status === 'DISPUTED' ? '#FF3B30' : '#8E8E93',
-                    }}>
-                      {p.status === 'CONFIRMED' ? '확정' : p.status === 'DISPUTED' ? '수정요청' : '확인중'}
-                    </span>
-                  </li>
-                )
-              })}
-            </ul>
+                  </div>
+                </div>
+              )
+            })
           )}
         </div>
       )}
 
       {/* 주유 내역 탭 */}
       {tab === 'fuel' && (
-        <div style={{ marginBottom: 16 }}>
+        <div style={{ padding: '12px 14px', marginBottom: 16 }}>
           {/* 주유 요약 카드 */}
-          <div style={{ background: '#FF3B3010', border: '1px solid #FF3B3020', borderRadius: 16, padding: '14px 16px', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 14, color: '#FF3B30', fontWeight: 600 }}>이번 달 주유 합계</span>
-            <span style={{ fontSize: 20, fontWeight: 700, color: '#FF3B30' }}>{formatKRW(fuelSum)}</span>
+          <div style={{ background: '#fff', borderRadius: 14, padding: '14px 16px', marginBottom: 10, display: 'flex', overflow: 'hidden' }}>
+            <div style={{ flex: 1, textAlign: 'center', borderRight: '1px solid #E5E5EA' }}>
+              <p style={{ fontSize: 12, color: '#8E8E93', margin: '0 0 4px' }}>총 주유량</p>
+              <p style={{ fontSize: 20, fontWeight: 800, color: '#FF3B30', margin: 0 }}>{totalLiters > 0 ? `${totalLiters.toFixed(1)}L` : '-'}</p>
+            </div>
+            <div style={{ flex: 1, textAlign: 'center' }}>
+              <p style={{ fontSize: 12, color: '#8E8E93', margin: '0 0 4px' }}>평균 리터당</p>
+              <p style={{ fontSize: 20, fontWeight: 800, color: '#FF3B30', margin: 0 }}>{avgPricePerLiter > 0 ? formatKRW(avgPricePerLiter) : '-'}</p>
+            </div>
           </div>
-          <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {!(fuelRecords ?? []).length ? (
-              <p style={{ padding: '32px 16px', textAlign: 'center', fontSize: 15, color: '#8E8E93' }}>주유 내역이 없습니다.</p>
+              <div style={{ background: '#fff', borderRadius: 14, padding: '32px 16px', textAlign: 'center' }}>
+                <p style={{ fontSize: 15, color: '#8E8E93' }}>주유 내역이 없습니다.</p>
+              </div>
             ) : (
-              <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-                {(fuelRecords ?? []).map((r, i) => {
-                  const fuelLabel = r.fuel_type === 'GASOLINE' ? '휘발유' : r.fuel_type === 'DIESEL' ? '경유' : null
-                  const liters = r.price_per_liter && r.price_per_liter > 0 ? (r.amount / r.price_per_liter).toFixed(1) : null
-                  const [, mm, dd] = r.fueled_at.split('-')
-                  return (
-                    <li key={r.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 16px', borderBottom: i < (fuelRecords ?? []).length - 1 ? '1px solid #F2F2F7' : 'none' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                        <div style={{ textAlign: 'center', minWidth: 36 }}>
-                          <span style={{ fontSize: 16, fontWeight: 700, color: '#F5A400', display: 'block' }}>{parseInt(mm)}월</span>
-                          <span style={{ fontSize: 13, color: '#8E8E93', display: 'block' }}>{parseInt(dd)}일</span>
-                        </div>
-                        <div>
-                          <p style={{ fontSize: 16, fontWeight: 600, margin: 0 }}>{formatKRW(r.amount)}</p>
-                          <p style={{ fontSize: 13, color: '#8E8E93', margin: '2px 0 0' }}>
-                            {liters ? `${liters}L` : ''}{liters && fuelLabel ? ' ' : ''}{fuelLabel ? `(${fuelLabel})` : ''}
-                            {r.memo ? (liters || fuelLabel ? ' · ' : '') + r.memo : ''}
-                          </p>
-                        </div>
-                      </div>
-                    </li>
-                  )
-                })}
-              </ul>
+              (fuelRecords ?? []).map((r) => {
+                const fuelLabel = r.fuel_type === 'GASOLINE' ? '휘발유' : r.fuel_type === 'DIESEL' ? '경유' : null
+                const liters = r.price_per_liter && r.price_per_liter > 0 ? (r.amount / r.price_per_liter).toFixed(1) : null
+                const [, mm, dd] = r.fueled_at.split('-')
+                const stationName = r.memo || '주유소'
+                const subParts = [fuelLabel, liters ? `${liters}L` : null, `${parseInt(mm)}/${parseInt(dd)}`].filter(Boolean)
+                return (
+                  <div key={r.id} style={{ background: '#fff', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1.5px solid #FF3B3022', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>{stationName}</p>
+                      <p style={{ fontSize: 13, color: '#8E8E93', margin: '2px 0 0' }}>{subParts.join(' · ')}</p>
+                    </div>
+                    <p style={{ fontSize: 18, fontWeight: 700, color: '#FF3B30', margin: 0, flexShrink: 0 }}>{formatKRW(r.amount)}</p>
+                  </div>
+                )
+              })
             )}
           </div>
         </div>

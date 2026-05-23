@@ -63,15 +63,16 @@ export default async function DriverBoard({ userId, tab, schoolFilter }: Props) 
 
   return (
     <div>
-      {/* 탭 바 */}
-      <div style={{ display: 'flex', background: '#fff', borderBottom: '1px solid #E5E5EA', position: 'sticky', top: 56, zIndex: 40 }}>
+      {/* 탭 바 — 항상 앰버 하단 선 */}
+      <div style={{ display: 'flex', background: '#fff', borderBottom: '1.5px solid #F5A400', position: 'sticky', top: 56, zIndex: 40 }}>
         {[
           { key: 'messages', label: '1:1 대화', badge: unreadCount ?? 0 },
           { key: 'notices', label: '전체 공지', badge: 0 },
         ].map(t => (
           <Link key={t.key} href={`/board?tab=${t.key}`}
             style={{
-              flex: 1, textAlign: 'center', padding: '13px 0', fontSize: 15, fontWeight: 600,
+              flex: 1, textAlign: 'center', padding: '13px 0', fontSize: 17,
+              fontWeight: tab === t.key ? 800 : 500,
               textDecoration: 'none',
               color: tab === t.key ? '#F5A400' : '#8E8E93',
               borderBottom: tab === t.key ? '2.5px solid #F5A400' : '2.5px solid transparent',
@@ -98,7 +99,7 @@ export default async function DriverBoard({ userId, tab, schoolFilter }: Props) 
       {/* 전체 공지 탭 */}
       {tab === 'notices' && (
         <div style={{ padding: '12px 16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 10 }}>
+          <div style={{ marginBottom: 10 }}>
             <NoticeWriteButton schools={schools ?? []} driverId={userId} />
           </div>
 
@@ -117,26 +118,22 @@ export default async function DriverBoard({ userId, tab, schoolFilter }: Props) 
             </div>
           )}
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             {!notices?.length ? (
               <div style={{ background: '#fff', borderRadius: 16, padding: '32px 16px', textAlign: 'center' }}>
                 <p style={{ fontSize: 15, color: '#8E8E93' }}>작성된 공지가 없습니다.</p>
               </div>
             ) : (
-              notices.map(n => {
-                const school = n.schools as unknown as { name: string } | null
-                return (
-                  <div key={n.id} style={{ background: '#F5A40015', border: '1px solid #F5A40030', borderRadius: 16, padding: '14px 16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.title}</p>
-                        <p style={{ fontSize: 14, color: '#3C3C43', margin: '0 0 6px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{n.content}</p>
-                        <p style={{ fontSize: 12, color: '#8E8E93', margin: 0 }}>{formatKoDate(n.created_at)}{school ? ` · ${school.name}` : ''}</p>
-                      </div>
-                    </div>
+              notices.map(n => (
+                <div key={n.id} style={{ background: '#F5A40015', borderRadius: 14, padding: '16px 16px', marginBottom: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <span style={{ fontSize: 13, color: '#8E8E93', fontWeight: 600 }}>{formatKoDate(n.created_at)}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#fff', background: '#F5A400', borderRadius: 6, padding: '2px 8px' }}>전체공지</span>
                   </div>
-                )
-              })
+                  <p style={{ fontSize: 18, fontWeight: 800, color: '#111', margin: '0 0 6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.title}</p>
+                  <p style={{ fontSize: 15, color: '#444', margin: 0, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{n.content}</p>
+                </div>
+              ))
             )}
           </div>
         </div>

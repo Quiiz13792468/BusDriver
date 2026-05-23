@@ -273,59 +273,73 @@ export default function StudentMgmtClient({ students, schools }: Props) {
 
   return (
     <>
-      <div style={{ padding: '16px 16px 8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>학생관리</h1>
-          <button
-            onClick={() => setRegisterOpen(true)}
-            style={{ height: 40, paddingLeft: 16, paddingRight: 16, borderRadius: 20, background: '#F5A400', border: 'none', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
-          >
-            + 학생
-          </button>
-        </div>
-        <div style={{ position: 'relative' }}>
+      {/* 단일 행 헤더: 제목 + 검색 + 버튼 */}
+      <div style={{ padding: '12px 14px 8px', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontSize: 20, fontWeight: 800, color: '#111', flexShrink: 0 }}>학생관리</span>
+        <div style={{ flex: 1, position: 'relative' }}>
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="이름 또는 학교 검색"
-            style={{ width: '100%', height: 44, borderRadius: 12, border: '1.5px solid #E5E5EA', background: '#F2F2F7', paddingLeft: 40, paddingRight: 16, fontSize: 16, boxSizing: 'border-box', outline: 'none' }}
+            style={{ width: '100%', height: 40, borderRadius: 10, border: 'none', background: '#F2F2F7', paddingLeft: 36, paddingRight: 12, fontSize: 15, boxSizing: 'border-box', outline: 'none' }}
           />
-          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 17, color: '#8E8E93', pointerEvents: 'none' }}>🔍</span>
+          <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 15, color: '#8E8E93', pointerEvents: 'none' }}>🔍</span>
         </div>
+        <button
+          onClick={() => setRegisterOpen(true)}
+          style={{ flexShrink: 0, height: 40, paddingLeft: 14, paddingRight: 14, borderRadius: 20, background: '#F5A400', border: 'none', color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
+        >
+          + 학생
+        </button>
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 16, margin: '4px 16px 8px', overflow: 'hidden' }}>
+      {/* 학생 카드 목록 */}
+      <div style={{ padding: '4px 14px 8px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         {!filtered.length ? (
-          <p style={{ padding: '32px 16px', textAlign: 'center', fontSize: 15, color: '#8E8E93' }}>
-            {search ? '검색 결과가 없습니다.' : '등록된 학생이 없습니다.'}
-          </p>
+          <div style={{ background: '#fff', borderRadius: 14, padding: '32px 16px', textAlign: 'center' }}>
+            <p style={{ fontSize: 15, color: '#8E8E93' }}>
+              {search ? '검색 결과가 없습니다.' : '등록된 학생이 없습니다.'}
+            </p>
+          </div>
         ) : (
-          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-            {filtered.map((s, i) => (
-              <li key={s.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: i < filtered.length - 1 ? '1px solid #F2F2F7' : 'none', opacity: s.is_active ? 1 : 0.65 }}>
+          filtered.map((s) => {
+            const fee = s.custom_fee ?? s.schools?.default_fee
+            return (
+              <div key={s.id} style={{
+                background: '#fff', borderRadius: 14,
+                boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
+                border: '1.5px solid #F5A40033',
+                padding: '12px 12px',
+                opacity: s.is_active ? 1 : 0.65,
+                display: 'flex', alignItems: 'center', gap: 8,
+              }}>
+                {/* 학생 정보 — 왼쪽 */}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 17, fontWeight: 600 }}>{s.name}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <span style={{ fontSize: 20, fontWeight: 700, color: '#111' }}>{s.name}</span>
                     <span style={{
-                      fontSize: 12, fontWeight: 600, borderRadius: 6, padding: '2px 8px',
-                      color: s.is_active ? RIDE_COLOR[s.ride_type] : '#8E8E93',
-                      background: s.is_active ? `${RIDE_COLOR[s.ride_type]}18` : '#F2F2F7',
-                      border: `1px solid ${s.is_active ? RIDE_COLOR[s.ride_type] : '#C6C6C8'}`,
+                      fontSize: 14, fontWeight: 700, borderRadius: 8, padding: '2px 10px',
+                      color: '#fff', flexShrink: 0,
+                      background: s.is_active ? RIDE_COLOR[s.ride_type] : '#8E8E93',
                     }}>
                       {s.is_active ? RIDE_LABEL[s.ride_type] : '종료'}
                     </span>
                   </div>
                   {s.schools?.name && (
-                    <p style={{ fontSize: 13, color: '#8E8E93', marginTop: 2 }}>{s.schools.name}</p>
+                    <p style={{ fontSize: 14, color: '#8E8E93', margin: '0 0 2px' }}>{s.schools.name}</p>
+                  )}
+                  {fee != null && (
+                    <p style={{ fontSize: 14, color: '#555', margin: 0 }}>₩{fee.toLocaleString('ko-KR')}/월</p>
                   )}
                 </div>
-                <div style={{ display: 'flex', gap: 8, marginLeft: 12, flexShrink: 0 }}>
-                  <button onClick={() => setInfoStudent(s)} style={{ height: 36, paddingLeft: 14, paddingRight: 14, borderRadius: 10, border: '1.5px solid #E5E5EA', background: '#F2F2F7', fontSize: 14, fontWeight: 600, color: '#3C3C43', cursor: 'pointer' }}>정보</button>
-                  <button onClick={() => setHistStudent(s)} style={{ height: 36, paddingLeft: 14, paddingRight: 14, borderRadius: 10, border: '1.5px solid #E5E5EA', background: '#F2F2F7', fontSize: 14, fontWeight: 600, color: '#3C3C43', cursor: 'pointer' }}>기록</button>
+                {/* 버튼 — 오른쪽 세로 배치 */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0 }}>
+                  <button onClick={() => setInfoStudent(s)} style={{ minWidth: 64, minHeight: 48, borderRadius: 12, border: '2px solid #E5E5EA', background: '#F2F2F7', fontSize: 16, fontWeight: 800, color: '#333', cursor: 'pointer' }}>정보</button>
+                  <button onClick={() => setHistStudent(s)} style={{ minWidth: 64, minHeight: 48, borderRadius: 12, border: 'none', background: '#F5A400', fontSize: 16, fontWeight: 800, color: '#fff', cursor: 'pointer' }}>기록</button>
                 </div>
-              </li>
-            ))}
-          </ul>
+              </div>
+            )
+          })
         )}
       </div>
 
