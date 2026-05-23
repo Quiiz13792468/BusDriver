@@ -7,9 +7,9 @@ import { getStudentPaidMonthsAction } from '@/lib/actions/payments'
 
 interface School { id: string; name: string; default_fee?: number | null }
 interface Student {
-  id: string; name: string; ride_type: string; payment_day: number | null
-  custom_fee: number | null; school_id: string | null; phone: string | null
-  parent_name: string | null; parent_phone: string | null
+  id: string; name: string; grade: string | null; ride_type: string
+  payment_day: number | null; custom_fee: number | null; school_id: string | null
+  phone: string | null; parent_name: string | null; parent_phone: string | null
   start_date: string | null; end_date: string | null; is_active: boolean
   schools: { id: string; name: string; default_fee: number | null } | null
 }
@@ -20,10 +20,19 @@ const RIDE_LABEL: Record<string, string> = { BOTH: '등하교', MORNING: '등교
 const HIST_MONTHS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월']
 
 const inputSty: React.CSSProperties = {
-  width: '100%', height: 48, borderRadius: 14, border: '1.5px solid #E5E5EA',
-  paddingLeft: 16, paddingRight: 16, fontSize: 16, background: '#fff',
-  outline: 'none', boxSizing: 'border-box',
+  width: '100%', borderRadius: 10, border: '1px solid #E5E5EA',
+  padding: '13px 14px', fontSize: 16, background: '#F2F2F7',
+  outline: 'none', boxSizing: 'border-box', color: '#111',
 }
+const labelSty: React.CSSProperties = {
+  fontSize: 14, color: '#8E8E93', marginBottom: 6, display: 'block', fontWeight: 500,
+}
+const GRADES = ['1학년', '2학년', '3학년']
+const RIDE_TYPES = [
+  { value: 'BOTH', label: '등하교' },
+  { value: 'MORNING', label: '등교' },
+  { value: 'AFTERNOON', label: '하교' },
+]
 
 function BottomSheet({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
@@ -43,11 +52,15 @@ function BottomSheet({ title, onClose, children }: { title: string; onClose: () 
 function StudentInfoModal({ student, schools, onClose }: { student: Student; schools: School[]; onClose: () => void }) {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [grade, setGrade] = useState(student.grade ?? '1학년')
+  const [rideType, setRideType] = useState(student.ride_type ?? 'BOTH')
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
     const fd = new FormData(e.currentTarget)
+    fd.set('grade', grade)
+    fd.set('ride_type', rideType)
     startTransition(async () => {
       const res = await updateStudentAction(student.id, fd)
       if (res?.error) setError(res.error)
@@ -56,54 +69,54 @@ function StudentInfoModal({ student, schools, onClose }: { student: Student; sch
   }
 
   return (
-    <BottomSheet title="학생 정보" onClose={onClose}>
-      <form onSubmit={handleSubmit} style={{ padding: '16px 20px 32px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>학교</label>
+    <BottomSheet title="학생 정보 수정" onClose={onClose}>
+      <form onSubmit={handleSubmit} style={{ padding: '16px 18px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div>
+          <label style={labelSty}>학교 <span style={{ fontSize: 12, color: '#8E8E93', fontWeight: 400 }}>(선택사항 — 학부모 가입 시 자동 연결)</span></label>
           <select name="school_id" defaultValue={student.school_id ?? ''} style={{ ...inputSty, appearance: 'none' }}>
-            <option value="">학교 없음</option>
+            <option value="">학교 선택 (선택사항)</option>
             {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>학생 이름 <span style={{ color: '#FF3B30' }}>*</span></label>
+        <div>
+          <label style={labelSty}>학년 <span style={{ fontSize: 12, color: '#8E8E93', fontWeight: 400 }}>(매년 3/1 자동 진급, 3학년→졸업)</span></label>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {GRADES.map(g => (
+              <button key={g} type="button" onClick={() => setGrade(g)} style={{ flex: 1, minHeight: 48, borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer', border: `1.5px solid ${grade === g ? '#F5A400' : '#E5E5EA'}`, background: grade === g ? '#F5A400' : '#F2F2F7', color: grade === g ? '#fff' : '#555' }}>{g}</button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <label style={labelSty}>학생 이름 <span style={{ color: '#FF3B30' }}>*</span></label>
           <input name="name" type="text" required defaultValue={student.name} style={inputSty} />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>학생 전화번호</label>
-          <input name="phone" type="tel" defaultValue={student.phone ?? ''} style={inputSty} />
+        <div>
+          <label style={labelSty}>학생 전화번호</label>
+          <input name="phone" type="tel" inputMode="tel" defaultValue={student.phone ?? ''} style={inputSty} />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>학부모 이름</label>
+        <div>
+          <label style={labelSty}>학부모 이름 (입금자명)</label>
           <input name="parent_name" type="text" defaultValue={student.parent_name ?? ''} style={inputSty} />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>학부모 전화번호</label>
-          <input name="parent_phone" type="tel" defaultValue={student.parent_phone ?? ''} style={inputSty} />
+        <div>
+          <label style={labelSty}>학부모 전화번호</label>
+          <input name="parent_phone" type="tel" inputMode="tel" defaultValue={student.parent_phone ?? ''} style={inputSty} />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>이용 구분</label>
-          <select name="ride_type" defaultValue={student.ride_type} style={{ ...inputSty, appearance: 'none' }}>
-            <option value="BOTH">등하교</option>
-            <option value="MORNING">등교만</option>
-            <option value="AFTERNOON">하교만</option>
-          </select>
+        <div>
+          <label style={labelSty}>이용구분 <span style={{ color: '#FF3B30' }}>*</span></label>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {RIDE_TYPES.map(rt => (
+              <button key={rt.value} type="button" onClick={() => setRideType(rt.value)} style={{ flex: 1, minHeight: 48, borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer', border: `1.5px solid ${rideType === rt.value ? '#F5A400' : '#E5E5EA'}`, background: rideType === rt.value ? '#F5A400' : '#F2F2F7', color: rideType === rt.value ? '#fff' : '#555' }}>{rt.label}</button>
+            ))}
+          </div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>매월 입금일</label>
-          <input name="payment_day" type="number" min={1} max={31} defaultValue={student.payment_day ?? ''} placeholder="예: 25" style={inputSty} />
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>개별 이용금액</label>
-          <input name="custom_fee" type="number" min={0} defaultValue={student.custom_fee ?? ''} placeholder="학교 기본금액 사용" style={inputSty} />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>시작일</label>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ flex: 1 }}>
+            <label style={labelSty}>시작일 <span style={{ color: '#FF3B30' }}>*</span></label>
             <input name="start_date" type="date" defaultValue={student.start_date ?? ''} style={inputSty} />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>종료일</label>
+          <div style={{ flex: 1 }}>
+            <label style={labelSty}>종료일 <span style={{ fontSize: 12, color: '#8E8E93', fontWeight: 400 }}>(이용 종료 시)</span></label>
             <input name="end_date" type="date" defaultValue={student.end_date ?? ''} style={inputSty} />
           </div>
         </div>
@@ -112,9 +125,10 @@ function StudentInfoModal({ student, schools, onClose }: { student: Student; sch
             <p style={{ fontSize: 14, color: '#FF3B30', fontWeight: 500 }}>{error}</p>
           </div>
         )}
-        <button type="submit" disabled={isPending} style={{ width: '100%', height: 56, borderRadius: 28, background: '#F5A400', border: 'none', fontSize: 16, fontWeight: 700, cursor: 'pointer', opacity: isPending ? 0.6 : 1 }}>
-          {isPending ? '저장 중...' : '저장'}
-        </button>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button type="button" onClick={onClose} style={{ flex: 1, minHeight: 54, background: '#F2F2F7', color: '#333', border: '2px solid #E5E5EA', borderRadius: 14, fontSize: 18, fontWeight: 800, cursor: 'pointer' }}>닫기</button>
+          <button type="submit" disabled={isPending} style={{ flex: 1, minHeight: 54, background: '#F5A400', color: '#fff', border: 'none', borderRadius: 14, fontSize: 18, fontWeight: 800, cursor: 'pointer', opacity: isPending ? 0.6 : 1 }}>{isPending ? '저장 중...' : '저장'}</button>
+        </div>
       </form>
     </BottomSheet>
   )
@@ -181,11 +195,15 @@ function StudentHistModal({ student, onClose }: { student: Student; onClose: () 
 function StudentRegisterModal({ schools, onClose }: { schools: School[]; onClose: () => void }) {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [grade, setGrade] = useState('1학년')
+  const [rideType, setRideType] = useState('BOTH')
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
     const fd = new FormData(e.currentTarget)
+    fd.set('grade', grade)
+    fd.set('ride_type', rideType)
     startTransition(async () => {
       const res = await registerStudentAction(fd)
       if (res?.error) setError(res.error)
@@ -195,53 +213,53 @@ function StudentRegisterModal({ schools, onClose }: { schools: School[]; onClose
 
   return (
     <BottomSheet title="학생 등록" onClose={onClose}>
-      <form onSubmit={handleSubmit} style={{ padding: '16px 20px 32px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>학교</label>
+      <form onSubmit={handleSubmit} style={{ padding: '16px 18px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div>
+          <label style={labelSty}>학교 <span style={{ fontSize: 12, color: '#8E8E93', fontWeight: 400 }}>(선택사항 — 학부모 가입 시 자동 연결)</span></label>
           <select name="school_id" style={{ ...inputSty, appearance: 'none' }}>
             <option value="">학교 선택 (선택사항)</option>
             {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>학생 이름 <span style={{ color: '#FF3B30' }}>*</span></label>
+        <div>
+          <label style={labelSty}>학년 <span style={{ fontSize: 12, color: '#8E8E93', fontWeight: 400 }}>(매년 3/1 자동 진급, 3학년→졸업)</span></label>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {GRADES.map(g => (
+              <button key={g} type="button" onClick={() => setGrade(g)} style={{ flex: 1, minHeight: 48, borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer', border: `1.5px solid ${grade === g ? '#F5A400' : '#E5E5EA'}`, background: grade === g ? '#F5A400' : '#F2F2F7', color: grade === g ? '#fff' : '#555' }}>{g}</button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <label style={labelSty}>학생 이름 <span style={{ color: '#FF3B30' }}>*</span></label>
           <input name="name" type="text" required placeholder="홍길동" style={inputSty} />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>학생 전화번호</label>
-          <input name="phone" type="tel" placeholder="010-0000-0000" style={inputSty} />
+        <div>
+          <label style={labelSty}>학생 전화번호</label>
+          <input name="phone" type="tel" inputMode="tel" placeholder="010-0000-0000" style={inputSty} />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>학부모 이름</label>
+        <div>
+          <label style={labelSty}>학부모 이름 (입금자명)</label>
           <input name="parent_name" type="text" placeholder="홍부모" style={inputSty} />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>학부모 전화번호</label>
-          <input name="parent_phone" type="tel" placeholder="010-0000-0000" style={inputSty} />
+        <div>
+          <label style={labelSty}>학부모 전화번호</label>
+          <input name="parent_phone" type="tel" inputMode="tel" placeholder="010-0000-0000" style={inputSty} />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>이용 구분</label>
-          <select name="ride_type" defaultValue="BOTH" style={{ ...inputSty, appearance: 'none' }}>
-            <option value="BOTH">등하교</option>
-            <option value="MORNING">등교만</option>
-            <option value="AFTERNOON">하교만</option>
-          </select>
+        <div>
+          <label style={labelSty}>이용구분 <span style={{ color: '#FF3B30' }}>*</span></label>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {RIDE_TYPES.map(rt => (
+              <button key={rt.value} type="button" onClick={() => setRideType(rt.value)} style={{ flex: 1, minHeight: 48, borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer', border: `1.5px solid ${rideType === rt.value ? '#F5A400' : '#E5E5EA'}`, background: rideType === rt.value ? '#F5A400' : '#F2F2F7', color: rideType === rt.value ? '#fff' : '#555' }}>{rt.label}</button>
+            ))}
+          </div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>매월 입금일</label>
-          <input name="payment_day" type="number" min={1} max={31} placeholder="예: 25" style={inputSty} />
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>개별 이용금액</label>
-          <input name="custom_fee" type="number" min={0} placeholder="학교 기본금액 사용" style={inputSty} />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>시작일</label>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ flex: 1 }}>
+            <label style={labelSty}>시작일 <span style={{ color: '#FF3B30' }}>*</span></label>
             <input name="start_date" type="date" style={inputSty} />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 14, color: '#8E8E93', fontWeight: 500 }}>종료일</label>
+          <div style={{ flex: 1 }}>
+            <label style={labelSty}>종료일 <span style={{ fontSize: 12, color: '#8E8E93', fontWeight: 400 }}>(이용 종료 시)</span></label>
             <input name="end_date" type="date" style={inputSty} />
           </div>
         </div>
@@ -250,9 +268,10 @@ function StudentRegisterModal({ schools, onClose }: { schools: School[]; onClose
             <p style={{ fontSize: 14, color: '#FF3B30', fontWeight: 500 }}>{error}</p>
           </div>
         )}
-        <button type="submit" disabled={isPending} style={{ width: '100%', height: 56, borderRadius: 28, background: '#F5A400', border: 'none', fontSize: 16, fontWeight: 700, cursor: 'pointer', opacity: isPending ? 0.6 : 1 }}>
-          {isPending ? '등록 중...' : '학생 등록'}
-        </button>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button type="button" onClick={onClose} style={{ flex: 1, minHeight: 54, background: '#F2F2F7', color: '#333', border: '2px solid #E5E5EA', borderRadius: 14, fontSize: 18, fontWeight: 800, cursor: 'pointer' }}>닫기</button>
+          <button type="submit" disabled={isPending} style={{ flex: 1, minHeight: 54, background: '#F5A400', color: '#fff', border: 'none', borderRadius: 14, fontSize: 18, fontWeight: 800, cursor: 'pointer', opacity: isPending ? 0.6 : 1 }}>{isPending ? '등록 중...' : '등록'}</button>
+        </div>
       </form>
     </BottomSheet>
   )
@@ -325,8 +344,10 @@ export default function StudentMgmtClient({ students, schools }: Props) {
                       {s.is_active ? RIDE_LABEL[s.ride_type] : '종료'}
                     </span>
                   </div>
-                  {s.schools?.name && (
-                    <p style={{ fontSize: 14, color: '#8E8E93', margin: '0 0 2px' }}>{s.schools.name}</p>
+                  {(s.schools?.name || s.grade) && (
+                    <p style={{ fontSize: 14, color: '#8E8E93', margin: '0 0 2px' }}>
+                      {[s.schools?.name, s.grade].filter(Boolean).join(', ')}
+                    </p>
                   )}
                   {fee != null && (
                     <p style={{ fontSize: 14, color: '#555', margin: 0 }}>₩{fee.toLocaleString('ko-KR')}/월</p>

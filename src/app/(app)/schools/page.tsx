@@ -25,7 +25,7 @@ export default async function SchoolsPage() {
 
   const { data: studentsRaw } = await supabase
     .from('students')
-    .select('id, name, ride_type, payment_day, custom_fee, school_id, phone, parent_name, parent_phone, start_date, end_date, is_active, schools(id, name, default_fee)')
+    .select('id, name, grade, ride_type, payment_day, custom_fee, school_id, phone, parent_name, parent_phone, start_date, end_date, is_active, schools(id, name, default_fee)')
     .eq('driver_id', user.id)
     .order('name')
 

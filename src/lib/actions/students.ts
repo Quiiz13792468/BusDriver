@@ -21,27 +21,23 @@ export const registerStudentAction = withActionLog('registerStudentAction', asyn
   if (!name) return { error: '학생 이름을 입력해주세요.' }
 
   const schoolId = formData.get('school_id') as string || null
+  const grade = (formData.get('grade') as string)?.trim() || null
   const phone = (formData.get('phone') as string)?.trim() || null
   const parentName = (formData.get('parent_name') as string)?.trim() || null
   const parentPhone = (formData.get('parent_phone') as string)?.trim() || null
   const rideType = (formData.get('ride_type') as string) || 'BOTH'
-  const paymentDayRaw = formData.get('payment_day') as string
-  const paymentDay = paymentDayRaw ? parseInt(paymentDayRaw, 10) : null
-  const customFeeRaw = formData.get('custom_fee') as string
-  const customFee = customFeeRaw ? parseInt(customFeeRaw, 10) : null
   const startDate = (formData.get('start_date') as string) || null
   const endDate = (formData.get('end_date') as string) || null
 
   const { error } = await supabase.from('students').insert({
     driver_id: user.id,
     school_id: schoolId || null,
+    grade,
     name,
     phone,
     parent_name: parentName,
     parent_phone: parentPhone,
     ride_type: rideType,
-    payment_day: paymentDay,
-    custom_fee: customFee,
     start_date: startDate,
     end_date: endDate,
     is_active: true,
@@ -65,14 +61,11 @@ export const updateStudentAction = withActionLog('updateStudentAction', async (
   if (!name) return { error: '학생 이름을 입력해주세요.' }
 
   const schoolId = formData.get('school_id') as string || null
+  const grade = (formData.get('grade') as string)?.trim() || null
   const phone = (formData.get('phone') as string)?.trim() || null
   const parentName = (formData.get('parent_name') as string)?.trim() || null
   const parentPhone = (formData.get('parent_phone') as string)?.trim() || null
   const rideType = (formData.get('ride_type') as string) || 'BOTH'
-  const paymentDayRaw = formData.get('payment_day') as string
-  const paymentDay = paymentDayRaw ? parseInt(paymentDayRaw, 10) : null
-  const customFeeRaw = formData.get('custom_fee') as string
-  const customFee = customFeeRaw ? parseInt(customFeeRaw, 10) : null
   const startDate = (formData.get('start_date') as string) || null
   const endDate = (formData.get('end_date') as string) || null
 
@@ -80,13 +73,12 @@ export const updateStudentAction = withActionLog('updateStudentAction', async (
     .from('students')
     .update({
       school_id: schoolId || null,
+      grade,
       name,
       phone,
       parent_name: parentName,
       parent_phone: parentPhone,
       ride_type: rideType,
-      payment_day: paymentDay,
-      custom_fee: customFee,
       start_date: startDate,
       end_date: endDate,
     })
