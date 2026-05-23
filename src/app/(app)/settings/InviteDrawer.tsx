@@ -54,41 +54,42 @@ export default function InviteDrawer() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center justify-between w-full px-4 py-4 text-base text-black"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '0 16px', minHeight: 56, fontSize: 18, fontWeight: 500, color: '#111', background: 'none', border: 'none', cursor: 'pointer' }}
       >
         초대 링크 생성
-        <span className="text-[#C6C6C8]">›</span>
+        <span style={{ color: '#C6C6C8', fontSize: 20 }}>›</span>
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-[60] flex items-end">
-          <div className="absolute inset-0 bg-black/40" onClick={handleClose} />
-          <div className="relative w-full bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#F2F2F7]">
-              <h2 className="text-lg font-bold">초대 링크 생성</h2>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'flex-end' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }} onClick={handleClose} />
+          <div style={{ position: 'relative', width: '100%', background: '#fff', borderRadius: '20px 20px 0 0', maxHeight: '85vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px 16px', borderBottom: '1px solid #F2F2F7' }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: '#111' }}>초대 링크 생성</h2>
               <button
                 onClick={handleClose}
-                className="w-9 h-9 flex items-center justify-center rounded-full bg-[#F2F2F7] text-[#6C6C70]"
+                style={{ minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F2F2F7', border: 'none', borderRadius: 22, color: '#6C6C70', fontSize: 16, cursor: 'pointer' }}
               >
                 ✕
               </button>
             </div>
 
-            <div className="px-5 py-4 space-y-4 pb-8">
+            <div style={{ padding: '20px 20px 36px', display: 'flex', flexDirection: 'column', gap: 16 }}>
               {/* 대상 역할 선택 */}
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-[#6C6C70]">초대 대상</label>
-                <div className="flex gap-2">
+              <div>
+                <label style={{ fontSize: 14, color: '#8E8E93', marginBottom: 6, display: 'block', fontWeight: 600 }}>초대 대상</label>
+                <div style={{ display: 'flex', gap: 8 }}>
                   {(['PARENT', 'DRIVER'] as TargetRole[]).map((role) => (
                     <button
                       key={role}
                       type="button"
                       onClick={() => setTargetRole(role)}
-                      className={`flex-1 h-12 rounded-2xl border text-base font-medium transition-colors ${
-                        targetRole === role
-                          ? 'bg-black text-white border-black'
-                          : 'bg-white text-[#6C6C70] border-[#C6C6C8]'
-                      }`}
+                      style={{
+                        flex: 1, minHeight: 48, borderRadius: 10, fontSize: 16, fontWeight: 600, cursor: 'pointer',
+                        border: `2px solid ${targetRole === role ? '#F5A400' : '#E5E5EA'}`,
+                        background: targetRole === role ? '#F5A400' : '#F2F2F7',
+                        color: targetRole === role ? '#fff' : '#555',
+                      }}
                     >
                       {role === 'PARENT' ? '학부모' : '버스기사'}
                     </button>
@@ -96,19 +97,20 @@ export default function InviteDrawer() {
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-[#6C6C70]">유효기간</label>
-                <div className="flex gap-2">
+              <div>
+                <label style={{ fontSize: 14, color: '#8E8E93', marginBottom: 6, display: 'block', fontWeight: 600 }}>유효기간</label>
+                <div style={{ display: 'flex', gap: 8 }}>
                   {['1', '24', '48', '168'].map((h) => (
                     <button
                       key={h}
                       type="button"
                       onClick={() => setExpiresHours(h)}
-                      className={`flex-1 h-11 rounded-2xl border text-sm font-medium ${
-                        expiresHours === h
-                          ? 'bg-black text-white border-black'
-                          : 'bg-white text-[#6C6C70] border-[#C6C6C8]'
-                      }`}
+                      style={{
+                        flex: 1, minHeight: 44, borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                        border: `2px solid ${expiresHours === h ? '#F5A400' : '#E5E5EA'}`,
+                        background: expiresHours === h ? '#F5A400' : '#F2F2F7',
+                        color: expiresHours === h ? '#fff' : '#555',
+                      }}
                     >
                       {expireLabels[h]}
                     </button>
@@ -117,27 +119,27 @@ export default function InviteDrawer() {
               </div>
 
               {error && (
-                <div className="px-4 py-3 rounded-2xl bg-[#FF3B30]/10 border border-[#FF3B30]/20">
-                  <p className="text-sm font-medium text-[#FF3B30]">{error}</p>
+                <div style={{ padding: '12px 14px', borderRadius: 10, background: 'rgba(255,59,48,0.1)', border: '1px solid rgba(255,59,48,0.2)' }}>
+                  <p style={{ fontSize: 14, fontWeight: 500, color: '#FF3B30', margin: 0 }}>{error}</p>
                 </div>
               )}
 
               {inviteUrl ? (
-                <div className="space-y-2">
-                  <div className="px-4 py-3 rounded-2xl bg-[#F2F2F7] break-all">
-                    <p className="text-sm text-[#3C3C43]">{inviteUrl}</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ padding: '14px', borderRadius: 10, background: '#F2F2F7', wordBreak: 'break-all' }}>
+                    <p style={{ fontSize: 14, color: '#3C3C43', margin: 0 }}>{inviteUrl}</p>
                   </div>
                   <button
                     type="button"
                     onClick={handleCopy}
-                    className="w-full h-12 rounded-full bg-black text-white text-base font-semibold"
+                    style={{ width: '100%', minHeight: 54, borderRadius: 14, background: '#111', color: '#fff', border: 'none', fontSize: 18, fontWeight: 700, cursor: 'pointer' }}
                   >
                     {copied ? '복사됨 ✓' : '링크 복사'}
                   </button>
                   <button
                     type="button"
                     onClick={() => { setInviteUrl(null); setError(null) }}
-                    className="w-full h-12 rounded-full border border-[#C6C6C8] text-[#6C6C70] text-base"
+                    style={{ width: '100%', minHeight: 54, borderRadius: 14, background: 'transparent', border: '1.5px solid #C6C6C8', color: '#6C6C70', fontSize: 18, fontWeight: 500, cursor: 'pointer' }}
                   >
                     새 링크 생성
                   </button>
@@ -147,7 +149,7 @@ export default function InviteDrawer() {
                   type="button"
                   disabled={isPending}
                   onClick={handleGenerate}
-                  className="w-full h-14 rounded-full bg-[#F5A400] text-black text-base font-bold disabled:opacity-60"
+                  style={{ width: '100%', minHeight: 54, borderRadius: 14, background: '#F5A400', color: '#fff', border: 'none', fontSize: 18, fontWeight: 700, cursor: 'pointer', opacity: isPending ? 0.6 : 1 }}
                 >
                   {isPending ? '생성 중...' : '링크 생성'}
                 </button>

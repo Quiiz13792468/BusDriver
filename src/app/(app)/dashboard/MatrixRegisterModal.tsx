@@ -25,9 +25,6 @@ export default function MatrixRegisterModal({ data, onClose }: Props) {
   // 해당 월의 기본 날짜: year-month-01
   const defaultDate = `${data.year}-${String(data.month).padStart(2, '0')}-01`
 
-  const inputClass =
-    'w-full h-12 px-4 rounded-2xl border border-[#C6C6C8] text-base bg-white focus:outline-none focus:border-[#F5A400] focus:ring-2 focus:ring-[#F5A400]/20'
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
@@ -44,31 +41,38 @@ export default function MatrixRegisterModal({ data, onClose }: Props) {
     })
   }
 
+  const inputSty: React.CSSProperties = {
+    width: '100%', borderRadius: 10, border: '1px solid #E5E5EA',
+    padding: '14px 14px', fontSize: 18, background: '#F2F2F7',
+    outline: 'none', boxSizing: 'border-box', color: '#111', fontFamily: 'inherit',
+  }
+  const labelSty: React.CSSProperties = {
+    fontSize: 14, color: '#8E8E93', marginBottom: 6, display: 'block', fontWeight: 600,
+  }
+
   return (
-    <div className="fixed inset-0 z-[60] flex items-end">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative w-full bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#F2F2F7]">
+    <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'flex-end' }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }} onClick={onClose} />
+      <div style={{ position: 'relative', width: '100%', background: '#fff', borderRadius: '20px 20px 0 0', maxHeight: '85vh', overflowY: 'auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px 16px', borderBottom: '1px solid #F2F2F7' }}>
           <div>
-            <h2 className="text-lg font-bold text-black">입금 등록</h2>
-            <p className="text-sm text-[#6C6C70] mt-0.5">
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: '#111', margin: '0 0 2px' }}>입금 등록</h2>
+            <p style={{ fontSize: 14, color: '#6C6C70', margin: 0 }}>
               {data.studentName} · {data.year}년 {data.month}월
             </p>
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 flex items-center justify-center rounded-full bg-[#F2F2F7] text-[#6C6C70]"
+            style={{ minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F2F2F7', border: 'none', borderRadius: 22, color: '#6C6C70', fontSize: 16, cursor: 'pointer' }}
           >
             ✕
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4 pb-8">
+        <form onSubmit={handleSubmit} style={{ padding: '20px 20px 36px', display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* 금액 (프리필) */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-[#6C6C70]">
-              금액 <span className="text-[#FF3B30]">*</span>
-            </label>
+          <div>
+            <label style={labelSty}>금액 <span style={{ color: '#FF3B30' }}>*</span></label>
             <input
               name="amount"
               type="number"
@@ -77,45 +81,43 @@ export default function MatrixRegisterModal({ data, onClose }: Props) {
               required
               defaultValue={data.defaultAmount || ''}
               placeholder="0"
-              className={inputClass}
+              style={inputSty}
             />
           </div>
 
           {/* 입금일 */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-[#6C6C70]">
-              입금일 <span className="text-[#FF3B30]">*</span>
-            </label>
+          <div>
+            <label style={labelSty}>입금일 <span style={{ color: '#FF3B30' }}>*</span></label>
             <input
               name="paid_at"
               type="date"
               required
               defaultValue={defaultDate}
-              className={inputClass}
+              style={inputSty}
             />
           </div>
 
           {/* 메모 */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-[#6C6C70]">메모</label>
+          <div>
+            <label style={labelSty}>메모</label>
             <input
               name="memo"
               type="text"
               placeholder="메모 (선택사항)"
-              className={inputClass}
+              style={inputSty}
             />
           </div>
 
           {error && (
-            <div className="px-4 py-3 rounded-2xl bg-[#FF3B30]/10 border border-[#FF3B30]/20">
-              <p className="text-sm font-medium text-[#FF3B30]">{error}</p>
+            <div style={{ padding: '12px 14px', borderRadius: 10, background: 'rgba(255,59,48,0.1)', border: '1px solid rgba(255,59,48,0.2)' }}>
+              <p style={{ fontSize: 14, fontWeight: 500, color: '#FF3B30', margin: 0 }}>{error}</p>
             </div>
           )}
 
           <button
             type="submit"
             disabled={isPending}
-            className="w-full h-14 rounded-full bg-[#F5A400] text-black text-base font-bold disabled:opacity-60"
+            style={{ width: '100%', minHeight: 54, borderRadius: 14, background: '#F5A400', color: '#fff', border: 'none', fontSize: 18, fontWeight: 700, cursor: 'pointer', opacity: isPending ? 0.6 : 1 }}
           >
             {isPending ? '등록 중...' : '등록'}
           </button>

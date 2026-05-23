@@ -23,9 +23,6 @@ export default function SchoolsManager({ schools }: Props) {
   const [isPending, startTransition] = useTransition()
   const [localSchools, setLocalSchools] = useState<School[]>(schools)
 
-  const inputClass =
-    'w-full h-12 px-4 rounded-2xl border border-[#C6C6C8] text-base bg-white focus:outline-none focus:border-[#F5A400] focus:ring-2 focus:ring-[#F5A400]/20'
-
   const handleClose = () => {
     setEditTarget(null)
     setError(null)
@@ -108,23 +105,23 @@ export default function SchoolsManager({ schools }: Props) {
 
       {/* 편집 모달 */}
       {editTarget && (
-        <div className="fixed inset-0 z-[60] flex items-end">
-          <div className="absolute inset-0 bg-black/40" onClick={handleClose} />
-          <div className="relative w-full bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#F2F2F7]">
-              <h2 className="text-lg font-bold text-black">학교 편집</h2>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'flex-end' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }} onClick={handleClose} />
+          <div style={{ position: 'relative', width: '100%', background: '#fff', borderRadius: '20px 20px 0 0', maxHeight: '85vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px 16px', borderBottom: '1px solid #F2F2F7' }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: '#111' }}>학교 편집</h2>
               <button
                 onClick={handleClose}
-                className="w-9 h-9 flex items-center justify-center rounded-full bg-[#F2F2F7] text-[#6C6C70]"
+                style={{ minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F2F2F7', border: 'none', borderRadius: 22, color: '#6C6C70', fontSize: 16, cursor: 'pointer' }}
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4 pb-8">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-[#6C6C70]">
-                  학교명 <span className="text-[#FF3B30]">*</span>
+            <form onSubmit={handleSubmit} style={{ padding: '20px 20px 36px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div>
+                <label style={{ fontSize: 14, color: '#8E8E93', marginBottom: 6, display: 'block', fontWeight: 600 }}>
+                  학교명 <span style={{ color: '#FF3B30' }}>*</span>
                 </label>
                 <input
                   name="name"
@@ -132,12 +129,12 @@ export default function SchoolsManager({ schools }: Props) {
                   required
                   defaultValue={editTarget.name}
                   placeholder="학교명"
-                  className={inputClass}
+                  style={{ width: '100%', borderRadius: 10, border: '1px solid #E5E5EA', padding: '14px 14px', fontSize: 18, background: '#F2F2F7', outline: 'none', boxSizing: 'border-box', color: '#111', fontFamily: 'inherit' }}
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-[#6C6C70]">기본 이용금액</label>
+              <div>
+                <label style={{ fontSize: 14, color: '#8E8E93', marginBottom: 6, display: 'block', fontWeight: 600 }}>기본 이용금액</label>
                 <input
                   name="default_fee"
                   type="number"
@@ -145,20 +142,20 @@ export default function SchoolsManager({ schools }: Props) {
                   min={0}
                   defaultValue={editTarget.default_fee || ''}
                   placeholder="0"
-                  className={inputClass}
+                  style={{ width: '100%', borderRadius: 10, border: '1px solid #E5E5EA', padding: '14px 14px', fontSize: 18, background: '#F2F2F7', outline: 'none', boxSizing: 'border-box', color: '#111', fontFamily: 'inherit' }}
                 />
               </div>
 
               {error && (
-                <div className="px-4 py-3 rounded-2xl bg-[#FF3B30]/10 border border-[#FF3B30]/20">
-                  <p className="text-sm font-medium text-[#FF3B30]">{error}</p>
+                <div style={{ padding: '12px 14px', borderRadius: 10, background: 'rgba(255,59,48,0.1)', border: '1px solid rgba(255,59,48,0.2)' }}>
+                  <p style={{ fontSize: 14, fontWeight: 500, color: '#FF3B30', margin: 0 }}>{error}</p>
                 </div>
               )}
 
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full h-14 rounded-full bg-[#F5A400] text-black text-base font-bold disabled:opacity-60"
+                style={{ width: '100%', minHeight: 54, borderRadius: 14, background: '#F5A400', color: '#fff', border: 'none', fontSize: 18, fontWeight: 700, cursor: 'pointer', opacity: isPending ? 0.6 : 1 }}
               >
                 {isPending ? '저장 중...' : '저장'}
               </button>

@@ -34,7 +34,7 @@ const inputStyle: React.CSSProperties = {
   borderRadius: 10,
   padding: '13px 14px',
   fontSize: 16,
-  border: 'none',
+  border: `1px solid ${IOS.sep}`,
   fontFamily: 'inherit',
   color: '#111',
   outline: 'none',
@@ -42,10 +42,11 @@ const inputStyle: React.CSSProperties = {
 }
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 13,
+  fontSize: 14,
   color: IOS.label,
-  marginBottom: 4,
+  marginBottom: 6,
   display: 'block',
+  fontWeight: 600,
 }
 
 const MONTH_LABELS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월']
@@ -243,7 +244,7 @@ export default function GlobalActions({ students }: Props) {
               {/* 입금: 학생 검색 */}
               {modal === 'payment' && (
                 <div ref={studentBoxRef} style={{ marginBottom: 14, position: 'relative' }}>
-                  <label style={labelStyle}>학생 선택</label>
+                  <label style={labelStyle}>학생 선택 <span style={{ color: IOS.red }}>*</span></label>
                   <input
                     type="text"
                     value={studentQuery}
@@ -317,7 +318,7 @@ export default function GlobalActions({ students }: Props) {
                         type="button"
                         onClick={() => setServiceType(opt.value)}
                         style={{
-                          flex: 1, minHeight: 44, borderRadius: 10,
+                          flex: 1, minHeight: 48, borderRadius: 10,
                           border: `2px solid ${serviceType === opt.value ? IOS.amber : IOS.sep}`,
                           background: serviceType === opt.value ? IOS.amber : IOS.bg,
                           color: serviceType === opt.value ? '#fff' : '#555',
@@ -331,22 +332,22 @@ export default function GlobalActions({ students }: Props) {
                 </div>
               )}
 
-              {/* 금액 (공통) */}
-              <div style={{ marginBottom: 14 }}>
-                <label style={labelStyle}>
-                  {modal === 'fuel' ? '주유금액' : '입금 금액'}
-                </label>
-                <input
-                  name="amount"
-                  type="number"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  min={1}
-                  required
-                  placeholder="0"
-                  style={inputStyle}
-                />
-              </div>
+              {/* 입금: 금액 */}
+              {modal === 'payment' && (
+                <div style={{ marginBottom: 14 }}>
+                  <label style={labelStyle}>입금 금액</label>
+                  <input
+                    name="amount"
+                    type="number"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    min={1}
+                    required
+                    placeholder="0"
+                    style={inputStyle}
+                  />
+                </div>
+              )}
 
               {/* 입금: 월 선택 그리드 */}
               {modal === 'payment' && (
@@ -407,7 +408,7 @@ export default function GlobalActions({ students }: Props) {
                             gap: 2, padding: '6px 4px',
                           }}
                         >
-                          <span>{label}</span>
+                          <span style={{ fontSize: 18 }}>{label}</span>
                           {statusText && (
                             <span style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>
                               {statusText}
@@ -469,6 +470,23 @@ export default function GlobalActions({ students }: Props) {
                     inputMode="numeric"
                     pattern="[0-9]*"
                     min={1}
+                    placeholder="0"
+                    style={inputStyle}
+                  />
+                </div>
+              )}
+
+              {/* 주유: 금액 */}
+              {modal === 'fuel' && (
+                <div style={{ marginBottom: 14 }}>
+                  <label style={labelStyle}>주유금액</label>
+                  <input
+                    name="amount"
+                    type="number"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    min={1}
+                    required
                     placeholder="0"
                     style={inputStyle}
                   />
