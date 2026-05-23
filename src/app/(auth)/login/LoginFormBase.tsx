@@ -2,16 +2,11 @@
 
 // role prop을 받아 역할별 로그인 폼과 비밀번호 찾기 화면을 렌더링하는 공유 컴포넌트
 
-import { useState, useEffect, useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { loginAction } from '@/lib/actions/auth'
 import ForgotPassword from './ForgotPassword'
 
 type Role = 'DRIVER' | 'PARENT'
-
-const CREDS_KEY: Record<Role, string> = {
-  DRIVER: 'busdriver_saved_creds',
-  PARENT: 'busdriver_parent_creds',
-}
 
 const CONFIG: Record<Role, { title: string; sub: string; icon: string; accent: string }> = {
   DRIVER: { title: '셔틀 콕!', sub: '통학버스 운영 관리', icon: '🚌', accent: '#F5A400' },
@@ -22,26 +17,12 @@ export default function LoginFormBase({ role }: { role: Role }) {
   const [loginId, setLoginId] = useState('')
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
-  const [saveCredentials, setSaveCredentials] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [showForgot, setShowForgot] = useState(false)
 
   const { title, sub, icon, accent } = CONFIG[role]
-  const credsKey = CREDS_KEY[role]
-
-  useEffect(() => {
-    const saved = localStorage.getItem(credsKey)
-    if (saved) {
-      try {
-        const { id, pw } = JSON.parse(saved)
-        setLoginId(id ?? '')
-        setPassword(pw ?? '')
-        setSaveCredentials(true)
-      } catch {}
-    }
-  }, [credsKey])
 
   if (showForgot) {
     return <ForgotPassword onBack={() => setShowForgot(false)} accent={accent} />
@@ -56,12 +37,6 @@ export default function LoginFormBase({ role }: { role: Role }) {
       return
     }
 
-    if (saveCredentials) {
-      localStorage.setItem(credsKey, JSON.stringify({ id: loginId, pw: password }))
-    } else {
-      localStorage.removeItem(credsKey)
-    }
-
     startTransition(async () => {
       const result = await loginAction(loginId, role, password)
       if (result?.error) {
@@ -74,7 +49,7 @@ export default function LoginFormBase({ role }: { role: Role }) {
   }
 
   const inputCls =
-    'w-full bg-[#F2F2F7] rounded-xl px-4 text-lg border border-[#E5E5EA] text-[#111] outline-none focus:border-[#aaa] h-14 box-border'
+    'w-full bg-[#F2F2F7] rounded-xl px-4 text-lg border-[1.5px] border-[#E5E5EA] text-[#111] outline-none focus:border-[#aaa] h-14 box-border'
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F2F2F7] px-6 pb-7">
@@ -141,17 +116,6 @@ export default function LoginFormBase({ role }: { role: Role }) {
             </button>
           </div>
 
-          {/* 아이디·비밀번호 저장 */}
-          <label className="flex items-center gap-3 cursor-pointer mb-6">
-            <input
-              type="checkbox"
-              checked={saveCredentials}
-              onChange={(e) => setSaveCredentials(e.target.checked)}
-              className="w-5 h-5 rounded accent-[#F5A400]"
-            />
-            <span className="text-base text-[#8E8E93]">아이디·비밀번호 저장</span>
-          </label>
-
           {/* 오류 메시지 */}
           {error && (
             <div className="mb-4 px-4 py-3 rounded-2xl bg-[#FF3B30]/10 border border-[#FF3B30]/20">
@@ -170,7 +134,7 @@ export default function LoginFormBase({ role }: { role: Role }) {
           <button
             type="submit"
             disabled={isPending || success}
-            style={{ background: accent, boxShadow: `0 3px 10px ${accent}80` }}
+            style={{ background: accent, boxShadow: `0 3px 10px ${accent}50` }}
             className="w-full h-[60px] text-white rounded-[14px] text-[19px] font-black disabled:opacity-60"
           >
             {success ? '로그인 성공!' : isPending ? '로그인 중...' : '로그인'}
@@ -185,24 +149,7 @@ export default function LoginFormBase({ role }: { role: Role }) {
             </span>
             를 통해 가입해주세요
           </div>
-          <div className="mt-4 text-center">
-            {role === 'DRIVER' ? (
-              <a
-                href="/parent-login"
-                className="inline-flex min-h-[48px] items-center text-sm text-[#8E8E93] underline"
-              >
-                학부모이신가요? 학부모 로그인
-              </a>
-            ) : (
-              <a
-                href="/login"
-                className="inline-flex min-h-[48px] items-center text-sm text-[#8E8E93] underline"
-              >
-                버스기사이신가요? 버스기사 로그인
-              </a>
-            )}
-          </div>
-          <div className="mt-2 text-center text-xs text-[#8E8E93]">
+          <div className="mt-[18px] text-center text-xs text-[#8E8E93]">
             <span>이용약관</span>
             <span className="mx-2 text-[#E5E5EA]">|</span>
             <span>개인정보 처리방침</span>
