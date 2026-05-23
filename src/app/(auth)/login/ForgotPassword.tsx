@@ -39,7 +39,7 @@ export default function ForgotPassword({ onBack, accent }: Props) {
   }
 
   const inputCls =
-    'w-full bg-[#F2F2F7] rounded-xl px-4 text-lg border border-[#E5E5EA] text-[#111] outline-none focus:border-[#aaa] h-14 box-border'
+    'w-full bg-[#F2F2F7] rounded-xl px-4 text-lg border-[1.5px] border-[#E5E5EA] text-[#111] outline-none focus:border-[#aaa] h-14 box-border'
 
   const handleBack = () => {
     if (step === 1 || step === 4) onBack()
@@ -97,7 +97,7 @@ export default function ForgotPassword({ onBack, accent }: Props) {
               disabled={!phone}
               style={{
                 background: accent,
-                boxShadow: `0 3px 10px ${accent}80`,
+                boxShadow: `0 3px 10px ${accent}50`,
                 opacity: phone ? 1 : 0.5,
               }}
               className="w-full h-[60px] text-white rounded-[14px] text-[19px] font-black disabled:cursor-default"
@@ -145,7 +145,7 @@ export default function ForgotPassword({ onBack, accent }: Props) {
               disabled={code.length < 6}
               style={{
                 background: accent,
-                boxShadow: `0 3px 10px ${accent}80`,
+                boxShadow: `0 3px 10px ${accent}50`,
                 opacity: code.length >= 6 ? 1 : 0.5,
               }}
               className="w-full h-[60px] text-white rounded-[14px] text-[19px] font-black disabled:cursor-default"
@@ -194,7 +194,7 @@ export default function ForgotPassword({ onBack, accent }: Props) {
               disabled={!pw || pw.length < 8 || pw !== pw2}
               style={{
                 background: accent,
-                boxShadow: `0 3px 10px ${accent}80`,
+                boxShadow: `0 3px 10px ${accent}50`,
                 opacity: pw && pw.length >= 8 && pw === pw2 ? 1 : 0.5,
               }}
               className="w-full h-[60px] text-white rounded-[14px] text-[19px] font-black disabled:cursor-default"
@@ -211,7 +211,7 @@ export default function ForgotPassword({ onBack, accent }: Props) {
               <div
                 style={{
                   background: accent,
-                  boxShadow: `0 6px 20px ${accent}66`,
+                  boxShadow: `0 6px 20px ${accent}40`,
                   width: 88,
                   height: 88,
                 }}
