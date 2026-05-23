@@ -3,8 +3,9 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { withActionLog } from '@/lib/dev-logger/server-logger'
 
-export async function createSchoolAction(formData: FormData) {
+export const createSchoolAction = withActionLog('createSchoolAction', async (formData: FormData) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
@@ -37,9 +38,12 @@ export async function createSchoolAction(formData: FormData) {
 
   revalidatePath('/schools')
   return { error: null }
-}
+})
 
-export async function updateSchoolAction(schoolId: string, formData: FormData) {
+export const updateSchoolAction = withActionLog('updateSchoolAction', async (
+  schoolId: string,
+  formData: FormData,
+) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
@@ -63,9 +67,9 @@ export async function updateSchoolAction(schoolId: string, formData: FormData) {
 
   revalidatePath('/schools')
   return { error: null }
-}
+})
 
-export async function deleteSchoolAction(schoolId: string) {
+export const deleteSchoolAction = withActionLog('deleteSchoolAction', async (schoolId: string) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
@@ -92,4 +96,4 @@ export async function deleteSchoolAction(schoolId: string) {
   revalidatePath('/settings/schools')
   revalidatePath('/schools')
   return { error: null }
-}
+})

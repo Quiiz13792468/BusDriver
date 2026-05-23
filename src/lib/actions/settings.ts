@@ -2,8 +2,9 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { withActionLog } from '@/lib/dev-logger/server-logger'
 
-export async function updateProfileAction(formData: FormData) {
+export const updateProfileAction = withActionLog('updateProfileAction', async (formData: FormData) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
@@ -22,9 +23,9 @@ export async function updateProfileAction(formData: FormData) {
 
   revalidatePath('/settings')
   return { error: null }
-}
+})
 
-export async function updatePasswordAction(formData: FormData) {
+export const updatePasswordAction = withActionLog('updatePasswordAction', async (formData: FormData) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
@@ -39,13 +40,13 @@ export async function updatePasswordAction(formData: FormData) {
   if (error) return { error: '비밀번호 변경에 실패했습니다.' }
 
   return { error: null }
-}
+})
 
-export async function createInviteTokenAction(
+export const createInviteTokenAction = withActionLog('createInviteTokenAction', async (
   role: 'DRIVER' | 'PARENT',
   expiresHours: number,
   targetStudentId?: string | null,
-) {
+) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.', token: null }
@@ -74,4 +75,4 @@ export async function createInviteTokenAction(
   if (error || !data) return { error: '초대 링크 생성에 실패했습니다.', token: null }
 
   return { error: null, token: data.token as string }
-}
+})

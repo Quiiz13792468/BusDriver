@@ -2,8 +2,9 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { withActionLog } from '@/lib/dev-logger/server-logger'
 
-export async function createNoticeAction(formData: FormData) {
+export const createNoticeAction = withActionLog('createNoticeAction', async (formData: FormData) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
@@ -35,9 +36,9 @@ export async function createNoticeAction(formData: FormData) {
 
   revalidatePath('/board')
   return { error: null }
-}
+})
 
-export async function sendMessageAction(formData: FormData) {
+export const sendMessageAction = withActionLog('sendMessageAction', async (formData: FormData) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
@@ -82,4 +83,4 @@ export async function sendMessageAction(formData: FormData) {
 
   revalidatePath(`/board/chat/${profile.role === 'DRIVER' ? parentId : driverId}`)
   return { error: null }
-}
+})

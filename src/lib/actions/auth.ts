@@ -3,17 +3,14 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { withActionLog } from '@/lib/dev-logger/server-logger'
 
-/**
- * login_id + role + password → 서버에서 직접 signIn (쿠키 Set-Cookie로 확실히 설정)
- */
-export async function loginAction(
+export const loginAction = withActionLog('loginAction', async (
   loginId: string,
   role: 'DRIVER' | 'PARENT',
   password: string,
-): Promise<{ error?: string }> {
+) => {
   try {
-    // 1. admin client로 login_id + role → email 조회 (RLS 우회)
     const adminClient = createAdminClient()
 
     const { data: profile, error: profileError } = await adminClient
@@ -32,7 +29,6 @@ export async function loginAction(
       return { error: '아이디 또는 비밀번호가 올바르지 않습니다.' }
     }
 
-    // 2. 서버 클라이언트로 signIn → Set-Cookie 헤더로 세션 쿠키 설정
     const supabase = await createClient()
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: userData.user.email,
@@ -48,31 +44,30 @@ export async function loginAction(
   }
 
   return {}
-}
+})
 
+// redirect()를 사용하므로 withActionLog 제외
 export async function logoutAction() {
   const supabase = await createClient()
   await supabase.auth.signOut()
   redirect('/login')
 }
 
-export async function consumeInviteTokenAction(
+export const consumeInviteTokenAction = withActionLog('consumeInviteTokenAction', async (
   token: string,
   email: string,
   password: string,
   loginId: string,
   fullName: string,
   phone?: string,
-) {
+) => {
   const supabase = await createClient()
 
-  // 1. Supabase Auth 계정 생성
   const { error: signUpError } = await supabase.auth.signUp({ email, password })
   if (signUpError) {
     return { error: '계정 생성에 실패했습니다: ' + signUpError.message }
   }
 
-  // 2. 토큰 소비 + profiles 생성
   const { error: rpcError } = await supabase.rpc('consume_invite_token', {
     p_token: token,
     p_login_id: loginId,
@@ -94,4 +89,4 @@ export async function consumeInviteTokenAction(
   }
 
   return {}
-}
+})

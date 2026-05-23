@@ -2,8 +2,9 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { withActionLog } from '@/lib/dev-logger/server-logger'
 
-export async function registerPaymentAction(formData: FormData) {
+export const registerPaymentAction = withActionLog('registerPaymentAction', async (formData: FormData) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
@@ -26,7 +27,6 @@ export async function registerPaymentAction(formData: FormData) {
     paid_at: paidAt,
     memo,
     service_type: serviceType,
-    // driver_id, created_by, created_by_role은 트리거에서 자동 세팅
   })
 
   if (error) return { error: '입금 등록에 실패했습니다: ' + error.message }
@@ -34,12 +34,15 @@ export async function registerPaymentAction(formData: FormData) {
   revalidatePath('/payments')
   revalidatePath('/dashboard')
   return { error: null }
-}
+})
 
-export async function getStudentPaidMonthsAction(studentId: string, year: number): Promise<number[]> {
+export const getStudentPaidMonthsAction = withActionLog('getStudentPaidMonthsAction', async (
+  studentId: string,
+  year: number,
+) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return []
+  if (!user) return [] as number[]
 
   const { data } = await supabase
     .from('payments')
@@ -49,11 +52,11 @@ export async function getStudentPaidMonthsAction(studentId: string, year: number
     .gte('paid_at', `${year}-01-01`)
     .lte('paid_at', `${year}-12-31`)
 
-  if (!data) return []
+  if (!data) return [] as number[]
   return [...new Set(data.map((p) => parseInt(p.paid_at.split('-')[1], 10)))]
-}
+})
 
-export async function registerFuelAction(formData: FormData) {
+export const registerFuelAction = withActionLog('registerFuelAction', async (formData: FormData) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
@@ -82,9 +85,9 @@ export async function registerFuelAction(formData: FormData) {
 
   revalidatePath('/payments')
   return { error: null }
-}
+})
 
-export async function confirmPaymentAction(paymentId: string) {
+export const confirmPaymentAction = withActionLog('confirmPaymentAction', async (paymentId: string) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
@@ -99,9 +102,12 @@ export async function confirmPaymentAction(paymentId: string) {
   revalidatePath('/payments')
   revalidatePath('/dashboard')
   return { error: null }
-}
+})
 
-export async function disputePaymentAction(paymentId: string, memo: string) {
+export const disputePaymentAction = withActionLog('disputePaymentAction', async (
+  paymentId: string,
+  memo: string,
+) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
@@ -116,9 +122,9 @@ export async function disputePaymentAction(paymentId: string, memo: string) {
   revalidatePath('/payments')
   revalidatePath('/dashboard')
   return { error: null }
-}
+})
 
-export async function unconfirmPaymentAction(paymentId: string) {
+export const unconfirmPaymentAction = withActionLog('unconfirmPaymentAction', async (paymentId: string) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
@@ -133,13 +139,13 @@ export async function unconfirmPaymentAction(paymentId: string) {
   revalidatePath('/payments')
   revalidatePath('/dashboard')
   return { error: null }
-}
+})
 
-export async function updatePaymentAction(
+export const updatePaymentAction = withActionLog('updatePaymentAction', async (
   paymentId: string,
   amount: number,
   paidAt: string,
-) {
+) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
@@ -154,14 +160,14 @@ export async function updatePaymentAction(
   revalidatePath('/payments')
   revalidatePath('/dashboard')
   return { error: null }
-}
+})
 
-export async function addPaymentMemoAction(
+export const addPaymentMemoAction = withActionLog('addPaymentMemoAction', async (
   paymentId: string,
   content: string,
   senderRole: 'DRIVER' | 'PARENT',
   senderName: string,
-) {
+) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
@@ -175,9 +181,9 @@ export async function addPaymentMemoAction(
   revalidatePath('/payments')
   revalidatePath('/dashboard')
   return { error: null }
-}
+})
 
-export async function getPaymentDetailAction(paymentId: string) {
+export const getPaymentDetailAction = withActionLog('getPaymentDetailAction', async (paymentId: string) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.', data: null }
@@ -204,4 +210,4 @@ export async function getPaymentDetailAction(paymentId: string) {
       memos: memosRes.data ?? [],
     },
   }
-}
+})
