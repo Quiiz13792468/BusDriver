@@ -12,16 +12,20 @@ export default async function DriverHeader({ fullName, userId }: Props) {
 
   const { data: studentsRaw } = await supabase
     .from('students')
-    .select('id, name, schools(name)')
+    .select('id, name, custom_fee, schools(name, default_fee)')
     .eq('driver_id', userId)
     .eq('is_active', true)
     .order('name')
 
-  const students = (studentsRaw ?? []).map((s) => ({
-    id: s.id,
-    name: s.name,
-    school_name: (s.schools as unknown as { name: string } | null)?.name ?? null,
-  }))
+  const students = (studentsRaw ?? []).map((s) => {
+    const school = s.schools as unknown as { name: string; default_fee: number | null } | null
+    return {
+      id: s.id,
+      name: s.name,
+      school_name: school?.name ?? null,
+      default_fee: (s.custom_fee ?? school?.default_fee) ?? null,
+    }
+  })
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-[#E5E5EA] flex items-center px-4 gap-2" style={{ padding: '12px 16px 10px', height: 'auto' }}>

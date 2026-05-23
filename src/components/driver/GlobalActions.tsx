@@ -8,6 +8,7 @@ interface Student {
   id: string
   name: string
   school_name: string | null
+  default_fee?: number | null
 }
 
 interface Props {
@@ -73,6 +74,8 @@ export default function GlobalActions({ students }: Props) {
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null)
   const [paidMonths, setPaidMonths] = useState<number[]>([])
   const [loadingMonths, setLoadingMonths] = useState(false)
+  const [amountValue, setAmountValue] = useState('')
+  const [selStudentFee, setSelStudentFee] = useState<number | null>(null)
 
   const currentYear = new Date().getFullYear()
   const currentMonth = new Date().getMonth() + 1
@@ -113,6 +116,8 @@ export default function GlobalActions({ students }: Props) {
     setSelectedMonth(null)
     setPaidMonths([])
     setLoadingMonths(false)
+    setAmountValue('')
+    setSelStudentFee(null)
   }
 
   const selectStudent = async (s: Student) => {
@@ -120,10 +125,23 @@ export default function GlobalActions({ students }: Props) {
     setStudentQuery(s.school_name ? `${s.name} (${s.school_name})` : s.name)
     setShowList(false)
     setSelectedMonth(null)
+    const fee = s.default_fee ?? null
+    setSelStudentFee(fee)
+    if (fee) setAmountValue(fee.toString())
     setLoadingMonths(true)
     const months = await getStudentPaidMonthsAction(s.id, currentYear)
     setPaidMonths(months)
     setLoadingMonths(false)
+  }
+
+  const clearStudent = () => {
+    setStudentQuery('')
+    setStudentId('')
+    setPaidMonths([])
+    setSelectedMonth(null)
+    setAmountValue('')
+    setSelStudentFee(null)
+    setShowList(false)
   }
 
   const handleStudentChange = (v: string) => {
@@ -131,6 +149,8 @@ export default function GlobalActions({ students }: Props) {
     setStudentId('')
     setPaidMonths([])
     setSelectedMonth(null)
+    setAmountValue('')
+    setSelStudentFee(null)
     setShowList(true)
   }
 
@@ -243,64 +263,47 @@ export default function GlobalActions({ students }: Props) {
             <form onSubmit={handleSubmit}>
               {/* 입금: 학생 검색 */}
               {modal === 'payment' && (
-                <div ref={studentBoxRef} style={{ marginBottom: 14, position: 'relative' }}>
+                <div ref={studentBoxRef} style={{ marginBottom: 16, position: 'relative' }}>
                   <label style={labelStyle}>학생 선택 <span style={{ color: IOS.red }}>*</span></label>
-                  <input
-                    type="text"
-                    value={studentQuery}
-                    onChange={(e) => handleStudentChange(e.target.value)}
-                    onFocus={() => setShowList(true)}
-                    placeholder="이름으로 검색..."
-                    autoComplete="off"
-                    style={inputStyle}
-                  />
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type="text"
+                      value={studentQuery}
+                      onChange={(e) => handleStudentChange(e.target.value)}
+                      onFocus={() => setShowList(true)}
+                      placeholder="이름으로 검색..."
+                      autoComplete="off"
+                      style={{ ...inputStyle, paddingRight: 44 }}
+                    />
+                    {studentQuery && (
+                      <button
+                        type="button"
+                        onClick={clearStudent}
+                        style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', width: 36, height: 36, borderRadius: '50%', background: IOS.sep, border: 'none', fontSize: 16, fontWeight: 800, color: '#555', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
                   {showList && filtered.length > 0 && (
-                    <div style={{
-                      position: 'absolute', top: '100%', left: 0, right: 0,
-                      background: '#fff',
-                      border: `1px solid ${IOS.sep}`,
-                      borderRadius: 10,
-                      zIndex: 10,
-                      maxHeight: 200,
-                      overflowY: 'auto',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
-                      marginTop: 4,
-                    }}>
+                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: `1px solid ${IOS.sep}`, borderRadius: 10, zIndex: 10, maxHeight: 200, overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.12)', marginTop: 4 }}>
                       {filtered.map((s, i) => (
                         <button
                           type="button"
                           key={s.id}
                           onClick={() => selectStudent(s)}
-                          style={{
-                            display: 'block', width: '100%', textAlign: 'left',
-                            padding: '13px 14px', fontSize: 15,
-                            background: '#fff',
-                            borderTop: 'none', borderLeft: 'none', borderRight: 'none',
-                            borderBottom: i < filtered.length - 1 ? `1px solid ${IOS.sep}` : 'none',
-                            cursor: 'pointer', color: '#111',
-                          }}
+                          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '12px 14px', fontSize: 15, background: '#fff', borderTop: 'none', borderLeft: 'none', borderRight: 'none', borderBottom: i < filtered.length - 1 ? `1px solid ${IOS.sep}` : 'none', cursor: 'pointer', color: '#111' }}
                         >
-                          {s.name}
+                          <span style={{ fontWeight: 700 }}>{s.name}</span>
                           {s.school_name && (
-                            <span style={{ color: IOS.label, marginLeft: 6, fontSize: 14 }}>
-                              · {s.school_name}
-                            </span>
+                            <span style={{ color: IOS.label, fontSize: 13 }}>{s.school_name}</span>
                           )}
                         </button>
                       ))}
                     </div>
                   )}
                   {showList && filtered.length === 0 && (
-                    <div style={{
-                      position: 'absolute', top: '100%', left: 0, right: 0,
-                      background: '#fff',
-                      border: `1px solid ${IOS.sep}`,
-                      borderRadius: 10,
-                      padding: '13px 14px',
-                      fontSize: 14, color: IOS.label,
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
-                      marginTop: 4, zIndex: 10,
-                    }}>
+                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: `1px solid ${IOS.sep}`, borderRadius: 10, padding: '13px 14px', fontSize: 14, color: IOS.label, boxShadow: '0 4px 12px rgba(0,0,0,0.12)', marginTop: 4, zIndex: 10 }}>
                       일치하는 학생이 없습니다
                     </div>
                   )}
@@ -309,8 +312,8 @@ export default function GlobalActions({ students }: Props) {
 
               {/* 입금: 이용유형 */}
               {modal === 'payment' && (
-                <div style={{ marginBottom: 14 }}>
-                  <label style={labelStyle}>이용유형</label>
+                <div style={{ marginBottom: 16 }}>
+                  <label style={labelStyle}>이용유형 <span style={{ color: IOS.red }}>*</span></label>
                   <div style={{ display: 'flex', gap: 8 }}>
                     {SERVICE_OPTIONS.map((opt) => (
                       <button
@@ -319,7 +322,7 @@ export default function GlobalActions({ students }: Props) {
                         onClick={() => setServiceType(opt.value)}
                         style={{
                           flex: 1, minHeight: 48, borderRadius: 10,
-                          border: `2px solid ${serviceType === opt.value ? IOS.amber : IOS.sep}`,
+                          border: `1.5px solid ${serviceType === opt.value ? IOS.amber : IOS.sep}`,
                           background: serviceType === opt.value ? IOS.amber : IOS.bg,
                           color: serviceType === opt.value ? '#fff' : '#555',
                           fontSize: 15, fontWeight: 700, cursor: 'pointer',
@@ -334,8 +337,8 @@ export default function GlobalActions({ students }: Props) {
 
               {/* 입금: 금액 */}
               {modal === 'payment' && (
-                <div style={{ marginBottom: 14 }}>
-                  <label style={labelStyle}>입금 금액</label>
+                <div style={{ marginBottom: 16 }}>
+                  <label style={labelStyle}>입금금액</label>
                   <input
                     name="amount"
                     type="number"
@@ -344,25 +347,28 @@ export default function GlobalActions({ students }: Props) {
                     min={1}
                     required
                     placeholder="0"
+                    value={amountValue}
+                    onChange={(e) => setAmountValue(e.target.value)}
                     style={inputStyle}
                   />
+                  {selStudentFee != null && (
+                    <div style={{ fontSize: 12, color: IOS.label, marginTop: 4 }}>
+                      기본금액: ₩{selStudentFee.toLocaleString()}
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* 입금: 월 선택 그리드 */}
               {modal === 'payment' && (
-                <div style={{ marginBottom: 14 }}>
+                <div style={{ marginBottom: 16 }}>
                   <label style={labelStyle}>
-                    납부 월 선택
+                    월 선택 <span style={{ color: IOS.red }}>*</span>
                     {loadingMonths && (
                       <span style={{ marginLeft: 8, fontSize: 12, color: IOS.label }}>로딩 중...</span>
                     )}
                   </label>
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(4, 1fr)',
-                    gap: 8,
-                  }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                     {MONTH_LABELS.map((label, idx) => {
                       const m = idx + 1
                       const isPaid = paidMonths.includes(m)
@@ -374,16 +380,16 @@ export default function GlobalActions({ students }: Props) {
                       let border = `1.5px solid #FF3B30`
                       let statusText = '미납'
 
-                      if (isPaid) {
-                        bg = '#E8F4FF'
-                        color = '#007AFF'
-                        border = `1.5px solid #007AFF`
-                        statusText = '완납'
-                      } else if (isSelected) {
+                      if (isSelected) {
                         bg = IOS.amber
                         color = '#fff'
                         border = `1.5px solid ${IOS.amber}`
                         statusText = '미납'
+                      } else if (isPaid) {
+                        bg = '#E8F4FF'
+                        color = '#007AFF'
+                        border = `1.5px solid #007AFF`
+                        statusText = '완납'
                       } else if (isFuture) {
                         bg = '#F5F5F5'
                         color = '#ccc'
@@ -400,17 +406,16 @@ export default function GlobalActions({ students }: Props) {
                           style={{
                             minHeight: 52, borderRadius: 10,
                             background: bg, color, border,
-                            fontSize: 14, fontWeight: 700,
                             cursor: isPaid || isFuture ? 'default' : 'pointer',
                             opacity: isFuture ? 0.3 : 1,
                             display: 'flex', flexDirection: 'column',
                             alignItems: 'center', justifyContent: 'center',
-                            gap: 2, padding: '6px 4px',
+                            gap: 2, padding: '8px 4px',
                           }}
                         >
-                          <span style={{ fontSize: 18 }}>{label}</span>
+                          <span style={{ fontSize: 18, fontWeight: 800, color }}>{label}</span>
                           {statusText && (
-                            <span style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>
+                            <span style={{ fontSize: 11, fontWeight: 600, color: isSelected ? 'rgba(255,255,255,0.85)' : color }}>
                               {statusText}
                             </span>
                           )}
