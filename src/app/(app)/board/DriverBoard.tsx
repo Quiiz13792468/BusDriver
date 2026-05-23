@@ -75,13 +75,13 @@ export default async function DriverBoard({ userId, tab, schoolFilter }: Props) 
               fontWeight: tab === t.key ? 800 : 500,
               textDecoration: 'none',
               color: tab === t.key ? '#F5A400' : '#8E8E93',
-              borderBottom: tab === t.key ? '2.5px solid #F5A400' : '2.5px solid transparent',
+              borderBottom: tab === t.key ? '3px solid #F5A400' : '3px solid transparent',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
               position: 'relative',
             }}>
             {t.label}
             {t.badge > 0 && (
-              <span style={{ minWidth: 18, height: 18, borderRadius: 9, background: '#FF3B30', color: '#fff', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
+              <span style={{ minWidth: 22, height: 22, borderRadius: '50%', background: '#FF3B30', color: '#fff', fontSize: 12, fontWeight: 800, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 6px' }}>
                 {t.badge}
               </span>
             )}

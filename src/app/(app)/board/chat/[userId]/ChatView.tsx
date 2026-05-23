@@ -90,16 +90,16 @@ export default function ChatView({
   return (
     <div className="flex flex-col h-[calc(100dvh-var(--header-h)-64px)]">
       {/* 헤더 */}
-      <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-[#F2F2F7]">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#fff', borderBottom: '1px solid #F2F2F7' }}>
         <button
           onClick={() => router.back()}
-          className="w-9 h-9 flex items-center justify-center rounded-full bg-[#F2F2F7] text-[#6C6C70]"
+          style={{ minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F2F2F7', border: 'none', borderRadius: 22, color: '#6C6C70', fontSize: 24, cursor: 'pointer' }}
         >
           ‹
         </button>
-        <div className="flex-1">
-          <p className="text-base font-semibold text-black">{otherName}</p>
-          <p className="text-xs text-[#6C6C70]">{isDriver ? '학부모' : '버스기사'}</p>
+        <div style={{ flex: 1 }}>
+          <p style={{ fontSize: 17, fontWeight: 800, color: '#111', margin: 0 }}>{otherName}</p>
+          <p style={{ fontSize: 13, color: '#8E8E93', margin: 0 }}>{isDriver ? '학부모' : '버스기사'}</p>
         </div>
       </div>
 
@@ -145,11 +145,10 @@ export default function ChatView({
 
                   {/* 말풍선 */}
                   <div
-                    className={`rounded-2xl px-3.5 py-2.5 ${
-                      isMine
-                        ? 'bg-[#F5A400] text-black rounded-br-md'
-                        : 'bg-white text-black rounded-bl-md'
-                    }`}
+                    style={isMine
+                      ? { borderRadius: 18, borderBottomRightRadius: 4, background: '#F5A400', color: '#fff', padding: '10px 14px' }
+                      : { borderRadius: 18, borderBottomLeftRadius: 4, background: '#fff', color: '#111', padding: '10px 14px' }
+                    }
                   >
                     {/* 답장 미리보기 */}
                     {replyMsg && (
@@ -236,7 +235,7 @@ export default function ChatView({
             rows={1}
             placeholder="메시지를 입력하세요"
             required
-            className="flex-1 px-4 py-2.5 rounded-2xl border border-[#C6C6C8] text-base bg-[#F2F2F7] focus:outline-none focus:border-[#F5A400] resize-none leading-snug"
+            style={{ flex: 1, padding: '10px 16px', borderRadius: 24, border: '1.5px solid #E5E5EA', fontSize: 16, background: '#F2F2F7', outline: 'none', resize: 'none', lineHeight: 1.5, fontFamily: 'inherit', color: '#111', boxSizing: 'border-box' }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault()
@@ -247,12 +246,9 @@ export default function ChatView({
           <button
             type="submit"
             disabled={isPending}
-            className="w-11 h-11 rounded-full bg-[#F5A400] flex items-center justify-center flex-none disabled:opacity-60"
+            style={{ minWidth: 64, minHeight: 48, borderRadius: 24, background: '#F5A400', color: '#fff', border: 'none', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, opacity: isPending ? 0.6 : 1 }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M22 2L11 13" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            전송
           </button>
         </form>
       </div>
