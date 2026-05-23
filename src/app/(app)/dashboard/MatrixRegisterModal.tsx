@@ -97,17 +97,6 @@ export default function MatrixRegisterModal({ data, onClose }: Props) {
             />
           </div>
 
-          {/* 메모 */}
-          <div>
-            <label style={labelSty}>메모</label>
-            <input
-              name="memo"
-              type="text"
-              placeholder="메모 (선택사항)"
-              style={inputSty}
-            />
-          </div>
-
           {error && (
             <div style={{ padding: '12px 14px', borderRadius: 10, background: 'rgba(255,59,48,0.1)', border: '1px solid rgba(255,59,48,0.2)' }}>
               <p style={{ fontSize: 14, fontWeight: 500, color: '#FF3B30', margin: 0 }}>{error}</p>

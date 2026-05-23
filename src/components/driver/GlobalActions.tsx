@@ -493,17 +493,6 @@ export default function GlobalActions({ students }: Props) {
                 </div>
               )}
 
-              {/* 메모 */}
-              <div style={{ marginBottom: 14 }}>
-                <label style={labelStyle}>메모 (선택)</label>
-                <input
-                  name="memo"
-                  type="text"
-                  placeholder="메모 입력"
-                  style={inputStyle}
-                />
-              </div>
-
               {error && (
                 <div style={{
                   padding: '12px 14px',
