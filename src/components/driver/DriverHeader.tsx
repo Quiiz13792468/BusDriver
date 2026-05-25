@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import GlobalActions from './GlobalActions'
 
 interface Props {
@@ -8,9 +8,9 @@ interface Props {
 }
 
 export default async function DriverHeader({ fullName, userId }: Props) {
-  const supabase = await createClient()
+  const adminClient = createAdminClient()
 
-  const { data: studentsRaw } = await supabase
+  const { data: studentsRaw } = await adminClient
     .from('students')
     .select('id, name, custom_fee, schools(name, default_fee)')
     .eq('driver_id', userId)

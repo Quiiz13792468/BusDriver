@@ -498,6 +498,23 @@ export default function GlobalActions({ students }: Props) {
                 </div>
               )}
 
+              {/* 입금: 메모 */}
+              {modal === 'payment' && (
+                <div style={{ marginBottom: 16 }}>
+                  <label style={labelStyle}>메모 (선택)</label>
+                  <textarea
+                    name="memo"
+                    placeholder="참고 사항을 입력하세요"
+                    rows={2}
+                    style={{
+                      ...inputStyle,
+                      resize: 'none',
+                      lineHeight: 1.5,
+                    }}
+                  />
+                </div>
+              )}
+
               {error && (
                 <div style={{
                   padding: '12px 14px',

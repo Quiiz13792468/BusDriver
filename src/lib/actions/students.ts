@@ -31,7 +31,7 @@ export const registerStudentAction = withActionLog('registerStudentAction', asyn
   const startDate = (formData.get('start_date') as string) || null
   const endDate = (formData.get('end_date') as string) || null
 
-  const { error } = await supabase.from('students').insert({
+  const { error } = await adminClient.from('students').insert({
     driver_id: user.id,
     school_id: schoolId || null,
     grade,
@@ -45,9 +45,11 @@ export const registerStudentAction = withActionLog('registerStudentAction', asyn
     is_active: true,
   })
 
-  if (error) return { error: '학생 등록에 실패했습니다.' }
+  if (error) return { error: '학생 등록에 실패했습니다.: ' + error.message }
 
   revalidatePath('/schools')
+  revalidatePath('/payments')
+  revalidatePath('/dashboard')
   return { error: null }
 })
 
@@ -58,6 +60,8 @@ export const updateStudentAction = withActionLog('updateStudentAction', async (
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
+
+  const adminClient = createAdminClient()
 
   const name = (formData.get('name') as string)?.trim()
   if (!name) return { error: '학생 이름을 입력해주세요.' }
@@ -71,7 +75,7 @@ export const updateStudentAction = withActionLog('updateStudentAction', async (
   const startDate = (formData.get('start_date') as string) || null
   const endDate = (formData.get('end_date') as string) || null
 
-  const { error } = await supabase
+  const { error } = await adminClient
     .from('students')
     .update({
       school_id: schoolId || null,
@@ -99,7 +103,9 @@ export const deactivateStudentAction = withActionLog('deactivateStudentAction', 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
 
-  const { error } = await supabase
+  const adminClient = createAdminClient()
+
+  const { error } = await adminClient
     .from('students')
     .update({ is_active: false })
     .eq('id', studentId)

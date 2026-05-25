@@ -1,6 +1,7 @@
 // 장부 화면 — 월별 KPI, 6개월 차트, 입금/주유 탭
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import Link from 'next/link'
 
 interface Props {
@@ -78,6 +79,8 @@ export default async function DriverPayments({ year, month, tab }: Props) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
+  const adminClient = createAdminClient()
+
   const fromDate = `${year}-${String(month).padStart(2, '0')}-01`
   const toDate = `${year}-${String(month).padStart(2, '0')}-31`
 
@@ -88,14 +91,14 @@ export default async function DriverPayments({ year, month, tab }: Props) {
 
   // 이번달 입금/주유
   const [{ data: payments }, { data: fuelRecords }] = await Promise.all([
-    supabase
+    adminClient
       .from('payments')
       .select('id, amount, paid_at, status, memo, students(name, schools(name))')
       .eq('driver_id', user.id)
       .gte('paid_at', fromDate)
       .lte('paid_at', toDate)
       .order('paid_at', { ascending: false }),
-    supabase
+    adminClient
       .from('fuel_records')
       .select('id, amount, fueled_at, memo, fuel_type, price_per_liter')
       .eq('driver_id', user.id)
@@ -121,8 +124,8 @@ export default async function DriverPayments({ year, month, tab }: Props) {
   const chartTo = `${year}-${String(month).padStart(2, '0')}-31`
 
   const [{ data: chartPay }, { data: chartFuel }] = await Promise.all([
-    supabase.from('payments').select('amount, paid_at').eq('driver_id', user.id).eq('status', 'CONFIRMED').gte('paid_at', chartFrom).lte('paid_at', chartTo),
-    supabase.from('fuel_records').select('amount, fueled_at').eq('driver_id', user.id).gte('fueled_at', chartFrom).lte('fueled_at', chartTo),
+    adminClient.from('payments').select('amount, paid_at').eq('driver_id', user.id).eq('status', 'CONFIRMED').gte('paid_at', chartFrom).lte('paid_at', chartTo),
+    adminClient.from('fuel_records').select('amount, fueled_at').eq('driver_id', user.id).gte('fueled_at', chartFrom).lte('fueled_at', chartTo),
   ])
 
   const barIncome = chartMonths.map(({ year: y, month: m }) => {

@@ -17,13 +17,13 @@ export default async function SchoolsPage() {
 
   if (!profile || profile.role !== 'DRIVER') redirect('/dashboard')
 
-  const { data: schools } = await supabase
+  const { data: schools } = await adminClient
     .from('schools')
     .select('id, name, default_fee')
     .eq('owner_driver_id', user.id)
     .order('name')
 
-  const { data: studentsRaw } = await supabase
+  const { data: studentsRaw } = await adminClient
     .from('students')
     .select('id, name, grade, ride_type, payment_day, custom_fee, school_id, phone, parent_name, parent_phone, start_date, end_date, is_active, schools(id, name, default_fee)')
     .eq('driver_id', user.id)

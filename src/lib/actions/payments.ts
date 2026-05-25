@@ -2,12 +2,15 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { withActionLog } from '@/lib/dev-logger/server-logger'
 
 export const registerPaymentAction = withActionLog('registerPaymentAction', async (formData: FormData) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
+
+  const adminClient = createAdminClient()
 
   const studentId = formData.get('student_id') as string
   const amount = parseInt(formData.get('amount') as string, 10)
@@ -21,8 +24,17 @@ export const registerPaymentAction = withActionLog('registerPaymentAction', asyn
   if (!amount || amount <= 0) return { error: '금액을 올바르게 입력해주세요.' }
   if (!paidAt) return { error: '입금일을 선택해주세요.' }
 
+  // 학생 소유권 검증
+  const { data: student, error: studentErr } = await adminClient
+    .from('students')
+    .select('driver_id')
+    .eq('id', studentId)
+    .single()
+  if (!student || student.driver_id !== user.id) return { error: '학생을 선택해주세요.' }
+
+  // service_type: migration 20260512000000 적용 후 활성화
+  // adminClient는 auth.uid()=null이므로 trigger(created_by/created_by_role)가 실패 → supabase 사용
   const insertRow: Record<string, unknown> = { student_id: studentId, amount, paid_at: paidAt, memo }
-  if (serviceType) insertRow.service_type = serviceType
 
   const { error } = await supabase.from('payments').insert(insertRow)
 
@@ -58,6 +70,8 @@ export const registerFuelAction = withActionLog('registerFuelAction', async (for
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '로그인이 필요합니다.' }
 
+  const adminClient = createAdminClient()
+
   const amount = parseInt(formData.get('amount') as string, 10)
   const fueledAt = formData.get('fueled_at') as string
   const memo = (formData.get('memo') as string)?.trim() || null
@@ -73,7 +87,7 @@ export const registerFuelAction = withActionLog('registerFuelAction', async (for
   if (fuelType) insertRow.fuel_type = fuelType
   if (pricePerLiter) insertRow.price_per_liter = pricePerLiter
 
-  const { error } = await supabase.from('fuel_records').insert(insertRow)
+  const { error } = await adminClient.from('fuel_records').insert(insertRow)
 
   if (error) return { error: '주유 등록에 실패했습니다.' }
 
