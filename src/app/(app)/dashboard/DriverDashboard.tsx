@@ -27,7 +27,7 @@ export default async function DriverDashboard({ driverName }: Props) {
 
     supabase
       .from('payments')
-      .select('id, amount, paid_at, students(name)')
+      .select('id, amount, paid_at, students(name, grade, schools(name))')
       .eq('status', 'PENDING')
       .eq('created_by_role', 'PARENT')
       .order('created_at', { ascending: false })
@@ -68,12 +68,18 @@ export default async function DriverDashboard({ driverName }: Props) {
       }
     })
 
-  const pendingPayments = (pendingRes.data ?? []).map((p) => ({
-    id: p.id,
-    amount: p.amount,
-    paid_at: p.paid_at,
-    student_name: (p.students as unknown as { name: string } | null)?.name ?? null,
-  }))
+  type StudentJoin = { name: string; grade: string | null; schools: { name: string } | null } | null
+  const pendingPayments = (pendingRes.data ?? []).map((p) => {
+    const st = p.students as unknown as StudentJoin
+    return {
+      id: p.id,
+      amount: p.amount,
+      paid_at: p.paid_at,
+      student_name: st?.name ?? null,
+      school_name: st?.schools?.name ?? null,
+      grade: st?.grade ?? null,
+    }
+  })
 
   // 매트릭스용 데이터
   const { data: { user } } = await supabase.auth.getUser()
@@ -88,7 +94,7 @@ export default async function DriverDashboard({ driverName }: Props) {
         .order('name'),
       supabase
         .from('students')
-        .select('id, name, school_id, custom_fee, schools(default_fee)')
+        .select('id, name, grade, school_id, custom_fee, schools(default_fee)')
         .eq('driver_id', user.id)
         .eq('is_active', true)
         .order('name'),
@@ -115,7 +121,7 @@ export default async function DriverDashboard({ driverName }: Props) {
       overdueList={overdueList}
       pendingPayments={pendingPayments}
       schools={matrixData.schools}
-      matrixStudents={matrixData.students as unknown as Array<{ id: string; name: string; school_id: string; custom_fee: number | null; schools: { default_fee: number } | null }>}
+      matrixStudents={matrixData.students as unknown as Array<{ id: string; name: string; grade: string | null; school_id: string; custom_fee: number | null; schools: { default_fee: number } | null }>}
       matrixPayments={matrixData.payments}
       driverName={driverName}
     />

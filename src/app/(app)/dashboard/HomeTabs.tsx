@@ -20,6 +20,8 @@ interface PendingPayment {
   amount: number
   paid_at: string
   student_name: string | null
+  school_name: string | null
+  grade: string | null
 }
 
 interface School {
@@ -30,6 +32,7 @@ interface School {
 interface MatrixStudent {
   id: string
   name: string
+  grade: string | null
   school_id: string
   custom_fee: number | null
   schools: { default_fee: number } | null
@@ -65,13 +68,6 @@ function fmtWon(n: number) {
   return '₩' + n.toLocaleString('ko-KR')
 }
 
-function formatDate(dateStr: string): string {
-  const [year, month, day] = dateStr.split('-').map(Number)
-  return `${year}년 ${month}월 ${day}일`
-}
-
-const inputClass =
-  'w-full h-12 px-4 rounded-2xl border border-[#C6C6C8] text-base bg-white focus:outline-none focus:border-[#F5A400] focus:ring-2 focus:ring-[#F5A400]/20'
 
 const AMBER = '#F5A400'
 const RED = '#FF3B30'
@@ -235,8 +231,8 @@ export default function HomeTabs({
         {/* 미납 */}
         {tab === 0 && (
           overdueList.length === 0 ? (
-            <div className="bg-white rounded-2xl mx-[14px] px-4 py-8 text-center">
-              <p className="text-sm text-[#8E8E93]">미납 학생이 없습니다</p>
+            <div style={{ background: '#fff', borderRadius: 16, margin: '0 14px', padding: '32px 16px', textAlign: 'center' }}>
+              <p style={{ fontSize: 15, color: '#8E8E93' }}>미납 학생이 없습니다</p>
             </div>
           ) : (
             <>
@@ -299,8 +295,8 @@ export default function HomeTabs({
         {tab === 1 && (
           <>
             {pendingPayments.length === 0 ? (
-              <div className="bg-white rounded-2xl mx-[14px] px-4 py-8 text-center">
-                <p className="text-sm text-[#8E8E93]">새로운 요청이 없습니다</p>
+              <div style={{ background: '#fff', borderRadius: 16, margin: '0 14px', padding: '32px 16px', textAlign: 'center' }}>
+                <p style={{ fontSize: 15, color: '#8E8E93' }}>새로운 요청이 없습니다</p>
               </div>
             ) : (
               <>
@@ -318,7 +314,9 @@ export default function HomeTabs({
                         <div style={{ fontWeight: 700, fontSize: 24, color: '#000' }}>
                           {p.student_name ?? '—'}
                         </div>
-                        <div style={{ marginTop: 1, fontSize: 16, color: LABEL }}>{formatDate(p.paid_at)}</div>
+                        <div style={{ marginTop: 1, fontSize: 16, color: LABEL }}>
+                          {[p.school_name, p.grade].filter(Boolean).join(' ')}
+                        </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
                         <div style={{ fontWeight: 700, fontSize: 22 }}>{fmtWon(p.amount)}</div>
@@ -353,8 +351,8 @@ export default function HomeTabs({
               </>
             )}
             {error && (
-              <div className="mx-[14px] px-4 py-3 rounded-2xl bg-[#FF3B30]/10 border border-[#FF3B30]/20">
-                <p className="text-sm font-medium text-[#FF3B30]">{error}</p>
+              <div style={{ margin: '0 14px', padding: '12px 16px', borderRadius: 16, background: '#FF3B3015', border: `1px solid #FF3B3033` }}>
+                <span style={{ fontSize: 14, fontWeight: 500, color: RED }}>{error}</span>
               </div>
             )}
           </>
@@ -362,7 +360,7 @@ export default function HomeTabs({
 
         {/* 입금 현황 */}
         {tab === 2 && (
-          <div className="-mx-0">
+          <div>
             <PaymentMatrix
               year={year}
               currentMonth={month}
@@ -378,25 +376,25 @@ export default function HomeTabs({
 
       {/* 입금 등록 모달 */}
       {registerTarget && mounted && createPortal(
-        <div className="fixed inset-0 z-[60] flex items-end">
-          <div className="absolute inset-0 bg-black/40" onClick={() => { setRegisterTarget(null); setError(null); setSelectedMonth(null); setServiceType('BOTH'); setPaidMonths([]) }} />
-          <div className="relative w-full bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#F2F2F7]">
+        <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'flex-end' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }} onClick={() => { setRegisterTarget(null); setError(null); setSelectedMonth(null); setServiceType('BOTH'); setPaidMonths([]) }} />
+          <div style={{ position: 'relative', width: '100%', background: '#fff', borderRadius: '24px 24px 0 0', maxHeight: '85vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px 14px', borderBottom: `1px solid #F2F2F7` }}>
               <div>
-                <h2 className="text-lg font-bold text-black">입금 등록</h2>
-                <p className="text-sm text-[#6C6C70] mt-0.5">{registerTarget.studentName}</p>
+                <div style={{ fontSize: 20, fontWeight: 700, color: '#000' }}>입금 등록</div>
+                <div style={{ fontSize: 14, color: '#6C6C70', marginTop: 2 }}>{registerTarget.studentName}</div>
               </div>
               <button
                 onClick={() => { setRegisterTarget(null); setError(null); setSelectedMonth(null); setServiceType('BOTH'); setPaidMonths([]) }}
-                className="w-9 h-9 flex items-center justify-center rounded-full bg-[#F2F2F7] text-[#6C6C70]"
+                style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: '#F2F2F7', border: 'none', color: '#6C6C70', fontSize: 16, cursor: 'pointer' }}
               >
                 ✕
               </button>
             </div>
-            <form onSubmit={handleRegisterSubmit} className="px-5 py-4 pb-8" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <form onSubmit={handleRegisterSubmit} style={{ padding: '16px 20px 32px', display: 'flex', flexDirection: 'column', gap: 16 }}>
               {/* 이용유형 */}
               <div>
-                <label className="text-sm font-medium text-[#6C6C70]" style={{ display: 'block', marginBottom: 6 }}>이용유형</label>
+                <div style={{ fontSize: 14, fontWeight: 500, color: '#6C6C70', marginBottom: 6 }}>이용유형</div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   {([['BOTH', '등하교'], ['MORNING', '등교'], ['AFTERNOON', '하교']] as const).map(([v, l]) => (
                     <button key={v} type="button" onClick={() => setServiceType(v)}
@@ -412,9 +410,9 @@ export default function HomeTabs({
 
               {/* 금액 */}
               <div>
-                <label className="text-sm font-medium text-[#6C6C70]" style={{ display: 'block', marginBottom: 6 }}>
+                <div style={{ fontSize: 14, fontWeight: 500, color: '#6C6C70', marginBottom: 6 }}>
                   금액 <span style={{ color: RED }}>*</span>
-                </label>
+                </div>
                 <input
                   name="amount"
                   type="number"
@@ -423,16 +421,16 @@ export default function HomeTabs({
                   required
                   defaultValue={registerTarget.defaultAmount || ''}
                   placeholder="0"
-                  className={inputClass}
+                  style={{ width: '100%', height: 48, padding: '0 16px', borderRadius: 16, border: `1px solid #C6C6C8`, fontSize: 16, background: '#fff', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
                 />
               </div>
 
               {/* 월 선택 */}
               <div>
-                <label className="text-sm font-medium text-[#6C6C70]" style={{ display: 'block', marginBottom: 6 }}>
+                <div style={{ fontSize: 14, fontWeight: 500, color: '#6C6C70', marginBottom: 6 }}>
                   납부 월 선택 <span style={{ color: RED }}>*</span>
                   {loadingMonths && <span style={{ marginLeft: 8, fontSize: 12, color: LABEL }}>로딩 중...</span>}
-                </label>
+                </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                   {[1,2,3,4,5,6,7,8,9,10,11,12].map((m) => {
                     const isPaid = paidMonths.includes(m)
@@ -453,7 +451,7 @@ export default function HomeTabs({
                           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
                           opacity: isFuture ? 0.3 : 1,
                         }}>
-                        <span style={{ fontSize: 16, fontWeight: 800, color }}>{m}월</span>
+                        <span style={{ fontSize: 18, fontWeight: 800, color }}>{m}월</span>
                         <span style={{ fontSize: 11, color: isSelected ? 'rgba(255,255,255,0.85)' : color, fontWeight: 600 }}>
                           {isFuture ? '' : isPaid ? '완납' : '미납'}
                         </span>
@@ -465,24 +463,24 @@ export default function HomeTabs({
 
               {/* 메모 */}
               <div>
-                <label className="text-sm font-medium text-[#6C6C70]" style={{ display: 'block', marginBottom: 6 }}>메모</label>
+                <div style={{ fontSize: 14, fontWeight: 500, color: '#6C6C70', marginBottom: 6 }}>메모</div>
                 <input
                   name="memo"
                   type="text"
                   placeholder="메모 (선택사항)"
-                  className={inputClass}
+                  style={{ width: '100%', height: 48, padding: '0 16px', borderRadius: 16, border: `1px solid #C6C6C8`, fontSize: 16, background: '#fff', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
                 />
               </div>
 
               {error && (
-                <div className="px-4 py-3 rounded-2xl bg-[#FF3B30]/10 border border-[#FF3B30]/20">
-                  <p className="text-sm font-medium text-[#FF3B30]">{error}</p>
+                <div style={{ padding: '12px 16px', borderRadius: 16, background: '#FF3B3015', border: `1px solid #FF3B3033` }}>
+                  <span style={{ fontSize: 14, fontWeight: 500, color: RED }}>{error}</span>
                 </div>
               )}
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full h-14 rounded-full bg-[#F5A400] text-white text-base font-bold disabled:opacity-60"
+                style={{ width: '100%', minHeight: 52, borderRadius: 14, background: AMBER, color: '#fff', border: 'none', fontSize: 18, fontWeight: 700, cursor: 'pointer', opacity: isPending ? 0.6 : 1 }}
               >
                 {isPending ? '등록 중...' : '등록하기'}
               </button>
@@ -494,38 +492,38 @@ export default function HomeTabs({
 
       {/* 재확인요청 모달 */}
       {disputeId && mounted && createPortal(
-        <div className="fixed inset-0 z-[60] flex items-end">
-          <div className="absolute inset-0 bg-black/40" onClick={() => { setDisputeId(null); setDisputeMemo('') }} />
-          <div className="relative w-full bg-white rounded-t-3xl">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#F2F2F7]">
-              <h2 className="text-lg font-bold text-black">재확인 요청</h2>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'flex-end' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }} onClick={() => { setDisputeId(null); setDisputeMemo('') }} />
+          <div style={{ position: 'relative', width: '100%', background: '#fff', borderRadius: '24px 24px 0 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px 14px', borderBottom: `1px solid #F2F2F7` }}>
+              <div style={{ fontSize: 20, fontWeight: 700, color: '#000' }}>재확인 요청</div>
               <button
                 onClick={() => { setDisputeId(null); setDisputeMemo('') }}
-                className="w-9 h-9 flex items-center justify-center rounded-full bg-[#F2F2F7] text-[#6C6C70]"
+                style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: '#F2F2F7', border: 'none', color: '#6C6C70', fontSize: 16, cursor: 'pointer' }}
               >
                 ✕
               </button>
             </div>
-            <div className="px-5 py-4 space-y-4 pb-8">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-[#6C6C70]">사유 (선택)</label>
+            <div style={{ padding: '16px 20px 32px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 500, color: '#6C6C70', marginBottom: 6 }}>사유 (선택)</div>
                 <input
                   type="text"
                   value={disputeMemo}
                   onChange={(e) => setDisputeMemo(e.target.value)}
                   placeholder="재확인이 필요한 이유..."
-                  className={inputClass}
+                  style={{ width: '100%', height: 48, padding: '0 16px', borderRadius: 16, border: `1px solid #C6C6C8`, fontSize: 16, background: '#fff', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
                 />
               </div>
               {error && (
-                <div className="px-4 py-3 rounded-2xl bg-[#FF3B30]/10 border border-[#FF3B30]/20">
-                  <p className="text-sm font-medium text-[#FF3B30]">{error}</p>
+                <div style={{ padding: '12px 16px', borderRadius: 16, background: '#FF3B3015', border: `1px solid #FF3B3033` }}>
+                  <span style={{ fontSize: 14, fontWeight: 500, color: RED }}>{error}</span>
                 </div>
               )}
               <button
                 onClick={handleDispute}
                 disabled={isPending}
-                className="w-full h-14 rounded-full bg-[#FF3B30] text-white text-base font-bold disabled:opacity-60"
+                style={{ width: '100%', minHeight: 52, borderRadius: 14, background: RED, color: '#fff', border: 'none', fontSize: 18, fontWeight: 700, cursor: 'pointer', opacity: isPending ? 0.6 : 1 }}
               >
                 {isPending ? '처리 중...' : '재확인요청 보내기'}
               </button>

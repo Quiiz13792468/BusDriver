@@ -49,7 +49,7 @@ export default async function DriverBoard({ userId, tab, schoolFilter }: Props) 
   if (tab === 'messages') {
     const { data: msgs } = await supabase
       .from('board_messages')
-      .select('id, parent_id, content, created_at, is_read, profiles!board_messages_parent_id_fkey(full_name)')
+      .select('id, parent_id, content, created_at, is_read, profiles!board_messages_parent_id_fkey(full_name), students!board_messages_tagged_student_id_fkey(name, schools(name))')
       .eq('driver_id', userId)
       .order('created_at', { ascending: false })
 

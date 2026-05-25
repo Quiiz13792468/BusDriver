@@ -10,6 +10,7 @@ interface Conversation {
   created_at: string
   is_read: boolean
   profiles: unknown
+  students: unknown
 }
 
 interface Props {
@@ -46,7 +47,11 @@ export default function MessageList({ conversations, role }: Props) {
       <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {conversations.map((c, i) => {
           const profile = c.profiles as { full_name?: string } | null
+          const student = c.students as { name?: string; schools?: { name?: string } | null } | null
           const unread = !c.is_read
+          const studentLabel = student?.name
+            ? `${student.name}${student.schools?.name ? `, ${student.schools.name}` : ''}`
+            : null
           return (
             <li key={c.parent_id} style={{ borderBottom: '1px solid #F2F2F7' }}>
               <Link
@@ -60,6 +65,9 @@ export default function MessageList({ conversations, role }: Props) {
                     </span>
                     <span style={{ fontSize: 13, color: '#8E8E93', flexShrink: 0 }}>{formatRelativeTime(c.created_at)}</span>
                   </div>
+                  {studentLabel && (
+                    <div style={{ fontSize: 13, color: '#8E8E93', marginTop: 2 }}>{studentLabel}</div>
+                  )}
                   <p style={{ fontSize: 15, color: unread ? '#111' : '#666', fontWeight: unread ? 700 : 400, margin: '4px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.content}</p>
                 </div>
               </Link>

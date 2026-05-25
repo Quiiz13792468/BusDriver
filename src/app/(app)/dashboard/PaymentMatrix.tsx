@@ -15,6 +15,7 @@ interface School {
 interface Student {
   id: string
   name: string
+  grade: string | null
   school_id: string
   custom_fee: number | null
   schools: { default_fee: number } | null
@@ -128,7 +129,7 @@ export default function PaymentMatrix({ year, currentMonth, schools, students, p
       >
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 17, fontWeight: 700, color: '#111', lineHeight: 1.3 }}>{student.name}</div>
-          <div style={{ fontSize: 13, color: IOS.label, marginTop: 2 }}>{schoolName}</div>
+          <div style={{ fontSize: 13, color: IOS.label, marginTop: 2 }}>{schoolName}{student.grade ? `, ${student.grade}` : ''}</div>
           {allPaid ? (
             <div style={{ marginTop: 6, fontSize: 13, color: IOS.green, fontWeight: 600 }}>✓ 모든 월 완납</div>
           ) : (
