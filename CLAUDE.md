@@ -1,5 +1,7 @@
 # BusDriver — school bus management web app
 
+> **응답 언어: 한국어.** J에게 하는 모든 답변은 한국어로 쓴다 (이 파일이 영어여도). 영어는 코드와 명령어 안에서만.
+
 Mobile-first web app where bus drivers (age 50–80) and parents (age 50–70) manage students, payments, and fuel for school buses.
 Shared rules are in the parent `../CLAUDE.md`.
 Domain rules and data structures: `AGENTS.md`; review criteria: `REVIEW.md`; task list: `Todo.md`.
