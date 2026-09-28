@@ -43,3 +43,10 @@ next-env.d.ts
 
 # dev logs (개발 모드 전용 로그 — 커밋하지 않음)
 .dev-logs/
+
+# 로컬 도구 상태 (세션 캐시, 개인 설정)
+.omc/
+.claude/settings.local.json
+.claude/worktrees/
+.claude/scheduled_tasks.lock
+test-results/

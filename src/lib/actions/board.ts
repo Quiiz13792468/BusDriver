@@ -26,7 +26,7 @@ export const createNoticeAction = withActionLog('createNoticeAction', async (for
   if (!title) return { error: '제목을 입력해주세요.' }
   if (!content) return { error: '내용을 입력해주세요.' }
 
-  const { error } = await supabase.from('board_posts').insert({
+  const { error } = await adminClient.from('board_posts').insert({
     driver_id: user.id,
     school_id: schoolId,
     title,

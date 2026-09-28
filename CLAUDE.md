@@ -1,199 +1,82 @@
-# CLAUDE.md
+# BusDriver — school bus management web app
 
-## 실행 강제 규칙
+Mobile-first web app where bus drivers (age 50–80) and parents (age 50–70) manage students, payments, and fuel for school buses.
+Shared rules are in the parent `../CLAUDE.md`.
+Domain rules and data structures: `AGENTS.md`; review criteria: `REVIEW.md`; task list: `Todo.md`.
+Progress log (Obsidian): `E:\Work\Brain\10_Projects\BusDriver\BusDriver MOC.md`
 
-- 모든 작업은 project-lead를 통해서만 시작한다
-- 직접 구현하지 않고 반드시 planner → architect 단계를 거친다
-- subagent 구조를 생략하지 않는다
-- Claude 기본 executor 병렬 모드를 우선 사용하지 않는다
+## Commands
 
-## Task 완료 후 필수 절차 (순서 엄수)
-
-1. **자체 재검증**: 구현한 코드의 버그, 로직 오류, 타입 오류, 권한 누락을 직접 점검한다
-2. **빌드 확인**: `npm run build` 통과 확인
-3. **push**: 문제 없을 때만 `git push`
-4. **compact**: `/compact` 실행
-5. **다음 task 진행**
-
-- 재검증 없이 push하지 않는다.
-- compact 없이 다음 task를 시작하지 않는다.
-
-## 응답 및 보고 원칙
-- 답변과 보고는 한국어로 작성한다.
-- 변경 제안 시 항상 영향 범위를 먼저 설명한다.
-- 추측과 확인된 사실을 구분한다.
-- 큰 변경 전에는 먼저 계획을 제시한다.
-- 작업이 길어져 품질 저하 위험이 생기면 무리하게 계속 진행하지 않는다.
-- 이 경우 현재 진행 상황, 완료 항목, 남은 작업, 리스크를 한국어로 브리핑한다.
-- 브리핑 전 `Todo.md`를 최신 상태로 갱신한다.
-
-## 작업 관리 원칙
-- 새로운 기능 요청, 버그, 코드리뷰 이슈, 보안 체크 항목, 오류 이력은 `Todo.md`에 추가한다.
-- 이미 존재하는 이슈와 중복되면 새로 만들지 말고 기존 항목을 갱신한다.
-- 완료된 작업은 `Todo.md`에서 `[x]`로 표시한다.
-- 작업 중 발견한 후속 개선점도 `Todo.md`에 남긴다.
-- `Todo.md`는 이 프로젝트의 단일 작업 관리 기준 문서로 취급한다.
-- 요청사항이 완료되면 push를 한다.
-
-## 기본 개발 원칙
-- 기존 아키텍처/네이밍/레이어를 우선 존중한다.
-- 불필요한 리팩터링은 제안하거나 수행하지 않는다.
-- 변경은 가능한 한 작은 단위로 나눈다.
-- 테스트 가능하면 테스트 관점 또는 검증 포인트를 함께 본다.
-- 기존 기능 회귀 가능성을 항상 점검한다.
-- UI 변경은 기능 구현만 보지 말고 실제 사용성까지 함께 고려한다.
-
-## 역할 구조 (v2 확정)
-
-| 역할 | 설명 | 비고 |
-|---|---|---|
-| **ADMIN** | 서비스 운영자 (개발자 본인) | Phase 2에서 별도 관리 화면 구성 |
-| **DRIVER** | 버스기사 (핵심 사용자) | 전체 기능 접근. v1의 ADMIN role 대체 |
-| **PARENT** | 학부모 | 간소화된 화면. 자녀 정보 조회/이의제기만 가능 |
-
-- `profiles.role` CHECK: `('ADMIN', 'DRIVER', 'PARENT')`
-- 역할 판별 기준: `auth.uid()` + `profiles.role` (NextAuth 완전 제거, Supabase Auth 직접 사용)
-- 가입 경로: DRIVER/PARENT 모두 초대 링크 경유만 허용 (public signup 비활성화)
-
-## 프로젝트 구현 원칙
-- PARENT는 이용금액(custom_fee), 이용정지일(suspended_until)을 수정할 수 없다.
-- 목록 조회 시 inactive 학생은 기본 제외한다.
-- 모바일에서 숫자 입력은 가능하면 숫자 키패드를 유도한다.
-- SweetAlert2는 간단 입력에만 사용하고, 긴 폼은 페이지 또는 드로어를 우선 검토한다.
-- DRIVER/PARENT 역할 분기를 명확히 유지한다. (삼중 가드: 미들웨어 + 서버 컴포넌트 + RLS)
-- 입금은 누적 계산을 기준으로 처리한다.
-- 학생별 이용금액(students.custom_fee)이 학교별 기본값(schools.default_fee)보다 우선한다.
-- 이용 정지 학생은 삭제가 아니라 inactive 상태로 유지한다.
-
-## UI/UX 원칙
-- 모바일 우선으로 구현한다.
-- 주요 사용자는 고령층과 IT 비숙련 사용자다.
-- 글자 크기는 최소 18px 이상을 기본으로 고려한다.
-- 버튼/터치 영역은 최소 48px 이상을 기본으로 고려한다.
-- 주요 액션 버튼은 가능한 한 하단 고정을 우선 고려한다.
-- 한 화면에는 하나의 주요 액션을 우선 배치한다.
-- 복잡한 테이블 UI보다 카드/리스트 중심 구조를 우선 검토한다.
-- hover 기반 기능, 숨겨진 기능은 지양한다.
-- 경고/오류는 명확하게 드러나야 한다.
-
-## Supabase / 데이터 원칙
-- 사용자 앱 프로필은 `profiles`를 기준으로 사용한다.
-- 권한 검토는 `profiles.role`과 `auth.uid()` 기준으로 본다.
-- 레거시 `users`, `auth_user_id`, `receiver_id` 전제를 신규 기준으로 사용하지 않는다.
-- 학생, 결제, 알림, 게시판 관련 변경은 권한과 데이터 노출 위험을 먼저 점검한다.
-- RLS와 앱 코드 전제가 일치하는지 항상 확인한다.
-- 스키마 변경 시 마이그레이션 영향과 기존 앱 코드 영향을 함께 검토한다.
-
-## Todo.md 관리 규칙
-- 긴급 이슈는 `🔥 Critical`에 추가한다.
-- 구조 개선이나 중장기 개선은 `🧠 Backlog`에 추가한다.
-- 보안 이슈는 `🔒 Security`에 추가한다.
-- 구현 후 확인이 필요한 항목은 `🧪 Verification Needed`에 추가한다.
-- 완료된 항목은 `[x]`로 표시하고 완료된 작업 섹션으로 이동할 수 있다.
-
-## 작업 운영 원칙
-
-- 새로운 요청사항, 버그, 코드리뷰 이슈, 보안 점검 항목, 오류 이력은 `Todo.md`에 추가한다.
-- 완료된 작업은 `Todo.md`에서 `[x]`로 표시한다.
-- 큰 변경은 반드시 계획을 먼저 수립한다.
-- 구조 변경은 architect 또는 supabase-architect 검토를 우선한다.
-- UI/UX 변경은 design-principal 또는 reviewer-ux 관점까지 확인한다.
-- 품질 저하 위험이 생길 정도로 작업 범위가 커지면, 무리하게 진행하지 않고 현재 상태를 한국어로 브리핑한다.
-- 'Todo.md'에 항목이 완료되면 반드시 'qa-verifier' 를 호출해서 수정한 사항에 대해 검증 작업을 가진다.
-
-## 리뷰 결과 처리 규칙
-
-- reviewer-general / reviewer-security / reviewer-ux 결과는 반드시 Todo.md에 반영한다.
-- high 이상 이슈는 자동으로 Todo에 등록한다.
-- 반복 가능 문제는 backlog가 아닌 Critical 또는 Backlog로 분류한다.
-
-## 서브에이전트 호출 기준
-
-### 총괄
-- `project-lead`
-  - 요청을 해석하고 적절한 에이전트를 조합한다.
-  - 최종 브리핑은 한국어로 보고한다.
-
-### 계획 / 설계
-- `planner`
-  - 요구사항 분석, 범위 정리, 단계별 계획 수립
-- `architect`
-  - 구조 설계, 책임 분리, 데이터/화면 흐름 설계
-- `supabase-architect`
-  - DB 스키마, RLS, 권한, 정책 정합성 검토
-- `design-principal`
-  - Impeccable 기반 디자인 방향과 UX 흐름 설계
-
-### 구현 / 검증
-- `developer`
-  - 실제 코드 구현, CamelCase 규칙 준수
-- `qa-verifier`
-  - 구현 결과 검증, 누락/회귀/권한/UX 확인
-
-### 리뷰
-- `reviewer-general`
-  - 기능 정확성, 회귀, 도메인 로직 검토
-- `reviewer-security`
-  - 인증, 권한, RLS, 데이터 노출 검토
-- `reviewer-ux`
-  - 모바일/고령 사용자 기준 UX 검토
-
-## 권장 작업 흐름
-
-### 일반 기능 수정
-`project-lead → planner → architect → developer → qa-verifier → reviewer-general`
-
-### UI/UX 개선
-`project-lead → planner → design-principal → architect → developer → qa-verifier → reviewer-ux`
-
-### Supabase / 권한 변경
-`project-lead → planner → supabase-architect → developer → qa-verifier → reviewer-security`
-
-### 복합 작업
-- 필요 시 `project-lead`가 위 흐름을 조합한다.
-- 모든 요청에 모든 에이전트를 호출하지 않는다.
-- 작업 성격에 맞는 최소 조합만 사용한다.
-
-## 금지 사항
-- 범위를 불필요하게 확장하지 않는다.
-- 확인하지 않은 내용을 사실처럼 쓰지 않는다.
-- UI/UX가 중요한 프로젝트인데 구현 편의만 보고 의사결정하지 않는다.
-- 권한/보안 문제를 단순 기능 이슈로 축소하지 않는다.
-- `Todo.md`를 갱신하지 않고 작업 상태를 완료 처리하지 않는다.
-
----
-
-## v2 구현 금지 패턴
-
-### [금지 1] 테이블 셀 텍스트 세로 줄바꿈
-- `<table>` 사용 시 `overflow-x-auto` 래퍼 + `whitespace-nowrap` 필수
-- 대안 우선순위: 카드/리스트 > 가로 스크롤 테이블 > 컬럼 축소
-
-### [금지 2] 헤더·탭바 콘텐츠 겹침
-- 모든 페이지 본문 `pt-[--header-h]` + `pb-nav-safe` 필수
-- "화면 일부가 잘린다" 리포트는 blocker
-
-### [금지 3] 과한 padding/margin으로 데이터 밀도 저하
-- 카드 내부 padding: 최대 `p-3` / 컴팩트 뷰 `p-2`
-- `p-4` 이상은 이유 없으면 즉시 반려
-
----
-
-## CSS 변수 토큰 (globals.css 단일 관리)
-
-```css
---header-h:       56px;
---bottom-nav-h:   64px;
---ad-banner-h:    50px;
---control-height: 48px;
---space-card:     12px;
---space-compact:   8px;
---space-list-gap:  8px;
---space-section:  12px;
-
-.pb-nav-safe {
-  padding-bottom: calc(
-    var(--bottom-nav-h) + var(--ad-banner-h) + env(safe-area-inset-bottom, 0px)
-  );
-}
+```bash
+npm run dev      # dev server (Next.js)
+npm run build    # production build
+npm run lint     # ESLint
+npm run seed     # DB seed (requires .env.local)
 ```
+
+## Architecture
+- **Stack**: Next.js 14 App Router + Supabase Auth + Supabase DB
+- **Directories**: `src/app/(app)/` — authenticated DRIVER screens, `src/app/(auth)/` — login
+- **Auth**: Supabase Auth directly (NextAuth removed)
+- **Triple permission guard**: middleware + server components + RLS
+
+## Roles
+| Role | Description |
+|------|------|
+| DRIVER | Core user (bus driver), full access |
+| PARENT | Parent; can only view their children and file disputes |
+| ADMIN | Service operator (Phase 2) |
+
+- Determined by `profiles.role`, combined with `auth.uid()` + RLS
+
+## UI/UX principles
+- Mobile first; main users are elderly / not IT-savvy
+- Text at least 18px, touch targets at least 48px
+- Primary action buttons pinned to the bottom when possible
+- Prefer cards/lists over tables
+
+## CSS tokens (globals.css)
+```css
+--header-h: 56px; --bottom-nav-h: 64px; --ad-banner-h: 50px;
+--control-height: 48px; --space-card: 12px;
+/* .pb-nav-safe = bottom-nav-h + ad-banner-h + safe-area */
+```
+
+## Forbidden patterns
+- Table cell text wrapping vertically — `whitespace-nowrap` required
+- Content overlapping header/tab bar — `pt-[--header-h]` + `pb-nav-safe` required
+- Card padding `p-4` or larger (rejected without a reason)
+
+## Task management
+- Every issue/feature/bug is added to `Todo.md` and marked when done
+- After finishing: self-verify → `npm run build` → `git push`
+
+## Agent workflow
+- General feature: `project-lead → planner → architect → developer → qa-verifier`
+- UI change: include `→ design-principal`
+- DB/permissions: include `→ supabase-architect → reviewer-security`
+
+# Extra working rules for this project
+
+## Korean file header comments
+**First line of every new source file: a one-line Korean comment stating its role.**
+- TypeScript/JavaScript: `// 사용자 인증 상태를 관리하는 Context Provider`
+- Python: `# KIS API 호출을 비동기로 래핑하는 클라이언트`
+- SQL: `-- 일별 집계 결과를 저장하는 머티리얼라이즈드 뷰`
+- Place it directly under required directives (`'use client'`, `'use server'`, shebang). Skip config files (`*.config.ts`, `package.json`, etc.).
+
+Why: agents read files selectively. A one-line header lets the next session navigate without rereading whole files.
+
+## Plan + checklist + context notes
+**Before any non-trivial task, produce three artifacts; don't start coding without them.**
+- **Plan** — what we're building and why.
+- **Checklist** (`checklist.md`) — concrete tasks as checkboxes, ticked as you go.
+- **Context notes** (`context-notes.md`) — decisions made during the work and their reasons, appended continuously.
+
+If the user gives only a plan and asks you to start coding, ask: "체크리스트와 컨텍스트 노트를 먼저 만들까요?"
+
+## Semantic commits
+**Commit when one logical change is complete; don't wait to be asked.**
+- Test: "Can I describe this commit in one sentence?" If not, split it.
+- Good: "auth 미들웨어 추가". Bad: "auth 추가하고 UI도 고치고 버그도 수정" (split into 3).
+- Don't accumulate unrelated edits; don't commit just to commit. For throwaway prototypes, group loosely. The point is reversibility.
